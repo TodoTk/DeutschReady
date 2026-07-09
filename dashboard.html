@@ -1392,7 +1392,24 @@ function showNotif(title,msg){
 /* ── INIT ── */
 document.getElementById('admin-link').style.display = 'block';
 renderHints('student');
-restoreSession();
+
+// Önce Supabase'den modül setlerini + schreiben sorularını çek → localStorage'a yaz
+// (dashboard render bunları senkron okuyor)
+(async function preloadContent(){
+  if (typeof USE_SUPABASE !== 'undefined' && USE_SUPABASE) {
+    try {
+      const [sets, sch] = await Promise.all([
+        sbLoadModuleSets(),
+        sbLoadSchreiben()
+      ]);
+      localStorage.setItem('examready_module_sets_v1', JSON.stringify(sets));
+      localStorage.setItem('examready_schreiben_v1', JSON.stringify(
+        sch.map(r=>({id:r.id,type:r.type,level:r.level,setNo:r.set_no,task:r.task,points:r.points||[],example:r.example,criteria:r.criteria}))
+      ));
+    } catch(e) { console.error('İçerik ön yüklenemedi:', e); }
+  }
+  restoreSession();
+})();
 </script>
 </body>
 </html>

@@ -192,6 +192,8 @@
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script>
 const params    = new URLSearchParams(location.search);
 const MODULE    = params.get('module') || '';   // B1_LSV | B1_SPB | B1_LSV_T1 | ...
@@ -200,7 +202,17 @@ const MODE      = params.get('mode') || 'exam';
 const isStudy   = MODE === 'study';
 const MODUL_KEY = 'examready_module_sets_v1';
 
-/* ── Veri yükle ── */
+/* ── Veri yükle (Supabase varsa oradan, yoksa localStorage) ── */
+async function getAllSetsAsync() {
+  if (USE_SUPABASE) {
+    try {
+      const sets = await sbLoadModuleSets();
+      localStorage.setItem(MODUL_KEY, JSON.stringify(sets));  // offline cache
+      return sets;
+    } catch(e) { console.error('Supabase yüklenemedi:', e); }
+  }
+  return getAllSets();
+}
 function getAllSets() {
   try { return JSON.parse(localStorage.getItem(MODUL_KEY)||'{}'); } catch(e){ return {}; }
 }
@@ -502,11 +514,11 @@ function submitExam() {
 /* ─────────────────────────────────────────────────
    INIT
 ──────────────────────────────────────────────────*/
-(function init(){
+(async function init(){
   // Mode banner — şimdilik devre dışı
   // const banner=document.getElementById('mode-banner');
 
-  const all = getAllSets();
+  const all = await getAllSetsAsync();
 
   // Hangi bölümler yüklenecek?
   // B1_LSV → T1+T2+T3 birleşik

@@ -410,6 +410,8 @@ input,select,textarea{font-family:inherit;}
 
 <div class="notif" id="notif"><strong id="n-title"></strong><span id="n-msg"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script>
 /* ─────────────────────────────────────────────
    AUTH
@@ -527,14 +529,14 @@ let editingId          = null;
 /* ─────────────────────────────────────────────
    TAB NAVIGATION
 ───────────────────────────────────────────── */
-function switchTab(name) {
+async function switchTab(name) {
   const names=['hoer','modul','schreiben','stats','settings'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', names[i]===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if (name==='stats')     loadStats();
-  if (name==='modul')     { initModulSel(); renderModulList(); }
-  if (name==='schreiben') renderSchreibenList();
+  if (name==='modul')     { initModulSel(); await refreshModulListFromCloud(); }
+  if (name==='schreiben') await refreshSchreibenFromCloud();
 }
 
 /* ─────────────────────────────────────────────
@@ -800,10 +802,32 @@ const MODUL_TYPES = {
   B1_SPB_T2: { label:'B1 Sprachbausteine T2 (Sor. 31–40)', structure:'spb-t2' },
 };
 
-function loadModulSets() {
+// Bellek önbelleği — Supabase'den çekilen modül setleri
+let _modulCache = null;
+
+async function loadModulSetsAsync() {
+  if (USE_SUPABASE) {
+    try {
+      _modulCache = await sbLoadModuleSets();
+      localStorage.setItem(MODUL_KEY, JSON.stringify(_modulCache));  // offline cache
+      return _modulCache;
+    } catch(e) {
+      console.error('Supabase yüklenemedi, localStorage kullanılıyor:', e);
+    }
+  }
   try { return JSON.parse(localStorage.getItem(MODUL_KEY)||'{}'); } catch(e){ return {}; }
 }
-function saveModulSets(d){ localStorage.setItem(MODUL_KEY, JSON.stringify(d)); }
+
+// Senkron çağrılar için önbellek kullanılır
+function loadModulSets() {
+  if (_modulCache) return _modulCache;
+  try { return JSON.parse(localStorage.getItem(MODUL_KEY)||'{}'); } catch(e){ return {}; }
+}
+
+function saveModulSets(d){
+  _modulCache = d;
+  localStorage.setItem(MODUL_KEY, JSON.stringify(d));
+}
 
 let currentModulType = 'B1_LSV_T1';
 
@@ -961,7 +985,7 @@ function closeModulForm() {
   document.getElementById('modul-form').classList.remove('open');
 }
 
-function saveModulSet() {
+async function saveModulSet() {
   const moduleKey = document.getElementById('mf-module').value;
   const setNum    = parseInt(document.getElementById('mf-set').value);
   const structure = MODUL_TYPES[moduleKey]?.structure;
@@ -1025,9 +1049,22 @@ function saveModulSet() {
   if (!sets[moduleKey]) sets[moduleKey] = {};
   sets[moduleKey][setNum] = { hasContent: true, structure, content, updatedAt: new Date().toISOString() };
   saveModulSets(sets);
+
+  // Supabase'e yaz
+  if (USE_SUPABASE) {
+    try { await sbSaveModuleSet(moduleKey, setNum, structure, content); }
+    catch(e) { showNotif('Uyarı','Supabase yazma hatası: '+e.message, true); }
+  }
+
   closeModulForm();
-  renderModulList();
+  await refreshModulListFromCloud();
   showNotif('Kaydedildi ✓', `${MODUL_TYPES[moduleKey]?.label} – Set ${setNum} kaydedildi.`);
+}
+
+// Cloud'dan çek, cache güncelle, render et
+async function refreshModulListFromCloud() {
+  await loadModulSetsAsync();
+  renderModulList();
 }
 
 function renderModulList() {
@@ -1126,11 +1163,14 @@ function editModulSet(key, n) {
   }, 100);
 }
 
-function deleteModulSet(key, n) {
+async function deleteModulSet(key, n) {
   if (!confirm(`Set ${n} silinsin mi?`)) return;
   const sets = loadModulSets();
   if (sets[key]) delete sets[key][n];
   saveModulSets(sets);
+  if (USE_SUPABASE) {
+    try { await sbDeleteModuleSet(key, n); } catch(e) { console.error(e); }
+  }
   renderModulList();
   showNotif('Silindi', `Set ${n} kaldırıldı.`);
 }
@@ -1139,8 +1179,30 @@ function deleteModulSet(key, n) {
    SCHREIBEN HAVUZU
 ───────────────────────────────────────────── */
 const SCH_KEY = 'examready_schreiben_v1';
-function loadSchreiben() { try { return JSON.parse(localStorage.getItem(SCH_KEY)||'[]'); } catch(e){ return []; } }
-function saveSchreiben(d) { localStorage.setItem(SCH_KEY, JSON.stringify(d)); }
+let _schCache = null;
+
+async function refreshSchreibenFromCloud() {
+  if (USE_SUPABASE) {
+    try {
+      const rows = await sbLoadSchreiben();
+      _schCache = rows.map(r => ({
+        id: r.id, type: r.type, level: r.level, setNo: r.set_no,
+        task: r.task, points: r.points || [], example: r.example, criteria: r.criteria
+      }));
+      localStorage.setItem(SCH_KEY, JSON.stringify(_schCache));
+    } catch(e) { console.error('Supabase schreiben yüklenemedi:', e); }
+  }
+  renderSchreibenList();
+}
+
+function loadSchreiben() {
+  if (_schCache) return _schCache;
+  try { return JSON.parse(localStorage.getItem(SCH_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveSchreiben(d) {
+  _schCache = d;
+  localStorage.setItem(SCH_KEY, JSON.stringify(d));
+}
 
 function openSchreibenForm(editId) {
   document.getElementById('sch-form-title').textContent = editId ? 'Soruyu Düzenle' : 'Yeni Yazma Sorusu';
@@ -1165,7 +1227,7 @@ function openSchreibenForm(editId) {
 }
 function closeSchreibenForm() { document.getElementById('sch-form').classList.remove('open'); }
 
-function saveSchreibenQ() {
+async function saveSchreibenQ() {
   const task = document.getElementById('sf-task').value.trim();
   if (!task) { showNotif('Hata','Görev metni gerekli.',true); return; }
   const list   = loadSchreiben();
@@ -1188,8 +1250,19 @@ function saveSchreibenQ() {
     list.push(q);
   }
   saveSchreiben(list);
+
+  // Supabase'e yaz (snake_case dönüşüm)
+  if (USE_SUPABASE) {
+    try {
+      await sbSaveSchreibenQ({
+        id: q.id, type: q.type, level: q.level, set_no: q.setNo,
+        task: q.task, points: q.points, example: q.example, criteria: q.criteria
+      });
+    } catch(e) { showNotif('Uyarı','Supabase yazma hatası: '+e.message, true); }
+  }
+
   closeSchreibenForm();
-  renderSchreibenList();
+  await refreshSchreibenFromCloud();
   showNotif('Kaydedildi ✓', `Schreiben sorusu (${q.type}) eklendi. Toplam: ${list.length}`);
 }
 
@@ -1213,9 +1286,12 @@ function renderSchreibenList() {
     </div>`).join('');
 }
 
-function deleteSchreibenQ(id) {
+async function deleteSchreibenQ(id) {
   if (!confirm('Bu soru silinsin mi?')) return;
   saveSchreiben(loadSchreiben().filter(x=>x.id!==id));
+  if (USE_SUPABASE) {
+    try { await sbDeleteSchreibenQ(id); } catch(e) { console.error(e); }
+  }
   renderSchreibenList();
   showNotif('Silindi','Schreiben sorusu kaldırıldı.');
 }

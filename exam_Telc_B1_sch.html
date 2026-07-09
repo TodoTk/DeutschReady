@@ -74,6 +74,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script>
 const SESSION_KEY = 'examready_session_v1';
 const SCH_KEY     = 'examready_schreiben_v1';
@@ -84,20 +86,33 @@ function getSession() {
 function getMode() {
   return new URLSearchParams(location.search).get('mode') || 'exam';
 }
-function loadPool() {
+
+async function loadPoolAsync() {
+  if (USE_SUPABASE) {
+    try {
+      const rows = await sbLoadSchreiben();
+      const list = rows.map(r => ({
+        id: r.id, type: r.type, level: r.level, setNo: r.set_no,
+        task: r.task, points: r.points || [], example: r.example, criteria: r.criteria
+      }));
+      localStorage.setItem(SCH_KEY, JSON.stringify(list));
+      return list;
+    } catch(e) { console.error('Supabase schreiben yüklenemedi:', e); }
+  }
   try { return JSON.parse(localStorage.getItem(SCH_KEY)||'[]'); } catch(e){ return []; }
 }
 
 let currentQ = null;
+let poolCache = [];
 const isStudy = getMode() === 'study';
 
-function loadRandom() {
-  const pool = loadPool().filter(q => q.level === (getSession()?.level || 'B1') || true);
-  if (!pool.length) {
+async function loadRandom() {
+  if (!poolCache.length) poolCache = await loadPoolAsync();
+  if (!poolCache.length) {
     document.getElementById('question-area').innerHTML = '<div class="empty-state">📭 Henüz soru eklenmedi.<br><a href="admin.html" style="color:var(--accent);font-weight:700;">Admin panelinden</a> soru ekleyin.</div>';
     return;
   }
-  currentQ = pool[Math.floor(Math.random() * pool.length)];
+  currentQ = poolCache[Math.floor(Math.random() * poolCache.length)];
   renderQ(currentQ);
 }
 
