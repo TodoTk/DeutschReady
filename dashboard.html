@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Giriş Yap – ExamReady</title>
+<style>
+:root {
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;
+  --accent:#4f8ef7;--accent2:#7c5cfc;--green:#22c55e;
+  --yellow:#fbbf24;--red:#f87171;
+  --text:#e8eaf0;--muted:#8b90a7;--border:#2a2d3e;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.97);position:sticky;top:0;z-index:200;}
+.logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar-right{display:flex;align-items:center;gap:1rem;}
+.back-link{font-size:.82rem;color:var(--muted);}
+.back-link:hover{color:var(--accent);}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:7px;font-size:.82rem;display:none;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* LOGIN PAGE */
+#page-login{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 57px);padding:2rem;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.2rem;width:100%;max-width:440px;}
+.login-box h2{font-size:1.4rem;font-weight:800;margin-bottom:.3rem;}
+.login-box p{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;}
+.role-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;}
+.rtab{flex:1;padding:.55rem;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.88rem;font-weight:600;transition:all .2s;}
+.rtab.active{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.1);}
+.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;}
+.field label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;outline:none;}
+.field input:focus{border-color:var(--accent);}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.8rem;border-radius:9px;font-weight:700;font-size:.95rem;margin-top:.3rem;}
+.login-btn:hover{opacity:.88;}
+.err{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none;}
+.hint-box{margin-top:1.4rem;background:var(--surface2);border-radius:9px;padding:1rem;}
+.hint-box p{font-size:.76rem;color:var(--muted);margin-bottom:.5rem;font-weight:700;}
+.hint-grid{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;}
+.hint-item{font-size:.74rem;color:var(--muted);padding:.25rem .4rem;background:var(--bg);border-radius:5px;cursor:pointer;transition:color .2s;}
+.hint-item:hover{color:var(--accent);}
+.hint-item span{color:var(--text);}
+
+/* DASHBOARD */
+#page-dash{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
+.dash-header{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
+.avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0;}
+.dash-header h1{font-size:1.4rem;font-weight:800;}
+.dash-header p{font-size:.85rem;color:var(--muted);}
+.role-badge{display:inline-block;padding:.2rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:.5rem;}
+.role-badge.student{background:rgba(79,142,247,.15);color:var(--accent);border:1px solid rgba(79,142,247,.3);}
+.role-badge.instructor{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+
+/* CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem;}
+.stat-card .num{font-size:1.8rem;font-weight:900;color:var(--accent);}
+.stat-card .lbl{font-size:.78rem;color:var(--muted);}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;}
+@media(max-width:700px){.grid2{grid-template-columns:1fr;}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;}
+.panel h3{font-size:.9rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+.panel h3 span{font-size:1rem;}
+
+/* SESSION LIST */
+.session-item{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--border);}
+.session-item:last-child{border-bottom:none;}
+.s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.s-info{flex:1;font-size:.83rem;}
+.s-info strong{display:block;font-weight:600;}
+.s-info span{color:var(--muted);font-size:.77rem;}
+.s-tag{font-size:.7rem;font-weight:700;padding:.15rem .5rem;border-radius:5px;}
+.tag-live{background:rgba(34,197,94,.2);color:var(--green);}
+.tag-soon{background:rgba(251,191,36,.15);color:var(--yellow);}
+.tag-done{background:rgba(139,144,167,.12);color:var(--muted);}
+.tag-1left{background:rgba(251,191,36,.18);color:var(--yellow);}
+
+/* CALENDAR (2-week, 30-min slots) */
+.week-tabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
+.wtab{flex:1;padding:.45rem;border-radius:7px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.78rem;font-weight:600;}
+.wtab.active{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.1);}
+.day-rail{display:flex;gap:.35rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.8rem;}
+.day-pill{flex-shrink:0;min-width:54px;text-align:center;padding:.5rem .3rem;border-radius:9px;border:1px solid var(--border);cursor:pointer;background:var(--surface2);transition:all .15s;}
+.day-pill .dp-dow{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.day-pill .dp-num{font-size:1.05rem;font-weight:800;margin:.1rem 0;}
+.day-pill .dp-dot{width:5px;height:5px;border-radius:50%;background:var(--green);margin:0 auto;}
+.day-pill.sel{border-color:var(--accent);background:rgba(79,142,247,.12);}
+.day-pill.none .dp-dot{background:var(--border);}
+.slot-list{display:flex;flex-direction:column;gap:.4rem;max-height:280px;overflow-y:auto;padding-right:.2rem;}
+.tslot{display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:8px;border:1px solid var(--border);font-size:.82rem;}
+.tslot .ts-time{font-weight:700;width:48px;flex-shrink:0;}
+.tslot .ts-info{flex:1;color:var(--muted);font-size:.76rem;}
+.tslot .ts-info strong{color:var(--text);display:block;font-size:.8rem;}
+.tslot.open{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.06);cursor:pointer;}
+.tslot.open:hover{background:rgba(34,197,94,.13);}
+.tslot.half{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06);cursor:pointer;}
+.tslot.half:hover{background:rgba(251,191,36,.13);}
+.tslot.full{opacity:.45;}
+.tslot.empty{color:var(--muted);font-style:italic;justify-content:center;}
+.ts-tag{font-size:.65rem;font-weight:700;padding:.1rem .45rem;border-radius:5px;flex-shrink:0;}
+.tag-open2{background:rgba(34,197,94,.18);color:var(--green);}
+.tag-open1{background:rgba(251,191,36,.18);color:var(--yellow);}
+.tag-full{background:rgba(139,144,167,.15);color:var(--muted);}
+
+/* INSTRUCTOR: open/close lesson slots */
+.instr-slot-row{display:flex;align-items:center;gap:.6rem;padding:.5rem .65rem;border-radius:8px;border:1px solid var(--border);font-size:.8rem;margin-bottom:.35rem;}
+.instr-slot-row .is-time{font-weight:700;width:46px;flex-shrink:0;}
+.instr-slot-row .is-state{flex:1;font-size:.75rem;color:var(--muted);}
+.is-toggle{padding:.3rem .65rem;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.74rem;font-weight:700;cursor:pointer;}
+.is-toggle.open{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1);}
+.is-toggle.booked{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.1);cursor:default;}
+
+
+/* INSTRUCTOR SLOTS */
+.week-slots{display:flex;flex-direction:column;gap:.4rem;}
+.slot-row{display:flex;gap:.4rem;align-items:center;}
+.slot-day{width:26px;font-size:.72rem;font-weight:700;color:var(--muted);}
+.chips{display:flex;gap:.25rem;flex-wrap:wrap;}
+.chip{padding:.18rem .42rem;border-radius:4px;font-size:.7rem;cursor:pointer;border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+.chip.on{background:rgba(34,197,94,.15);color:var(--green);border-color:rgba(34,197,94,.4);}
+.save-btn{width:100%;margin-top:.8rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem;border-radius:7px;font-weight:700;font-size:.82rem;}
+
+/* PROGRESS */
+.prog-bar{background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin:.3rem 0 .2rem;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;}
+.skill-row{margin-bottom:.7rem;}
+.skill-label{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);}
+
+/* EARNINGS (instructor) */
+.earn-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.83rem;}
+.earn-row:last-child{border-bottom:none;}
+.earn-amt{color:var(--green);font-weight:700;}
+
+/* NOTIF */
+.notif{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.2rem;font-size:.83rem;z-index:999;transform:translateY(120px);transition:transform .3s;max-width:260px;}
+.notif.show{transform:translateY(0);}
+.notif strong{color:var(--green);display:block;margin-bottom:.15rem;}
+
+@media(max-width:600px){
+  #page-dash{padding:1rem;}
+  .topbar{padding:.8rem 1rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="text-decoration:none;"><span class="logo">ExamReady</span></a>
+  <div class="topbar-right">
+    <a href="index.html" class="back-link">← Ana Sayfa</a>
+    <a href="admin.html" id="admin-link" style="display:none;font-size:.78rem;font-weight:700;color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:7px;padding:.3rem .7rem;">⚙️ Admin</a>
+    <button class="logout-btn" id="logout-btn" onclick="logout()">Çıkış Yap</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="page-login">
+  <div class="login-box">
+    <h2>Giriş Yap</h2>
+    <p>Hesabınıza erişin</p>
+    <div class="role-tabs">
+      <button class="rtab active" id="rtab-s" onclick="setRole('student')">🎓 Öğrenci</button>
+      <button class="rtab" id="rtab-i" onclick="setRole('instructor')">👩‍🏫 Eğitmen</button>
+    </div>
+    <div class="field"><label>E-posta</label><input type="email" id="inp-email" placeholder="ornek@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="field"><label>Şifre</label><input type="password" id="inp-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
+    <div class="err" id="err-msg">E-posta veya şifre hatalı.</div>
+
+    <div class="hint-box">
+      <p id="hint-title">🎓 Demo Öğrenci Hesapları (tıkla → otomatik doldur)</p>
+      <div class="hint-grid" id="hint-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dash">
+  <div class="dash-header">
+    <div class="avatar" id="d-avatar"></div>
+    <div>
+      <h1 id="d-name"></h1>
+      <p id="d-sub"></p>
+    </div>
+  </div>
+  <div id="dash-content"></div>
+</div>
+
+<div class="notif" id="notif"><strong id="n-title"></strong><span id="n-msg"></span></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script>
+/* ── DATA ── */
+const USERS = {
+  // STUDENTS
+  'ayse.kaya@gmail.com':     { pw:'test123', role:'student', name:'Ayşe Kaya',     initials:'AK', color:'#4f8ef7', module:'A1+B1', credits:2, score:72, sessions:[{d:'3 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'done'},{d:'17 Tem',t:'B1 Mock Exam',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:68,Hörverständnis:74,Schreiben:60,Sprechen:55} },
+  'mehmet.demir@hotmail.com':{ pw:'test123', role:'student', name:'Mehmet Demir',   initials:'MD', color:'#7c5cfc', module:'B1',    credits:1, score:58, sessions:[{d:'5 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'21 Tem',t:'B1 Yazma',c:'Thomas K.',st:'live'}], skills:{Leseverstehen:55,Hörverständnis:60,Schreiben:48,Sprechen:42} },
+  'fatma.sahin@gmail.com':   { pw:'test123', role:'student', name:'Fatma Şahin',    initials:'FS', color:'#22c55e', module:'A1',    credits:2, score:85, sessions:[{d:'10 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'done'},{d:'24 Tem',t:'A1 Mock Exam',c:'Jana L.',st:'soon'}], skills:{Leseverstehen:88,Hörverständnis:82,Schreiben:79,Sprechen:71} },
+  'ali.celik@gmail.com':     { pw:'test123', role:'student', name:'Ali Çelik',      initials:'AC', color:'#f59e0b', module:'A1+B1', credits:4, score:41, sessions:[{d:'12 Tem',t:'A1 Mock Exam',c:'Thomas K.',st:'done'}],                                              skills:{Leseverstehen:40,Hörverständnis:38,Schreiben:35,Sprechen:30} },
+  'zeynep.arslan@gmail.com': { pw:'test123', role:'student', name:'Zeynep Arslan',  initials:'ZA', color:'#ec4899', module:'B1',    credits:0, score:66, sessions:[{d:'7 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'done'},{d:'19 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'28 Tem',t:'B1 Yazma',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:70,Hörverständnis:65,Schreiben:62,Sprechen:58}, source:'registered', freeExamDone:true, referralCount:0, referralCode:'ZEYNEP01', unlockedFull:false },
+  'emre.yilmaz@gmail.com':   { pw:'test123', role:'student', name:'Emre Yılmaz',    initials:'EY', color:'#06b6d4', module:'B1',    credits:1, score:79, sessions:[{d:'14 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'26 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'soon'}], skills:{Leseverstehen:80,Hörverständnis:77,Schreiben:74,Sprechen:68} },
+  'selin.kurt@outlook.com':  { pw:'test123', role:'student', name:'Selin Kurt',     initials:'SK', color:'#8b5cf6', module:'A1',    credits:2, score:53, sessions:[{d:'17 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'soon'}],                                               skills:{Leseverstehen:55,Hörverständnis:50,Schreiben:47,Sprechen:40} },
+  'burak.oz@gmail.com':      { pw:'test123', role:'student', name:'Burak Öz',       initials:'BO', color:'#14b8a6', module:'A1+B1', credits:3, score:91, sessions:[{d:'5 Tem',t:'A1 Mock Exam',c:'Thomas K.',st:'done'},{d:'12 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'done'},{d:'21 Tem',t:'B1 Yazma',c:'Jana L.',st:'live'}], skills:{Leseverstehen:92,Hörverständnis:89,Schreiben:88,Sprechen:85} },
+  'nisa.polat@gmail.com':    { pw:'test123', role:'student', name:'Nisa Polat',      initials:'NP', color:'#f97316', module:'B1',    credits:2, score:63, sessions:[{d:'10 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'24 Tem',t:'B1 Mock Exam',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:65,Hörverständnis:62,Schreiben:58,Sprechen:50} },
+  'kemal.tas@hotmail.com':   { pw:'test123', role:'student', name:'Kemal Taş',      initials:'KT', color:'#a855f7', module:'A1',    credits:1, score:47, sessions:[{d:'19 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'soon'}],                                               skills:{Leseverstehen:48,Hörverständnis:44,Schreiben:40,Sprechen:35} },
+
+  // INSTRUCTORS
+  'maria.s@examready.de':    { pw:'coach123', role:'instructor', name:'Maria Schmidt',   initials:'MS', color:'#22c55e', lang:'A1/B1', sessions_done:34, rating:4.9, earnings:170, upcoming:[{d:'17 Tem 14:00',s:'Ayşe K. + Selin K.',t:'A1 Mock Exam'},{d:'19 Tem 15:00',s:'Zeynep A. + Nisa P.',t:'B1 Mock Exam'},{d:'24 Tem 10:00',s:'Fatma Ş. + ??',t:'A1 Mock Exam',open:true}], avail:{} },
+  'thomas.k@examready.de':   { pw:'coach123', role:'instructor', name:'Thomas Klein',    initials:'TK', color:'#4f8ef7', lang:'B1',    sessions_done:21, rating:4.8, earnings:105, upcoming:[{d:'21 Tem 11:00',s:'Mehmet D. + Burak Ö.',t:'B1 Yazma'},{d:'24 Tem 14:00',s:'Nisa P. + ??',t:'B1 Mock Exam',open:true},{d:'28 Tem 16:00',s:'Zeynep A. + ??',t:'B1 Yazma',open:true}], avail:{} },
+  'jana.l@examready.de':     { pw:'coach123', role:'instructor', name:'Jana Lang',       initials:'JL', color:'#ec4899', lang:'A1/B1', sessions_done:28, rating:4.9, earnings:140, upcoming:[{d:'21 Tem 10:00',s:'Emre Y. + ??',t:'B1 Mock Exam',open:true},{d:'24 Tem 14:30',s:'Zeynep A. + Nisa P.',t:'A1 Mock Exam'}], avail:{} },
+  'ali.v@examready.de':      { pw:'coach123', role:'instructor', name:'Ali Vural',       initials:'AV', color:'#f59e0b', lang:'A1',    sessions_done:12, rating:4.7, earnings:60,  upcoming:[{d:'26 Tem 09:00',s:'Kemal T. + ??',t:'A1 Mock Exam',open:true}], avail:{} },
+};
+
+const STUDENT_HINTS = [
+  ['ayse.kaya@gmail.com','Ayşe K.'],
+  ['mehmet.demir@hotmail.com','Mehmet D.'],
+  ['fatma.sahin@gmail.com','Fatma Ş.'],
+  ['ali.celik@gmail.com','Ali Ç.'],
+  ['zeynep.arslan@gmail.com','Zeynep A.'],
+  ['emre.yilmaz@gmail.com','Emre Y.'],
+  ['selin.kurt@outlook.com','Selin K.'],
+  ['burak.oz@gmail.com','Burak Ö.'],
+  ['nisa.polat@gmail.com','Nisa P.'],
+  ['kemal.tas@hotmail.com','Kemal T.'],
+];
+const INSTR_HINTS = [
+  ['maria.s@examready.de','Maria S.'],
+  ['thomas.k@examready.de','Thomas K.'],
+  ['jana.l@examready.de','Jana L.'],
+  ['ali.v@examready.de','Ali V.'],
+];
+
+let currentRole = 'student';
+let loggedUser = null;
+let calSel = null;
+
+const SESSION_KEY = 'examready_session_v1';
+const STATS_KEY = 'examready_student_stats_v1';
+
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+// Returns { A1: {...}, B1: {...} } structure — each key holds per-level exam stats
+function getMyStats() {
+  if (!loggedUser) return { A1:{}, B1:{} };
+  const all = loadStats();
+  const raw = all[loggedUser.email] || {};
+  // Migrate old flat structure to per-level if needed
+  if (raw.A1 || raw.B1) return raw;
+  if (raw.examsCompleted !== undefined) {
+    // legacy flat stats — migrate to the user's level bucket
+    const lvl = loggedUser.level || 'B1';
+    return { [lvl]: raw };
+  }
+  return { A1: {}, B1: {} };
+}
+function resetMyStats(lvl) {
+  if (!loggedUser) return;
+  const all = loadStats();
+  const userStats = all[loggedUser.email] || {};
+  if (lvl) { delete userStats[lvl]; } else { delete all[loggedUser.email]; }
+  if (lvl) all[loggedUser.email] = userStats;
+  saveStats(all);
+  showNotif('İlerleme Sıfırlandı', (lvl||'Tüm') + ' istatistikler temizlendi.');
+  document.getElementById('dash-content').innerHTML = studentDash(loggedUser);
+  initStudentCal();
+}
+
+/* ── UNIFIED USER LOOKUP: merges hardcoded demo USERS with freshly registered free-tier users ── */
+const REG_USERS_KEY = 'examready_registered_users_v1';
+
+function loadRegisteredUsers() {
+  try { return JSON.parse(localStorage.getItem(REG_USERS_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveRegisteredUsers(u) { localStorage.setItem(REG_USERS_KEY, JSON.stringify(u)); }
+
+function levelFromModule(module) {
+  if (module === 'A1') return 'A1';
+  if (module === 'B1') return 'B1';
+  if (module === 'A1+B1') return 'BOTH';
+  return 'B1';
+}
+
+// Returns a normalized user object (role, name, level, module, credits, etc.) regardless of source.
+function findUser(email) {
+  if (USERS[email]) {
+    const u = USERS[email];
+    // source: USERS objesinde açıkça 'registered' yazılmışsa onu kullan, yoksa 'demo'
+    return { ...u, level: levelFromModule(u.module), source: u.source || 'demo' };
+  }
+  const regUsers = loadRegisteredUsers();
+  const r = regUsers[email];
+  if (r) {
+    return {
+      pw: r.pw, role: 'student', name: r.name, initials: r.initials, color: r.color,
+      module: r.level, level: r.level, credits: r.credits || 0,
+      score: r.freeExamDone ? 30 : 0,
+      sessions: [],
+      skills: { Leseverstehen: 0, Hörverständnis: 0, Schreiben: 0, Sprechen: 0 },
+      freeExamDone: !!r.freeExamDone,
+      referralCount: r.referralCount || 0,
+      referralCode: r.referralCode,
+      unlockedFull: !!r.unlockedFull,
+      source: 'registered'
+    };
+  }
+  return null;
+}
+
+/* ── ROLE TAB ── */
+function setRole(r) {
+  currentRole = r;
+  document.getElementById('rtab-s').className = 'rtab' + (r==='student'?' active':'');
+  document.getElementById('rtab-i').className = 'rtab' + (r==='instructor'?' active':'');
+  document.getElementById('hint-title').textContent = r==='student' ? '🎓 Demo Öğrenci Hesapları (tıkla → otomatik doldur)' : '👩‍🏫 Demo Eğitmen Hesapları (tıkla → otomatik doldur)';
+  renderHints(r);
+  document.getElementById('err-msg').style.display='none';
+}
+
+function renderHints(r) {
+  const grid = document.getElementById('hint-grid');
+  const list = r==='student' ? STUDENT_HINTS : INSTR_HINTS;
+  const pw = r==='student' ? 'test123' : 'coach123';
+  grid.innerHTML = list.map(([email,name])=>
+    `<div class="hint-item" onclick="fillLogin('${email}','${pw}')"><span>${name}</span> · ${email.split('@')[0]}</div>`
+  ).join('');
+}
+
+function fillLogin(email, pw) {
+  document.getElementById('inp-email').value = email;
+  document.getElementById('inp-pw').value = pw;
+  document.getElementById('err-msg').style.display='none';
+}
+
+/* ── LOGIN (persisted to localStorage so the session survives navigating to index.html / exam.html / video-room.html) ── */
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('inp-pw').value;
+  const errEl = document.getElementById('err-msg');
+
+  // Demo / eğitmen hesapları: localStorage yöntemi
+  const demoUser = findUser(email);
+  if (demoUser && demoUser.source !== 'registered') {
+    if (demoUser.pw !== pw || demoUser.role !== currentRole) {
+      errEl.style.display='block'; return;
+    }
+    loggedUser = {email, ...demoUser};
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role: demoUser.role, name: demoUser.name, level: demoUser.level }));
+    document.getElementById('page-login').style.display='none';
+    document.getElementById('page-dash').style.display='block';
+    document.getElementById('logout-btn').style.display='block';
+    renderDash(loggedUser);
+    return;
+  }
+
+  // Kayıtlı kullanıcılar: Supabase Auth
+  if (USE_SUPABASE && currentRole === 'student') {
+    try {
+      const { user } = await sbSignIn(email, pw);
+      const profile  = await sbGetProfile(user.id);
+      if (!profile) { errEl.style.display='block'; return; }
+      loggedUser = { email, ...profile, role:'student', level: profile.level||'B1', source:'registered' };
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role:'student', name: profile.name, level: profile.level }));
+      document.getElementById('page-login').style.display='none';
+      document.getElementById('page-dash').style.display='block';
+      document.getElementById('logout-btn').style.display='block';
+      renderDash(loggedUser);
+      return;
+    } catch(e) {
+      errEl.textContent = 'E-posta veya şifre hatalı.';
+      errEl.style.display='block'; return;
+    }
+  }
+
+  // Fallback: localStorage kayıtlı kullanıcı
+  const u = findUser(email);
+  if (!u || u.pw !== pw || u.role !== currentRole) {
+    errEl.style.display='block'; return;
+  }
+  loggedUser = {email, ...u};
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role: u.role, name: u.name, level: u.level }));
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-dash').style.display='block';
+  document.getElementById('logout-btn').style.display='block';
+  renderDash(loggedUser);
+}
+
+function logout() {
+  loggedUser = null; calSel = null;
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('page-login').style.display='flex';
+  document.getElementById('page-dash').style.display='none';
+  document.getElementById('logout-btn').style.display='none';
+  document.getElementById('inp-email').value='';
+  document.getElementById('inp-pw').value='';
+}
+
+/* Restore session on page load — keeps the user "logged in" across the whole site until they explicitly log out */
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const sess = JSON.parse(raw);
+    const u = findUser(sess.email);
+    if (!u || u.role !== sess.role) { localStorage.removeItem(SESSION_KEY); return false; }
+    loggedUser = { email: sess.email, ...u };
+    document.getElementById('page-login').style.display='none';
+    document.getElementById('page-dash').style.display='block';
+    document.getElementById('logout-btn').style.display='block';
+    renderDash(loggedUser);
+    return true;
+  } catch(e) { return false; }
+}
+
+/* ── RENDER ── */
+function renderDash(u) {
+  const av = document.getElementById('d-avatar');
+  av.textContent = u.initials;
+  av.style.background = `linear-gradient(135deg,${u.color},${u.color}99)`;
+  document.getElementById('d-name').innerHTML = u.name + `<span class="role-badge ${u.role}">${u.role==='student'?'🎓 Öğrenci':'👩‍🏫 Eğitmen'}</span>`;
+  document.getElementById('d-sub').textContent = u.role==='student' ? `Modül: ${u.module} · ${u.email}` : `${u.lang} Koçu · ${u.email}`;
+
+  const content = document.getElementById('dash-content');
+  if (u.role==='student') content.innerHTML = studentDash(u);
+  else content.innerHTML = instrDash(u);
+
+  if (u.role==='student') initStudentCal();
+  else initInstrSlots();
+}
+
+/* ── STUDENT DASHBOARD ── */
+function studentDash(u) {
+  const stLabel = {done:'Tamamlandı',live:'🔴 Canlı',soon:'Yaklaşıyor'};
+  const stClass = {done:'tag-done',live:'tag-live',soon:'tag-soon'};
+  const dotColor = {done:'var(--muted)',live:'var(--green)',soon:'var(--yellow)'};
+
+  const sesHTML = u.sessions.map(s=>`
+    <div class="session-item">
+      <div class="s-dot" style="background:${dotColor[s.st]}"></div>
+      <div class="s-info"><strong>${s.t}</strong><span>${s.d} · Koç: ${s.c}</span></div>
+      ${s.st==='live' ? `<a href="video-room.html" class="s-tag tag-live" style="text-decoration:none">▶ Katıl</a>` : `<span class="s-tag ${stClass[s.st]}">${stLabel[s.st]}</span>`}
+    </div>`).join('');
+
+  const skillHTML = Object.entries(u.skills).map(([k,v])=>`
+    <div class="skill-row">
+      <div class="skill-label"><span>${k}</span><span>${v}%</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${v}%"></div></div>
+    </div>`).join('');
+
+  const isBoth = u.level === 'BOTH';
+  const stats = getMyStats();
+
+  // ── Puan sistemi ──────────────────────────────────────────────────
+  // T1:5q×5pt=25 | T2:5q×5pt=25 | T3:10q×2.5pt=25 | SPB:20q×1.5pt=30 → max 105
+  const SECTION_DEF = [
+    { key:'s1', label:'Lesen T1',  maxQ:5,  ptPer:5   },
+    { key:'s2', label:'Lesen T2',  maxQ:5,  ptPer:5   },
+    { key:'s3', label:'Lesen T3',  maxQ:10, ptPer:2.5 },
+    { key:'s4', label:'SPB',       maxQ:20, ptPer:1.5 },
+  ];
+  const CHART_COLORS = [
+    '#4f8ef7','#22c55e','#f59e0b','#ec4899',
+    '#06b6d4','#a855f7','#f87171','#14b8a6',
+  ];
+
+  // Sadece sections verisi olan sınavları kabul et (deneme sınavı)
+  function fullExamHistory(lvl) {
+    const s = stats[lvl] || {};
+    return (s.history || []).filter(h => h.sections);
+  }
+
+  // ── Grafik: bölüm × sınav çakışmalı çizgi grafiği (SVG) ────────
+  function buildProgressChart(lvl, containerId) {
+    const hist = fullExamHistory(lvl);
+    if (hist.length === 0) return;
+
+    const W = 420, H = 180, PL = 42, PR = 12, PT = 12, PB = 28;
+    const CW = W - PL - PR, CH = H - PT - PB;
+    const sections = SECTION_DEF;
+    const maxPts = Math.max(...sections.map(s => s.maxQ * s.ptPer));
+
+    // Bir sınavın bölüm puanlarını hesapla
+    function examSectionPts(h) {
+      return sections.map(sd =>
+        h.sections ? parseFloat(((h.sections[sd.key]||0) * sd.ptPer).toFixed(1)) : 0
+      );
+    }
+
+    const xStep = sections.length > 1 ? CW / (sections.length - 1) : CW;
+
+    // Y grid çizgileri
+    let gridLines = '';
+    [0, 25, 50, 75, 100].forEach(pct => {
+      const y = PT + CH - (pct / 100 * CH);
+      const pts = Math.round(maxPts * pct / 100);
+      gridLines += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#2a2d3e" stroke-width="1"/>
+        <text x="${PL-4}" y="${y+4}" text-anchor="end" font-size="8" fill="#8b90a7">${pts}</text>`;
+    });
+
+    // Her sınav için bir çizgi
+    let lines = '', dots = '';
+    hist.forEach((h, examIdx) => {
+      const pts  = examSectionPts(h);
+      const col  = CHART_COLORS[examIdx % CHART_COLORS.length];
+      const dd   = new Date(h.date);
+      const dlbl = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+
+      const coords = pts.map((pt, si) => {
+        const x = PL + si * xStep;
+        const y = PT + CH - (pt / maxPts * CH);
+        return {x, y, pt};
+      });
+
+      const pathD = coords.map((c,i) => (i===0?'M':'L')+c.x.toFixed(1)+' '+c.y.toFixed(1)).join(' ');
+      lines += `<path d="${pathD}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" opacity=".85"/>`;
+      coords.forEach(c => {
+        dots += `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4" fill="${col}" stroke="${col}" stroke-width="1.5">
+          <title>${dlbl} · ${c.pt} puan</title></circle>`;
+      });
+    });
+
+    // X ekseni etiketleri
+    const xlabels = sections.map((sd, i) =>
+      `<text x="${(PL + i*xStep).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="8.5" fill="#8b90a7">${sd.label}</text>`
+    ).join('');
+
+    // Lejant
+    const legend = hist.map((h, i) => {
+      const dd  = new Date(h.date);
+      const dlbl= dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+      const col = CHART_COLORS[i % CHART_COLORS.length];
+      return `<div style="display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted);">
+        <div style="width:14px;height:3px;background:${col};border-radius:2px;flex-shrink:0;"></div>${dlbl}</div>`;
+    }).join('');
+
+    setTimeout(() => {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+          ${gridLines}
+          <line x1="${PL}" y1="${PT}" x2="${PL}" y2="${PT+CH}" stroke="#2a2d3e" stroke-width="1"/>
+          ${lines}${dots}${xlabels}
+        </svg>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.5rem;">${legend}</div>`;
+    }, 0);
+  }
+
+  // ── Sınav geçmişi tablosu (son 5 + "tümü" linki) ────────────────
+  // examId → okunabilir ad
+  function examLabel(examId) {
+    if (!examId) return 'Deneme Sınavı';
+    const m = examId.match(/(\d+)$/);
+    return 'Deneme Sınavı ' + (m ? m[1].padStart(2,'0') : '01');
+  }
+
+  // Gerçek index: date ile eşleştir (filtrelenmiş/sıralı indeks değil)
+  function findOrigIdx(lvl, h) {
+    const s = stats[lvl] || {};
+    return (s.history || []).findIndex(x => x.date === h.date);
+  }
+
+  function histBlock(lvl) {
+    const hist = fullExamHistory(lvl);  // filtrelenmiş (sections olan)
+    if (!hist.length) return '<p style="font-size:.78rem;color:var(--muted)">Henüz deneme sınavı çözülmedi.</p>';
+
+    const reversed  = [...hist].reverse();   // yeniden eskiye
+    const show5     = reversed.slice(0, 5);
+    const remaining = reversed.length - 5;
+    const maxPts    = SECTION_DEF.reduce((s,sd)=>s+sd.maxQ*sd.ptPer, 0);
+
+    function rowHTML(h) {
+      const origIdx  = findOrigIdx(lvl, h);  // ham history'deki gerçek index
+      const dd       = new Date(h.date);
+      const ds       = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+      const ts       = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+      const totalPts = parseFloat(SECTION_DEF.reduce((sum,sd)=>sum+(h.sections[sd.key]||0)*sd.ptPer,0).toFixed(1));
+      const pct      = Math.round(totalPts / maxPts * 100);
+      const col      = pct >= 60 ? 'var(--green)' : 'var(--yellow)';
+      const name     = examLabel(h.examId);
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onclick="showExamDetail('${lvl}',${origIdx})" title="Detay gör">
+        <td style="padding:.35rem .4rem;font-size:.76rem;">
+          <div style="font-weight:600;color:var(--text);">${name}</div>
+          <div style="color:var(--muted);font-size:.68rem;">${ds} ${ts}</div>
+        </td>
+        <td style="padding:.35rem .4rem;text-align:right;font-size:.76rem;font-weight:700;color:${col};">${totalPts}/${maxPts}</td>
+        <td style="padding:.35rem .4rem;text-align:right;font-size:.76rem;font-weight:700;color:${col};">%${pct}</td>
+        <td style="padding:.35rem .4rem;text-align:right;font-size:.68rem;color:var(--accent);">→</td>
+      </tr>`;
+    }
+
+    const rows5    = show5.map(h => rowHTML(h)).join('');
+    const moreLink = remaining > 0
+      ? `<div style="text-align:center;margin-top:.5rem;">
+          <a href="javascript:void(0)" onclick="showAllExams('${lvl}')" style="font-size:.76rem;color:var(--accent);font-weight:700;">
+            Tüm Sınav Sonuçları (${remaining} daha) →
+          </a>
+        </div>` : '';
+
+    return `
+      <table style="width:100%;border-collapse:collapse;font-size:.76rem;">
+        <thead><tr style="color:var(--muted);border-bottom:1px solid var(--border);">
+          <th style="padding:.35rem .4rem;text-align:left;font-weight:700;">Sınav</th>
+          <th style="padding:.35rem .4rem;text-align:right;font-weight:700;">Puan</th>
+          <th style="padding:.35rem .4rem;text-align:right;font-weight:700;">%</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows5}</tbody>
+      </table>${moreLink}`;
+  }
+
+  // ── Per-level blok ────────────────────────────────────────────────
+  function levelStatBlock(lvl, label) {
+    const s = stats[lvl] || { examsCompleted:0, history:[] };
+    const chartId = 'chart-'+lvl;
+    return `
+    <div class="panel" style="margin-bottom:1.2rem;">
+      <h3 style="display:flex;align-items:center;justify-content:space-between;font-size:.88rem;">
+        <span><span>📈</span> ${label} İstatistikleri</span>
+        <button onclick="confirmResetStats('${lvl}')" style="background:none;border:1px solid var(--border);color:var(--muted);padding:.25rem .6rem;border-radius:5px;font-size:.7rem;font-weight:700;cursor:pointer;">Sıfırla</button>
+      </h3>
+      <div class="grid2" style="margin-bottom:0;">
+        <div>
+          <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--muted);">Bölüm Bazlı İlerleme Grafiği</div>
+          <div id="${chartId}" style="background:var(--surface2);border-radius:8px;padding:.7rem;">
+            <p style="font-size:.76rem;color:var(--muted);text-align:center;padding:1rem 0;">Grafik yükleniyor…</p>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.78rem;font-weight:700;margin-bottom:.5rem;color:var(--muted);">Sınav Geçmişi</div>
+          ${histBlock(lvl)}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const statsHTML = isBoth
+    ? levelStatBlock('A1','A1') + levelStatBlock('B1','B1')
+    : levelStatBlock(u.level, u.level);
+
+  // ── Kilit sistemi ────────────────────────────────────────────────
+  // Demo & premium → tümü açık | Ücretsiz → 1 + her 5 referansta +1
+  const MAX_SETS = 15;
+  const isPremium = u.source !== 'registered' || !!u.unlockedFull;
+  const unlockCount = isPremium ? MAX_SETS : Math.min(MAX_SETS, 1 + Math.floor((u.referralCount||0)/3));
+
+  // Admin modül setleri — tüm veriyi tek seferde yükle
+  const _adminAll = (()=>{ try{return JSON.parse(localStorage.getItem('examready_module_sets_v1')||'{}')}catch(e){return {};} })();
+
+  // Leseverstehen set N hazır mı? (T1+T2+T3 hepsi tamamlandıysa)
+  function hasLSVSet(n) { return !!(_adminAll['B1_LSV_T1']?.[n]?.hasContent && _adminAll['B1_LSV_T2']?.[n]?.hasContent && _adminAll['B1_LSV_T3']?.[n]?.hasContent); }
+  // Sprachbausteine set N hazır mı? (T1+T2 her ikisi tamamlandıysa)
+  function hasSPBSet(n) { return !!(_adminAll['B1_SPB_T1']?.[n]?.hasContent && _adminAll['B1_SPB_T2']?.[n]?.hasContent); }
+  // Hörverstehen set N hazır mı?
+  function hasHSVSet(n) { return !!(_adminAll['B1_HSV']?.[n]?.hasContent); }
+
+  // Schreiben havuzunda kaç soru var?
+  function schreibenCount() {
+    try { return (JSON.parse(localStorage.getItem('examready_schreiben_v1')||'[]')).length; }
+    catch(e){ return 0; }
+  }
+
+  // Daire stilleri
+  const circleActive  = `width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;text-decoration:none;flex-shrink:0;transition:background .15s,color .15s;`;
+  const circleSoon    = `width:30px;height:30px;border-radius:50%;border:2px dashed var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;cursor:default;opacity:.5;`;
+  const circleLocked  = `width:30px;height:30px;border-radius:50%;border:2px solid var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0;cursor:not-allowed;opacity:.45;`;
+
+  function modRow(label, moduleKey, staticFiles, opts={}) {
+    // Schreiben: tek buton
+    if (opts.schreiben) {
+      const cnt = schreibenCount();
+      const btnStyle = `display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:.78rem;font-weight:700;text-decoration:none;`;
+      const lockedStyle = `display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:8px;border:1px solid var(--border);color:var(--muted);font-size:.78rem;font-weight:700;cursor:not-allowed;opacity:.5;`;
+      const canAccess = true; // Schreiben her zaman açık
+      return `
+        <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.8rem;font-weight:700;color:var(--text);min-width:140px;white-space:nowrap;">${label}</div>
+          ${canAccess && cnt > 0
+            ? `<a href="${opts.href}" style="${btnStyle}">✍️ Rastgele Soru</a><span style="font-size:.7rem;color:var(--muted);">${cnt} soru</span>`
+            : canAccess && cnt===0
+              ? `<span style="${lockedStyle}">✍️ Yakında</span>`
+              : `<span style="${lockedStyle}">🔒 Kilitli</span>`
+          }
+        </div>`;
+    }
+
+    // checker: set N için içerik hazır mı? (admin birleşik set kontrolü)
+    const checker = opts.checker || null;
+
+    const circles = Array.from({length: MAX_SETS}, (_, i) => {
+      const n = i + 1;
+      const isUnlocked = n <= unlockCount;
+
+      if (!isUnlocked) {
+        const tip = isPremium ? '' : `${Math.max(0,(n-unlockCount)*3-(u.referralCount||0)%3)} referans daha gerekli`;
+        return `<span title="${tip}" style="${circleLocked}">🔒</span>`;
+      }
+
+      // Statik dosya var mı?
+      const staticHref = staticFiles[n-1] || null;
+      // Admin birleşik set hazır mı?
+      const adminReady = checker ? checker(n) : false;
+      const dynHref    = adminReady ? `exam_Telc_B1_dyn.html?module=${moduleKey}&set=${n}` : null;
+      const href       = staticHref || dynHref;
+
+      if (!href) {
+        return `<span title="Yakında — içerik bekleniyor" style="${circleSoon}">${n}</span>`;
+      }
+
+      return `<a href="${href}" title="Set ${n}" style="${circleActive}"
+        onmouseover="this.style.background='var(--accent)';this.style.color='#fff'"
+        onmouseout="this.style.background='';this.style.color='var(--accent)'"
+      >${n}</a>`;
+    }).join('');
+
+    return `
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.8rem;font-weight:700;color:var(--text);min-width:140px;white-space:nowrap;">${label}</div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;">${circles}</div>
+      </div>`;
+  }
+
+  // Açıklama: sağ tık = çalışma modu
+  const modeHint = ``;
+
+  const b1ModulesBlock = `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">📝 Modül Alıştırmaları (B1)</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        ${modRow('Leseverstehen',  'B1_LSV', ['exam_Telc_B1_lsv_01.html','exam_Telc_B1_lsv_02.html'], {checker: hasLSVSet})}
+        ${modRow('Hörverstehen',   'B1_HSV', ['exam_Telc_B1_hsv_01.html'], {checker: hasHSVSet})}
+        ${modRow('Sprachbausteine','B1_SPB', ['exam_Telc_B1_spb_01.html','exam_Telc_B1_spb_02.html'], {checker: hasSPBSet})}
+        ${modRow('Schreiben',      'B1_SCH', [], {schreiben:true, href:'exam_Telc_B1_sch.html'})}
+        ${modRow('Deneme Sınavı',  'B1_DNM', ['full_exam_Telc_B1_01.html'])}
+      </div>
+      ${!isPremium ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">🔒 Kilit: ücretsiz hesap → 1 set açık · Her 3 referans → +1 set · Premium → tümü açık</div>` : ''}
+      ${modeHint}
+    </div>`;
+
+  const a1ModulesBlock = `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">📝 Modül Alıştırmaları (A1)</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        ${modRow('Deneme Sınavı', 'A1_DNM', ['full_exam_Telc_A1_01.html'])}
+      </div>
+    </div>`;
+
+  const examLinksHTML = isBoth
+    ? `${a1ModulesBlock}${b1ModulesBlock}`
+    : u.level === 'A1'
+      ? `${a1ModulesBlock}`
+      : `${b1ModulesBlock}`;
+
+  // Grafikleri DOM'a eklendikten sonra render et
+  setTimeout(()=>{
+    if (isBoth) { buildProgressChart('A1','chart-A1'); buildProgressChart('B1','chart-B1'); }
+    else buildProgressChart(u.level,'chart-'+u.level);
+  }, 50);
+
+  return `
+  <div class="stats-row">
+    <div class="stat-card"><div class="num" style="color:var(--green)">${u.credits}</div><div class="lbl">Mock Exam Credit</div></div>
+    <div class="stat-card"><div class="num">${u.sessions.length}</div><div class="lbl">Toplam Oturum</div></div>
+    <div class="stat-card"><div class="num">${u.module}</div><div class="lbl">Aktif Modül</div></div>
+  </div>
+
+  ${statsHTML}
+
+  <div class="grid2">
+    <div class="panel">
+      <h3><span>📅</span> Mock Exam Rezervasyonu</h3>
+      <div class="week-tabs">
+        <button class="wtab active" id="wtab-0" onclick="switchWeek(0)">Bu Hafta</button>
+        <button class="wtab" id="wtab-1" onclick="switchWeek(1)">Gelecek Hafta</button>
+      </div>
+      <div class="day-rail" id="day-rail"></div>
+      <div class="slot-list" id="slot-list"></div>
+      <div class="cal-legend" style="margin-top:.7rem;">
+        <div class="cl-item"><div class="cl-dot" style="background:var(--green)"></div>2 yer</div>
+        <div class="cl-item"><div class="cl-dot" style="background:var(--yellow)"></div>1 yer kaldı</div>
+        <div class="cl-item"><div class="cl-dot" style="background:var(--muted)"></div>Dolu/Farklı seviye</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3><span>📝</span> Sınav Merkezi</h3>
+      <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.3rem;">
+        ${examLinksHTML}
+        <a href="video-room.html" style="display:block;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.85rem;text-align:center;">🎥 Mock Exam Görüşme Odasını Test Et</a>
+        <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
+          <strong>Mock Exam Credit:</strong> <span style="color:var(--green);font-weight:800;">${u.credits}</span>
+          ${u.credits===0?'<br><span style="color:var(--muted);font-size:.76rem;">Kredi bitti — ek oturum satın alın.</span>':'<br><span style="color:var(--muted);font-size:.76rem;">Takvimden oturum rezerve edin.</span>'}
+        </div>
+        ${u.source==='registered' ? `
+        <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
+          <strong>Seviyen: ${u.level}</strong><br>
+          <span style="color:var(--muted);font-size:.76rem;">Ücretsiz hesabınla yalnızca ${u.level} sorularına erişebilirsin. ${u.level==='A1'?'B1':'A1'} için tam üyelik (€29,90) gerekir.</span>
+        </div>` : ''}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:1.2rem;">
+    <h3><span>🎁</span> Arkadaşını Davet Et</h3>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">Her başarılı davet için 1 Mock Exam kredisi kazan. 3 arkadaşını davet et, bir oturum ücretsiz al.</p>
+    <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:.8rem;">
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Referans Linkin</div>
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+        <code id="ref-link-text" style="flex:1;font-size:.82rem;color:var(--accent);font-weight:700;word-break:break-all;background:var(--bg);padding:.4rem .7rem;border-radius:6px;border:1px solid var(--border);">examready.de/register?ref=${u.referralCode||'—'}</code>
+        <button onclick="copyRefLink()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.4rem .9rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">Kopyala</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:.83rem;">
+      <span style="color:var(--muted);">Tamamlanan davet</span>
+      <span style="font-weight:800;color:var(--green);">${u.referralCount||0} <span style="color:var(--muted);font-weight:400;">/ 3</span></span>
+    </div>
+    <div style="background:var(--border);border-radius:4px;height:6px;margin:.5rem 0;overflow:hidden;">
+      <div style="height:100%;width:${Math.min(100,((u.referralCount||0)/3)*100)}%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:4px;transition:width .4s;"></div>
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);">${3-(u.referralCount||0)} davet daha → 1 ücretsiz Mock Exam oturumu</div>
+  </div>`;
+}
+
+function copyRefLink() {
+  try {
+    const sess = JSON.parse(localStorage.getItem('examready_session_v1')||'{}');
+    const reg = JSON.parse(localStorage.getItem('examready_registered_users_v1')||'{}');
+    const code = (reg[sess.email]||{}).referralCode || '—';
+    const link = 'examready.de/register?ref=' + code;
+    navigator.clipboard.writeText(link).then(()=>showNotif('Kopyalandı!','Referans linkin panoya alındı.'));
+  } catch(e){}
+}
+
+function confirmResetStats(lvl) {
+  const label = lvl ? lvl + ' seviyesi' : 'tüm seviyeler';
+  if (confirm(label + ' istatistiklerini sıfırlamak istediğine emin misin? Bu işlem geri alınamaz.')) {
+    resetMyStats(lvl);
+  }
+}
+
+/* ── INSTRUCTOR DASHBOARD ── */
+function instrDash(u) {
+  const upHTML = u.upcoming.map(s=>`
+    <div class="session-item">
+      <div class="s-dot" style="background:${s.open?'var(--yellow)':'var(--green)'}"></div>
+      <div class="s-info"><strong>${s.t}</strong><span>${s.d} · ${s.s}</span></div>
+      ${s.live ? `<a href="video-room.html" class="s-tag tag-live" style="text-decoration:none">▶ Katıl</a>` : `<span class="s-tag ${s.open?'tag-1left':'tag-soon'}">${s.open?'1 yer açık':'Dolu'}</span>`}
+    </div>`).join('');
+
+  const earnHTML = [
+    {d:'21 Tem',t:u.upcoming[0]?.t||'Mock Exam',a:'€5'},
+    {d:'15 Tem',t:'Tamamlanan Oturum',a:'€5'},
+    {d:'10 Tem',t:'Tamamlanan Oturum',a:'€5'},
+  ].map(e=>`<div class="earn-row"><div><strong style="font-size:.82rem">${e.t}</strong><br><span style="font-size:.74rem;color:var(--muted)">${e.d}</span></div><span class="earn-amt">${e.a}</span></div>`).join('');
+
+  return `
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">${u.sessions_done}</div><div class="lbl">Tamamlanan Oturum</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--green)">€${u.earnings}</div><div class="lbl">Toplam Kazanç</div></div>
+    <div class="stat-card"><div class="num">⭐ ${u.rating}</div><div class="lbl">Ortalama Puan</div></div>
+    <div class="stat-card"><div class="num">${u.lang}</div><div class="lbl">Sınav Seviyesi</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3><span>📅</span> Yaklaşan Oturumlar</h3>
+      ${upHTML || '<p style="font-size:.83rem;color:var(--muted)">Yaklaşan oturum yok.</p>'}
+    </div>
+    <div class="panel">
+      <h3><span>💰</span> Son Kazançlar</h3>
+      ${earnHTML}
+      <div style="margin-top:.8rem;background:var(--surface2);border-radius:7px;padding:.7rem;font-size:.8rem;">
+        Toplam birikim: <strong style="color:var(--green)">€${u.earnings}</strong>
+        ${u.earnings>=25?'<br><span style="color:var(--muted);font-size:.73rem;">✓ Çekim yapabilirsiniz (min. €25)</span>':'<br><span style="color:var(--muted);font-size:.73rem;">Min. €25 gerekli</span>'}
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3><span>🗓</span> Ders Saatlerini Yönet</h3>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem;">Bir gün seçin, 30 dakikalık dilimleri açıp kapatın. Açtığınız dersler tüm öğrencilerin takviminde anında görünür (aynı tarayıcıda farklı sekmede de geçerlidir).</p>
+      <div class="week-tabs">
+        <button class="wtab active" id="iwtab-0" onclick="switchInstrWeek(0)">Bu Hafta</button>
+        <button class="wtab" id="iwtab-1" onclick="switchInstrWeek(1)">Gelecek Hafta</button>
+      </div>
+      <div class="day-rail" id="instr-day-rail"></div>
+      <div class="slot-list" id="instr-slot-list" style="max-height:300px;"></div>
+    </div>
+    <div class="panel">
+      <h3><span>📋</span> Profil Bilgileri</h3>
+      <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.85rem;">
+        <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Ad Soyad</span><strong>${u.name}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Uzmanlık</span><strong>${u.lang}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Oturum Başı</span><strong style="color:var(--green)">€5</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:.5rem 0"><span style="color:var(--muted)">Durum</span><span style="color:var(--green);font-weight:700;">● Aktif</span></div>
+      </div>
+      <a href="video-room.html" style="display:block;margin-top:1rem;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.65rem 1rem;border-radius:8px;font-weight:700;font-size:.82rem;text-align:center;">🎥 Mock Exam Görüşme Odasını Test Et</a>
+    </div>
+  </div>`;
+}
+
+/* ── DATE HELPERS ── */
+const DOW=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+const MONTHS_SHORT=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const TODAY = new Date(2026,6,1); // fixed "today" = July 1, 2026 for demo stability
+
+function dateKey(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function genHalfHourTimes(){
+  const t=[]; for(let h=9; h<=17; h++){ t.push(String(h).padStart(2,'0')+':00'); if(h<17) t.push(String(h).padStart(2,'0')+':30'); }
+  return t;
+}
+const HALF_HOURS = genHalfHourTimes(); // 09:00 .. 17:00, 17 slots/day
+
+/* ── SHARED SCHEDULE STORE (real, persisted via localStorage so instructor + student see the same data) ──
+   Schema: { "<dateKey>|<time>": { coach: 'maria.s@examready.de', type:'A1 Mock Exam', spots:2, bookedBy: [] } }
+   spots: 2 = open, 1 = one taken, 0 = full/closed-after-fill
+   A slot only exists in the store once an instructor opens it. */
+const SCHEDULE_KEY = 'examready_schedule_v1';
+
+function loadSchedule(){
+  try {
+    const raw = localStorage.getItem(SCHEDULE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+function saveSchedule(sch){
+  localStorage.setItem(SCHEDULE_KEY, JSON.stringify(sch));
+}
+function slotKey(d,t){ return dateKey(d)+'|'+t; }
+
+// Seed a few realistic open lessons the first time the app runs, so the demo isn't empty on first load.
+function seedScheduleIfEmpty(){
+  let sch = loadSchedule();
+  if (Object.keys(sch).length > 0) return;
+  const coaches = [
+    {email:'maria.s@examready.de', name:'Maria S.'},
+    {email:'thomas.k@examready.de', name:'Thomas K.'},
+    {email:'jana.l@examready.de', name:'Jana L.'},
+  ];
+  const types = ['A1 Mock Exam','B1 Mock Exam','B1 Yazma İncelemesi'];
+  const seedPlan = [
+    {dayOffset:1, time:'10:00', c:0, t:0, spots:2},
+    {dayOffset:1, time:'15:00', c:1, t:1, spots:1},
+    {dayOffset:2, time:'09:30', c:2, t:0, spots:2},
+    {dayOffset:3, time:'14:00', c:0, t:1, spots:0},
+    {dayOffset:4, time:'11:00', c:1, t:2, spots:1},
+    {dayOffset:6, time:'16:00', c:2, t:1, spots:2},
+    {dayOffset:8, time:'10:30', c:0, t:0, spots:2},
+    {dayOffset:9, time:'15:30', c:1, t:0, spots:1},
+    {dayOffset:11, time:'09:00', c:2, t:2, spots:2},
+  ];
+  seedPlan.forEach(p=>{
+    const d = addDays(TODAY, p.dayOffset);
+    const key = slotKey(d, p.time);
+    sch[key] = { coachEmail: coaches[p.c].email, coachName: coaches[p.c].name, type: types[p.t], spots: p.spots, bookedBy: [] };
+  });
+  saveSchedule(sch);
+}
+seedScheduleIfEmpty();
+
+let studentWeek = 0;
+let studentSelDay = 0;
+
+function initStudentCal(preserveDay){
+  if (!preserveDay) { studentWeek = 0; studentSelDay = 0; }
+  renderDayRail(); renderSlotList();
+}
+
+function switchWeek(w){
+  studentWeek = w; studentSelDay = 0;
+  document.getElementById('wtab-0').classList.toggle('active', w===0);
+  document.getElementById('wtab-1').classList.toggle('active', w===1);
+  renderDayRail(); renderSlotList();
+}
+
+function renderDayRail(){
+  const rail = document.getElementById('day-rail'); if(!rail) return;
+  const sch = loadSchedule();
+  rail.innerHTML='';
+  const base = studentWeek*7;
+  for(let i=0;i<7;i++){
+    const d = addDays(TODAY, base+i);
+    let hasOpen=false;
+    HALF_HOURS.forEach(t=>{ const s=sch[slotKey(d,t)]; if(s && s.spots>0) hasOpen=true; });
+    const pill=document.createElement('div');
+    pill.className='day-pill'+(i===studentSelDay?' sel':'')+(hasOpen?'':' none');
+    pill.innerHTML=`<div class="dp-dow">${DOW[d.getDay()]}</div><div class="dp-num">${d.getDate()}</div><div class="dp-dot"></div>`;
+    pill.onclick=()=>{ studentSelDay=i; renderDayRail(); renderSlotList(); };
+    rail.appendChild(pill);
+  }
+}
+
+function renderSlotList(){
+  const list = document.getElementById('slot-list'); if(!list) return;
+  const sch = loadSchedule();
+  const base = studentWeek*7;
+  const d = addDays(TODAY, base+studentSelDay);
+  const myLevel = loggedUser ? loggedUser.level : null;
+  let html=''; let any=false;
+
+  HALF_HOURS.forEach(t=>{
+    const key = slotKey(d,t);
+    const s = sch[key];
+    if (!s) return;
+
+    const sessionLevel = s.level || null;
+    const iBookedThis = loggedUser && s.bookedBy && s.bookedBy.includes(loggedUser.email);
+
+    // Fix 2: single-level users skip slots locked to the OTHER level (unless they booked it)
+    if (!iBookedThis && myLevel && myLevel !== 'BOTH' && sessionLevel && sessionLevel !== myLevel) return;
+
+    any=true;
+
+    // Determine if cancellation is still possible (>24h before session)
+    let canCancel = false;
+    if (iBookedThis) {
+      const [dateStr, timeStr] = key.split('|');
+      const [y,m,dd2] = dateStr.split('-').map(Number);
+      const [h, mn] = timeStr.split(':').map(Number);
+      const sessionStart = new Date(y, m-1, dd2, h, mn);
+      canCancel = (sessionStart - new Date()) / 3600000 >= 24;
+    }
+
+    if (iBookedThis) {
+      const refundLabel = canCancel ? '✓ Kredi iade edilir' : '⚠️ Kredi iade edilmez';
+      const cancelBtn = `<button onclick="cancelSlot('${key}')" style="font-size:.68rem;padding:.2rem .5rem;border-radius:5px;border:1px solid ${canCancel?'rgba(34,197,94,.4)':'var(--border)'};background:none;color:${canCancel?'var(--green)':'var(--muted)'};cursor:pointer;margin-left:.4rem;" title="${refundLabel}">İptal</button>`;
+      html+=`<div class="tslot full"><span class="ts-time">${t}</span><div class="ts-info"><strong>${s.type||'Mock Exam'}${sessionLevel?' · '+sessionLevel:''}</strong>${s.coachName} · Rezervedin ✓</div><span class="ts-tag" style="background:rgba(79,142,247,.18);color:var(--accent)">Senin${cancelBtn}</span></div>`;
+    } else if (s.spots===0) {
+      html+=`<div class="tslot full"><span class="ts-time">${t}</span><div class="ts-info"><strong>${s.type||'Mock Exam'}${sessionLevel?' · '+sessionLevel:''}</strong>${s.coachName} · dolu</div><span class="ts-tag tag-full">Dolu</span></div>`;
+    } else if (s.spots===1) {
+      html+=`<div class="tslot half" onclick="bookSlot('${key}')"><span class="ts-time">${t}</span><div class="ts-info"><strong>${s.type||'Mock Exam'}${sessionLevel?' · '+sessionLevel:' · Seviye açık'}</strong>${s.coachName} · 1 yer kaldı</div><span class="ts-tag tag-open1">1 Yer</span></div>`;
+    } else {
+      html+=`<div class="tslot open" onclick="bookSlot('${key}')"><span class="ts-time">${t}</span><div class="ts-info"><strong>${s.type||'Mock Exam'}${sessionLevel?(' · '+sessionLevel):' · İlk kaydolan seviye belirler'}</strong>${s.coachName} · 2 yer açık</div><span class="ts-tag tag-open2">Açık</span></div>`;
+    }
+  });
+  if (!any) html = `<div class="tslot empty">${MONTHS_SHORT[d.getMonth()]} ${d.getDate()} için açık ders yok</div>`;
+  list.innerHTML = html;
+}
+
+function bookSlot(key, chosenLevel){
+  // Close modal if open (auto-close after level pick)
+  const modal = document.getElementById('level-pick-modal');
+  if (modal) modal.remove();
+
+  if (!loggedUser || loggedUser.credits<=0) {
+    showNotif('Mock Exam Credit gerekli','Bu oturumu rezerve etmek için kredi satın almalısınız.');
+    return;
+  }
+  const sch = loadSchedule();
+  const s = sch[key];
+  if (!s || s.spots<=0) return;
+  s.bookedBy = s.bookedBy || [];
+  if (s.bookedBy.includes(loggedUser.email)) return;
+
+  const myLevel = loggedUser.level;
+  if (!s.level) {
+    if (myLevel === 'BOTH') {
+      if (!chosenLevel) { showLevelPickModal(key); return; }
+      s.level = chosenLevel;
+    } else {
+      s.level = myLevel;
+    }
+    s.type = s.level + ' Mock Exam Oturumu';
+  } else if (myLevel !== 'BOTH' && s.level !== myLevel) {
+    showNotif('Seviye uyumsuz', 'Bu oturum ' + s.level + ' seviyesi için açılmış.'); return;
+  } else if (myLevel === 'BOTH' && !chosenLevel) {
+    showLevelPickModal(key); return;
+  }
+
+  // Store booking time for cancellation window check
+  s.bookedAt = s.bookedAt || {};
+  s.bookedAt[loggedUser.email] = new Date().toISOString();
+
+  s.bookedBy.push(loggedUser.email);
+  s.spots--;
+  saveSchedule(sch);
+  loggedUser.credits--;
+
+  // Fix 3: remember selected day, don't reset to 0
+  const savedDay = studentSelDay;
+  const savedWeek = studentWeek;
+  document.getElementById('dash-content').innerHTML = studentDash(loggedUser);
+  studentSelDay = savedDay;
+  studentWeek = savedWeek;
+  initStudentCal(true);
+  showNotif('Rezervasyon Onaylandı! 🎉', key.split('|')[1]+' · '+s.type+' · Koç: '+s.coachName);
+}
+
+function cancelSlot(key){
+  const sch = loadSchedule();
+  const s = sch[key];
+  if (!s) return;
+  if (!s.bookedBy || !s.bookedBy.includes(loggedUser.email)) {
+    showNotif('Hata','Bu oturumda rezervasyonun yok.'); return;
+  }
+
+  const bookedAt = s.bookedAt && s.bookedAt[loggedUser.email];
+  // Parse session start time from key (format: "2026-7-1|10:00")
+  const [dateStr, timeStr] = key.split('|');
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const [h, min] = timeStr.split(':').map(Number);
+  const sessionStart = new Date(y, m-1, d, h, min);
+  const now = new Date();
+  const hoursUntilSession = (sessionStart - now) / 3600000;
+  const refundCredit = hoursUntilSession >= 24;
+
+  if (!confirm('Bu oturumu iptal etmek istediğine emin misin?' + (refundCredit ? '\n✓ 24 saatten fazla var — kredin iade edilecek.' : '\n⚠️ 24 saatten az kaldı — kredi iade edilmez.'))) return;
+
+  s.bookedBy = s.bookedBy.filter(e => e !== loggedUser.email);
+  if (s.bookedAt) delete s.bookedAt[loggedUser.email];
+  s.spots++;
+  // Level stays locked as long as there are other bookers
+  if (s.bookedBy.length === 0) {
+    // No one left — free the slot but keep level tag visible to indicate history
+    // (instructor can re-open fresh; we just clear the lock)
+    s.level = null;
+    s.type = 'Mock Exam Oturumu';
+    s.spots = 2;
+  }
+  saveSchedule(sch);
+
+  if (refundCredit) {
+    loggedUser.credits++;
+    showNotif('İptal & Kredi İadesi','Rezervasyonun iptal edildi ve kredin iade edildi.');
+  } else {
+    showNotif('İptal Edildi','Rezervasyonun iptal edildi. 24 saatten az kaldığı için kredi iade edilmez.');
+  }
+
+  const savedDay = studentSelDay;
+  const savedWeek = studentWeek;
+  document.getElementById('dash-content').innerHTML = studentDash(loggedUser);
+  studentSelDay = savedDay;
+  studentWeek = savedWeek;
+  initStudentCal(true);
+}
+
+function showLevelPickModal(key){
+  const existing = document.getElementById('level-pick-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'level-pick-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;max-width:360px;width:90%;text-align:center;">
+      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:.5rem;">Bu oturum hangi seviye için?</h3>
+      <p style="font-size:.84rem;color:var(--muted);margin-bottom:1.2rem;">İlk öğrenci olarak bu oturumun seviyesini belirliyorsun.</p>
+      <div style="display:flex;gap:.8rem;justify-content:center;margin-bottom:1rem;">
+        <button onclick="bookSlot('${key}','A1')" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.7rem 1.6rem;border-radius:9px;font-weight:700;font-size:.9rem;cursor:pointer;">A1 Oturumu</button>
+        <button onclick="bookSlot('${key}','B1')" style="background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;padding:.7rem 1.6rem;border-radius:9px;font-weight:700;font-size:.9rem;cursor:pointer;">B1 Oturumu</button>
+      </div>
+      <button onclick="document.getElementById('level-pick-modal').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:.45rem 1rem;border-radius:7px;cursor:pointer;font-size:.82rem;">İptal</button>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ── INSTRUCTOR: open/close 30-min lesson slots (writes to the same shared schedule) ── */
+let instrWeek = 0;
+let instrSelDay = 0;
+const DEFAULT_TYPE = 'Mock Exam Oturumu';
+
+function initInstrSlots(){
+  instrWeek=0; instrSelDay=0;
+  renderInstrDayRail(); renderInstrSlotList();
+}
+
+function switchInstrWeek(w){
+  instrWeek=w; instrSelDay=0;
+  document.getElementById('iwtab-0').classList.toggle('active', w===0);
+  document.getElementById('iwtab-1').classList.toggle('active', w===1);
+  renderInstrDayRail(); renderInstrSlotList();
+}
+
+function renderInstrDayRail(){
+  const rail = document.getElementById('instr-day-rail'); if(!rail) return;
+  const sch = loadSchedule();
+  rail.innerHTML='';
+  const base = instrWeek*7;
+  for(let i=0;i<7;i++){
+    const d = addDays(TODAY, base+i);
+    let hasOpen=false;
+    HALF_HOURS.forEach(t=>{ const s=sch[slotKey(d,t)]; if(s && s.coachEmail===loggedUser.email) hasOpen=true; });
+    const pill=document.createElement('div');
+    pill.className='day-pill'+(i===instrSelDay?' sel':'')+(hasOpen?'':' none');
+    pill.innerHTML=`<div class="dp-dow">${DOW[d.getDay()]}</div><div class="dp-num">${d.getDate()}</div><div class="dp-dot"></div>`;
+    pill.onclick=()=>{ instrSelDay=i; renderInstrDayRail(); renderInstrSlotList(); };
+    rail.appendChild(pill);
+  }
+}
+
+function renderInstrSlotList(){
+  const list = document.getElementById('instr-slot-list'); if(!list) return;
+  const sch = loadSchedule();
+  const base = instrWeek*7;
+  const d = addDays(TODAY, base+instrSelDay);
+  let html='';
+  HALF_HOURS.forEach(t=>{
+    const key = slotKey(d,t);
+    const s = sch[key];
+    const mine = s && s.coachEmail===loggedUser.email;
+    let stateLabel, btnClass, btnLabel, disabled='';
+    if (mine && s.spots===0) {
+      stateLabel = (s.bookedBy && s.bookedBy.length) ? 'Öğrenci(ler) tarafından rezerve edildi' : 'Kapatıldı (dolu)';
+      btnClass = 'is-toggle booked'; btnLabel='Rezerve ✓'; disabled='disabled';
+    } else if (mine) {
+      stateLabel = `Ders açık — öğrenciler görebilir (${s.spots} yer)`;
+      btnClass = 'is-toggle open'; btnLabel='Kapat';
+    } else if (s) {
+      stateLabel = 'Başka bir koç tarafından açılmış';
+      btnClass = 'is-toggle'; btnLabel='Dolu'; disabled='disabled';
+    } else {
+      stateLabel = 'Kapalı';
+      btnClass = 'is-toggle'; btnLabel='Ders Aç';
+    }
+    html+=`<div class="instr-slot-row">
+      <span class="is-time">${t}</span>
+      <span class="is-state">${stateLabel}</span>
+      <button class="${btnClass}" onclick="toggleInstrSlot('${key}')" ${disabled}>${btnLabel}</button>
+    </div>`;
+  });
+  list.innerHTML = html;
+}
+
+function toggleInstrSlot(key){
+  const sch = loadSchedule();
+  const existing = sch[key];
+  if (existing && existing.coachEmail===loggedUser.email && existing.spots>0) {
+    // close it
+    delete sch[key];
+    saveSchedule(sch);
+    showNotif('Ders Kapatıldı','Bu saat artık öğrencilere görünmüyor.');
+  } else if (!existing) {
+    // open it
+    sch[key] = { coachEmail: loggedUser.email, coachName: loggedUser.name, type: DEFAULT_TYPE, spots: 2, bookedBy: [] };
+    saveSchedule(sch);
+    showNotif('Ders Açıldı ✓','Öğrenciler bu saati artık rezerve edebilir.');
+  } else {
+    return; // booked or someone else's — no-op
+  }
+  renderInstrSlotList(); renderInstrDayRail();
+}
+
+/* ── EXAM DETAIL MODAL — puan bazlı bölüm dökümü ── */
+function showExamDetail(lvl, histIdx){
+  const all = loadStats();
+  const userStats = all[loggedUser.email] || {};
+  const s = userStats[lvl];
+  if (!s || !s.history || !s.history[histIdx]) return;
+  const h = s.history[histIdx];
+
+  const dd = new Date(h.date);
+  const dateStr = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+  const timeStr = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+
+  // Puan hesapla
+  const SDEFS = [
+    { key:'s1', label:'Leseverstehen T1', maxQ:5,  ptPer:5,   desc:'5 soru × 5 pt' },
+    { key:'s2', label:'Leseverstehen T2', maxQ:5,  ptPer:5,   desc:'5 soru × 5 pt' },
+    { key:'s3', label:'Leseverstehen T3', maxQ:10, ptPer:2.5, desc:'10 soru × 2.5 pt' },
+    { key:'s4', label:'Sprachbausteine',  maxQ:20, ptPer:1.5, desc:'20 soru × 1.5 pt' },
+  ];
+  const MAX_TOTAL = SDEFS.reduce((s,d)=>s+d.maxQ*d.ptPer, 0); // 105
+
+  let totalPts = 0;
+  const sectionRows = SDEFS.map(sd => {
+    const correct = h.sections ? (h.sections[sd.key]||0) : 0;
+    const pts     = parseFloat((correct * sd.ptPer).toFixed(1));
+    const maxPts  = sd.maxQ * sd.ptPer;
+    const pct     = Math.round(pts / maxPts * 100);
+    const barCol  = pct >= 60 ? 'var(--green)' : pct >= 40 ? '#fbbf24' : '#f87171';
+    totalPts += pts;
+    return `
+      <div style="margin-bottom:.7rem;">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.25rem;">
+          <span style="font-weight:700;">${sd.label}</span>
+          <span style="color:${barCol};font-weight:700;">${pts} / ${maxPts} pt <span style="color:var(--muted);font-weight:400;">(${correct}/${sd.maxQ} doğru · ${sd.desc})</span></span>
+        </div>
+        <div style="background:var(--border);border-radius:4px;height:7px;overflow:hidden;">
+          <div style="width:${pct}%;height:100%;background:${barCol};border-radius:4px;transition:width .5s;"></div>
+        </div>
+      </div>`;
+  });
+
+  totalPts = parseFloat(totalPts.toFixed(1));
+  const totalPct = Math.round(totalPts / MAX_TOTAL * 100);
+  const passed   = totalPct >= 60;
+
+  const existing = document.getElementById('exam-detail-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'exam-detail-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;';
+  modal.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.8rem;max-width:460px;width:100%;position:relative;">
+      <button onclick="document.getElementById('exam-detail-modal').remove()" style="position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;">${lvl} Deneme Sınavı · ${dateStr} ${timeStr}</div>
+      <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:.6rem;">Sınav Sonuç Detayı</h3>
+      <div style="display:flex;gap:.7rem;margin-bottom:1.3rem;flex-wrap:wrap;">
+        <div style="padding:.5rem .9rem;background:${passed?'rgba(34,197,94,.1)':'rgba(251,191,36,.1)'};border-radius:8px;border:1px solid ${passed?'rgba(34,197,94,.25)':'rgba(251,191,36,.25)'};">
+          <div style="font-size:.72rem;color:var(--muted);">Toplam Puan</div>
+          <div style="font-size:1.3rem;font-weight:900;color:${passed?'var(--green)':'#fbbf24'};">${totalPts}<span style="font-size:.8rem;font-weight:400;color:var(--muted);"> / ${MAX_TOTAL}</span></div>
+        </div>
+        <div style="padding:.5rem .9rem;background:var(--surface2);border-radius:8px;">
+          <div style="font-size:.72rem;color:var(--muted);">Yüzde</div>
+          <div style="font-size:1.3rem;font-weight:900;color:${passed?'var(--green)':'#fbbf24'};">%${totalPct}</div>
+        </div>
+        <div style="padding:.5rem .9rem;background:var(--surface2);border-radius:8px;font-size:.74rem;color:var(--muted);display:flex;align-items:center;">
+          ${passed ? '✅ Geçer not' : '❌ '+(MAX_TOTAL*0.6 - totalPts).toFixed(1)+' pt eksik'}
+        </div>
+      </div>
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.7rem;padding-top:.7rem;border-top:1px solid var(--border);">Bölüm Bazlı Sonuçlar</div>
+      ${sectionRows.join('')}
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ── TÜM SINAVLAR MODAL ── */
+function showAllExams(lvl){
+  const all = loadStats();
+  const userStats = all[loggedUser ? loggedUser.email : ''] || {};
+  const s = userStats[lvl];
+  const hist = ((s && s.history) || []).filter(h=>h.sections).reverse();
+  if (!hist.length) return;
+
+  const SDEFS = [
+    { key:'s1', ptPer:5   },
+    { key:'s2', ptPer:5   },
+    { key:'s3', ptPer:2.5 },
+    { key:'s4', ptPer:1.5 },
+  ];
+  const MAX_TOTAL = 105;
+
+  const rows = hist.map((h) => {
+    const dd      = new Date(h.date);
+    const ds      = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'});
+    const ts      = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    const pts     = h.sections ? parseFloat(SDEFS.reduce((sum,sd)=>sum+(h.sections[sd.key]||0)*sd.ptPer,0).toFixed(1)) : 0;
+    const pct     = Math.round(pts/MAX_TOTAL*100);
+    const col     = pct>=60?'var(--green)':'var(--yellow)';
+    // Gerçek index: date eşleştirmesiyle bul
+    const origIdx = (s.history||[]).findIndex(x => x.date === h.date);
+    const name    = h.examId ? ('Deneme Sınavı ' + (h.examId.match(/(\d+)$/)||['','01'])[1].padStart(2,'0')) : 'Deneme Sınavı';
+    return `<tr style="border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;" onclick="document.getElementById('all-exams-modal').remove();showExamDetail('${lvl}',${origIdx})">
+      <td style="padding:.4rem .5rem;font-size:.76rem;">
+        <div style="font-weight:600;color:var(--text);">${name}</div>
+        <div style="color:var(--muted);font-size:.68rem;">${ds} ${ts}</div>
+      </td>
+      <td style="padding:.4rem .5rem;text-align:right;font-weight:700;color:${col};">${pts}</td>
+      <td style="padding:.4rem .5rem;text-align:right;font-weight:700;color:${col};">%${pct}</td>
+      <td style="padding:.4rem .5rem;text-align:right;font-size:.68rem;color:var(--accent);">→</td>
+    </tr>`;
+  }).join('');
+
+  const existing = document.getElementById('all-exams-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'all-exams-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;';
+  modal.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.8rem;max-width:480px;width:100%;position:relative;">
+      <button onclick="document.getElementById('all-exams-modal').remove()" style="position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;">✕</button>
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;">${lvl} Deneme Sınavları</div>
+      <h3 style="font-size:1.05rem;font-weight:800;margin-bottom:1.2rem;">Tüm Sınav Sonuçları (${hist.length})</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="color:var(--muted);border-bottom:1px solid var(--border);font-size:.75rem;">
+          <th style="padding:.4rem .5rem;text-align:left;font-weight:700;">Tarih</th>
+          <th style="padding:.4rem .5rem;text-align:right;font-weight:700;">Puan</th>
+          <th style="padding:.4rem .5rem;text-align:right;font-weight:700;">%</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ── NOTIF ── */
+function showNotif(title,msg){
+  document.getElementById('n-title').textContent=title;
+  document.getElementById('n-msg').textContent=msg;
+  const n=document.getElementById('notif'); n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),4000);
+}
+
+/* ── INIT ── */
+document.getElementById('admin-link').style.display = 'block';
+renderHints('student');
+restoreSession();
+</script>
+</body>
+</html>

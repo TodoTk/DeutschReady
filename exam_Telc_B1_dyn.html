@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamReady – Modül Alıştırması</title>
+<style>
+  :root{
+    --bg:#181c2a;
+    --surface:#222840;
+    --surface2:#2c3250;
+    --surface3:#353d5e;
+    --accent:#7aabff;
+    --accent2:#9d7dff;
+    --green:#34d672;
+    --red:#ff7070;
+    --yellow:#fbbf24;
+    --text:#f2f4fc;
+    --muted:#b0b8d8;
+    --border:#404870;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7;}
+  a{color:inherit;text-decoration:none;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(24,28,42,.97);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);}
+  .back-link:hover{color:var(--accent);}
+  .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
+  .mode-study{background:rgba(52,214,114,.12);color:var(--green);border-bottom:1px solid rgba(52,214,114,.25);}
+  .mode-exam{background:rgba(122,171,255,.1);color:var(--accent);border-bottom:1px solid rgba(122,171,255,.25);}
+  .wrap{max-width:1200px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2rem;}
+  .badge{display:inline-block;background:rgba(122,171,255,.18);border:1px solid rgba(122,171,255,.4);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  h1{font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;margin-bottom:.3rem;}
+  .progress-bar{background:var(--surface3);border-radius:6px;height:8px;margin-bottom:.3rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.76rem;color:var(--muted);text-align:right;margin-bottom:1.5rem;}
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.2rem;}
+  .section-tag{display:inline-block;background:rgba(122,171,255,.15);border:1px solid rgba(122,171,255,.35);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  h2{font-size:1rem;font-weight:800;margin-bottom:.3rem;}
+  .instr{font-size:.86rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.6;}
+  .text-block{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.1rem;margin-bottom:.9rem;font-size:.9rem;white-space:pre-wrap;color:var(--text);line-height:1.75;}
+  /* Zuordnung */
+  .match-row{display:flex;align-items:flex-start;gap:.8rem;margin-bottom:.7rem;flex-wrap:wrap;padding:.6rem .8rem;background:var(--surface2);border-radius:8px;}
+  .match-num{font-size:.85rem;font-weight:800;color:var(--accent);min-width:28px;padding-top:.3rem;}
+  .match-text{flex:1;font-size:.88rem;min-width:200px;color:var(--text);line-height:1.6;}
+  .match-sel{background:#f0f2ff;border:2px solid var(--border);color:#1a1a2e;border-radius:7px;padding:.4rem .7rem;font-size:.84rem;outline:none;cursor:pointer;min-width:180px;font-weight:600;}
+  .match-sel:focus{border-color:var(--accent);}
+  .match-sel.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
+  .match-sel.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+  .headings-ref{background:var(--surface2);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1.1rem;border:1px solid var(--border);}
+  .headings-ref p{font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;}
+  /* Anzeigen */
+  .anzeige-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.6rem;margin-bottom:1.1rem;}
+  .anzeige-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.85rem;color:var(--text);line-height:1.6;}
+  .anzeige-label{font-size:.75rem;font-weight:800;color:var(--accent);margin-bottom:.3rem;text-transform:uppercase;}
+  /* MC */
+  .mc-q{font-size:.92rem;font-weight:700;margin-bottom:.6rem;color:var(--text);}
+  .mc-options{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem;}
+  .mc-opt{display:flex;align-items:flex-start;gap:.7rem;padding:.6rem .85rem;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;font-size:.87rem;color:var(--muted);background:var(--surface2);width:100%;text-align:left;transition:all .15s;}
+  .mc-opt:hover{border-color:var(--accent);color:var(--text);background:var(--surface3);}
+  .mc-opt.selected{border-color:var(--accent);color:var(--text);background:rgba(122,171,255,.15);}
+  .mc-opt.correct{border-color:var(--green)!important;color:var(--green)!important;background:rgba(52,214,114,.12)!important;}
+  .mc-opt.wrong{border-color:var(--red)!important;color:var(--red)!important;background:rgba(255,112,112,.12)!important;}
+  /* SPB inline */
+  .spb-text{font-size:.93rem;line-height:2.4;color:var(--text);}
+  .gap-sel{background:#f0f2ff;border:2px solid var(--accent);color:#1a1a2e;border-radius:6px;padding:.2rem .5rem;font-size:.85rem;outline:none;cursor:pointer;vertical-align:middle;margin:0 .2rem;font-weight:600;}
+  .gap-sel:focus{border-color:var(--accent2);}
+  .gap-sel.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
+  .gap-sel.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+  /* SPB T2 */
+  .spb2-opts{background:var(--surface2);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1.1rem;border:1px solid var(--border);}
+  .spb2-opts p{font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;}
+  .spb2-q-row{display:flex;align-items:center;gap:.8rem;padding:.5rem 0;border-bottom:1px solid var(--border);}
+  .spb2-q-row:last-child{border-bottom:none;}
+  .spb2-qnum{font-size:.85rem;font-weight:800;color:var(--accent);min-width:36px;}
+  .spb2-qt{flex:1;font-size:.87rem;color:var(--text);}
+  .spb2-sel{background:#f0f2ff;border:2px solid var(--border);color:#1a1a2e;border-radius:7px;padding:.38rem .6rem;font-size:.82rem;outline:none;min-width:140px;font-weight:600;cursor:pointer;}
+  .spb2-sel:focus{border-color:var(--accent);}
+  .spb2-sel.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
+  .spb2-sel.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+  /* Feedback */
+  .fb{font-size:.78rem;margin-top:.3rem;padding:.35rem .6rem;border-radius:5px;display:none;}
+  .fb.show{display:block;}
+  .fb.ok{background:rgba(52,214,114,.12);color:var(--green);border:1px solid rgba(52,214,114,.25);}
+  .fb.err{background:rgba(255,112,112,.12);color:var(--red);border:1px solid rgba(255,112,112,.25);}
+  /* Submit / Result */
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.2rem;}
+  .result-score{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .cta-row{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;text-decoration:none;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;cursor:pointer;background:none;font-size:.92rem;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  #results{display:none;}
+  #gate-wrap{display:none;max-width:440px;margin:4rem auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center;}
+
+  /* ── YAN YANA DÜZEN ── */
+  .split-layout{display:grid;grid-template-columns:3fr 2fr;gap:1.6rem;align-items:start;margin-bottom:1.2rem;}
+  .split-questions{display:flex;flex-direction:column;gap:.6rem;}
+  .split-ref{
+    position:sticky;top:68px;
+    max-height:calc(100vh - 88px);
+    overflow-y:auto;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.1rem 1.2rem;
+    word-break:normal;
+    overflow-wrap:break-word;
+    word-wrap:break-word;
+  }
+  .split-ref::-webkit-scrollbar{width:5px;}
+  .split-ref::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .split-ref-title{font-size:.72rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
+
+  /* Match row split versiyonu */
+  .match-row-split{display:flex;align-items:flex-start;gap:.6rem;padding:.7rem .9rem;background:var(--surface2);border-radius:8px;margin-bottom:.4rem;}
+  .match-num-split{font-size:.85rem;font-weight:800;color:var(--accent);min-width:26px;padding-top:.25rem;flex-shrink:0;}
+  .match-text-split{flex:1;font-size:.88rem;color:var(--text);line-height:1.65;}
+  .match-sel-split{background:#f0f2ff;border:2px solid var(--border);color:#1a1a2e;border-radius:7px;padding:.38rem .7rem;font-size:.83rem;outline:none;cursor:pointer;width:100%;font-weight:600;margin-top:.5rem;}
+  .match-sel-split:focus{border-color:var(--accent);}
+  .match-sel-split.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
+  .match-sel-split.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+
+  /* Ref içerik */
+  .ref-item{padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.84rem;line-height:1.6;color:var(--text);word-break:normal;overflow-wrap:anywhere;}
+  .ref-item:last-child{border-bottom:none;}
+  .ref-key{font-size:.76rem;font-weight:800;color:var(--accent);margin-bottom:.2rem;}
+  .ref-text-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;font-size:.88rem;line-height:1.78;color:var(--text);white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;}
+
+  @media(max-width:900px){
+    .split-layout{grid-template-columns:1fr;}
+    .split-ref{position:static;max-height:none;}
+    header{padding:.8rem 1rem;}
+    .wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+
+<div id="mode-banner" class="mode-banner" style="display:none;"></div>
+
+<div id="gate-wrap">
+  <div style="font-size:2.5rem;margin-bottom:.8rem;">⚠️</div>
+  <div id="gate-title" style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;"></div>
+  <div id="gate-text" style="font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;"></div>
+  <a href="dashboard.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;">Profile Dön</a>
+</div>
+
+<div id="exam-wrap" style="display:none;">
+<div class="wrap">
+  <div class="exam-header">
+    <div class="badge" id="exam-badge"></div>
+    <h1 id="exam-title"></h1>
+    <p id="exam-sub" style="color:var(--muted);font-size:.9rem;margin-top:.3rem;"></p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label">0 / 0</div>
+
+  <div id="question-area"></div>
+
+  <div id="results">
+    <div class="result-card">
+      <div class="result-score" id="res-score"></div>
+      <div id="res-label" style="font-size:1rem;color:var(--muted);margin-top:.5rem;"></div>
+    </div>
+  </div>
+
+  <div class="submit-wrap" id="submit-wrap" style="display:none;">
+    <button class="submit-btn" onclick="submitExam()">Bitir ve İncele →</button>
+  </div>
+
+  <div id="page-end-cta" style="display:none;text-align:center;margin:2rem 0;">
+    <div class="cta-row">
+      <a href="dashboard.html" class="cta-btn">Profile Dön</a>
+      <button class="cta-ghost" onclick="location.reload()">Tekrar Çöz</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const params    = new URLSearchParams(location.search);
+const MODULE    = params.get('module') || '';   // B1_LSV | B1_SPB | B1_LSV_T1 | ...
+const SET_NUM   = parseInt(params.get('set'))||1;
+const MODE      = params.get('mode') || 'exam';
+const isStudy   = MODE === 'study';
+const MODUL_KEY = 'examready_module_sets_v1';
+
+/* ── Veri yükle ── */
+function getAllSets() {
+  try { return JSON.parse(localStorage.getItem(MODUL_KEY)||'{}'); } catch(e){ return {}; }
+}
+
+/* ──────────────────────────────────────────────────
+   BÖLÜM NUMARALANDIRMASI
+   LSV T1: 1-5 | T2: 6-10 | T3: 11-20
+   SPB T1: 21-30 | T2: 31-40
+────────────────────────────────────────────────── */
+const NUM = {
+  'B1_LSV_T1': { start:1,  count:5  },
+  'B1_LSV_T2': { start:6,  count:5  },
+  'B1_LSV_T3': { start:11, count:10 },
+  'B1_SPB_T1': { start:21, count:10 },
+  'B1_SPB_T2': { start:31, count:10 },
+};
+
+/* ── Soru sayacı ── */
+let totalQ = 0;
+let answeredCount = 0;
+const answered = {};
+
+function markAnswered(id) {
+  if (!answered[id]) { answered[id]=true; answeredCount++; updateProg(); }
+}
+function updateProg() {
+  const pct = totalQ>0 ? Math.round(answeredCount/totalQ*100) : 0;
+  document.getElementById('prog').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=answeredCount+' / '+totalQ;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: LSV T1 — Sorular solda, Başlıklar sağda sticky
+──────────────────────────────────────────────────*/
+function renderLSVT1(content, startQ) {
+  const {texts, headings} = content;
+  const validHeadings = Object.entries(headings).filter(([,v])=>v);
+  const headOpts = validHeadings.map(([l,v])=>`<option value="${l}">${l.toUpperCase()}) ${v}</option>`).join('');
+
+  // SOL: Her metin + yanıt dropdown'ı
+  const questionRows = texts.map((t,i)=>{
+    const qn=startQ+i; const id=`lsv1-${qn}`;
+    totalQ++;
+    return `<div class="match-row-split">
+      <div class="match-num-split">${qn}</div>
+      <div style="flex:1;">
+        <div class="match-text-split">${t.text}</div>
+        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+          <select class="match-sel-split" id="${id}" onchange="markAnswered('${id}')">
+            <option value="">— Başlık seç —</option>${headOpts}
+          </select>
+          <div class="fb" id="${id}-fb"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // SAĞ: Başlıklar listesi (sticky)
+  const refItems = validHeadings.map(([l,v])=>`
+    <div class="ref-item">
+      <div class="ref-key">${l.toUpperCase()}</div>
+      <div>${v}</div>
+    </div>`).join('');
+
+  return `<div style="margin-bottom:1.2rem;">
+    <div style="margin-bottom:.8rem;">
+      <div class="section-tag">Leseverstehen · Teil 1 · Sorular ${startQ}–${startQ+texts.length-1}</div>
+      <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 1</h2>
+      <p class="instr" style="margin-bottom:0;">Her metne (${startQ}–${startQ+texts.length-1}) uygun başlığı seçin. Beş başlık kullanılmaz.</p>
+    </div>
+    <div class="split-layout">
+      <div class="split-questions">${questionRows}</div>
+      <div class="split-ref">
+        <div class="split-ref-title">📋 Überschriften (a–j)</div>
+        ${refItems}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: LSV T2 — Sorular solda, Metin sağda sticky
+──────────────────────────────────────────────────*/
+function renderLSVT2(content, startQ) {
+  const {text, questions} = content;
+
+  // SOL: MC sorular
+  const questionRows = questions.map((q,i)=>{
+    const qn=startQ+i; const id=`lsv2-${qn}`;
+    totalQ++;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div class="mc-q">${qn}. ${q.q}</div>
+      <div class="mc-options">
+        ${['a','b','c'].map(k=>`<button class="mc-opt" id="${id}-${k}" onclick="selMC('${id}','${k}','${q.answer}')">
+          <span style="font-weight:800;margin-right:.4rem;">${k})</span>${q[k]}</button>`).join('')}
+      </div>
+      <div class="fb" id="${id}-fb"></div>
+    </div>`;
+  }).join('');
+
+  // SAĞ: Uzun metin (sticky)
+  return `<div style="margin-bottom:1.2rem;">
+    <div style="margin-bottom:.8rem;">
+      <div class="section-tag">Leseverstehen · Teil 2 · Sorular ${startQ}–${startQ+questions.length-1}</div>
+      <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 2</h2>
+      <p class="instr" style="margin-bottom:0;">Metni okuyun ve her soru için doğru cevabı (a, b veya c) seçin.</p>
+    </div>
+    <div class="split-layout">
+      <div class="split-questions">${questionRows}</div>
+      <div class="split-ref">
+        <div class="split-ref-title">📄 Lesetext</div>
+        <div class="ref-text-block">${text}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: LSV T3 — Durumlar solda, İlanlar sağda sticky
+──────────────────────────────────────────────────*/
+function renderLSVT3(content, startQ) {
+  const {situations, ads} = content;
+  const validAds = Object.entries(ads).filter(([,v])=>v);
+  const adOpts = validAds.map(([l,v])=>`<option value="${l}">${l.toUpperCase()}</option>`).join('');
+
+  // SOL: Durumlar + dropdown
+  const questionRows = situations.map((s,i)=>{
+    const qn=startQ+i; const id=`lsv3-${qn}`;
+    totalQ++;
+    return `<div class="match-row-split">
+      <div class="match-num-split">${qn}</div>
+      <div style="flex:1;">
+        <div class="match-text-split">${s.text}</div>
+        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+          <select class="match-sel-split" id="${id}" onchange="markAnswered('${id}')">
+            <option value="">— İlan —</option>${adOpts}<option value="x">X – Keine</option>
+          </select>
+          <div class="fb" id="${id}-fb"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // SAĞ: İlanlar (sticky)
+  const refItems = validAds.map(([l,v])=>`
+    <div class="ref-item">
+      <div class="ref-key">${l.toUpperCase()}</div>
+      <div>${v}</div>
+    </div>`).join('');
+
+  return `<div style="margin-bottom:1.2rem;">
+    <div style="margin-bottom:.8rem;">
+      <div class="section-tag">Leseverstehen · Teil 3 · Sorular ${startQ}–${startQ+situations.length-1}</div>
+      <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 3</h2>
+      <p class="instr" style="margin-bottom:0;">Her duruma (${startQ}–${startQ+situations.length-1}) uygun ilanı seçin. Bir ilan birden fazla kullanılabilir. Uygun ilan yoksa X seçin.</p>
+    </div>
+    <div class="split-layout">
+      <div class="split-questions">${questionRows}</div>
+      <div class="split-ref">
+        <div class="split-ref-title">📋 Anzeigen (a–l)</div>
+        ${refItems}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: SPB T1 (lückentext 10 boşluk, 21-30)
+──────────────────────────────────────────────────*/
+function renderSPBT1(content, startQ) {
+  const {text, gaps} = content;
+  let html = text;
+  gaps.forEach((g,i)=>{
+    const qn=startQ+i; const id=`spb1-${qn}`;
+    totalQ++;
+    const opts=['a','b','c'].map(k=>`<option value="${k}">${k}) ${g[k]}</option>`).join('');
+    html = html.replace(`(${qn})`,
+      `<select class="gap-sel" id="${id}" onchange="markAnswered('${id}')"><option value="">…</option>${opts}</select>`);
+  });
+  return `<div class="section-card">
+    <div class="section-tag">Sprachbausteine · Teil 1 · Sorular ${startQ}–${startQ+gaps.length-1}</div>
+    <h2>Sprachbausteine – Teil 1</h2>
+    <p class="instr">Wählen Sie für jede Lücke (${startQ}–${startQ+gaps.length-1}) das richtige Wort.</p>
+    <div class="spb-text">${html}</div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: SPB T2 (10 soru, 15 seçenek, 31-40)
+──────────────────────────────────────────────────*/
+function renderSPBT2(content, startQ) {
+  const {options, questions} = content;
+  const opts15 = Object.entries(options).filter(([,v])=>v).map(([l,v])=>
+    `<option value="${l}">${l.toUpperCase()}) ${v}</option>`).join('');
+
+  const optRef = `<div class="spb2-opts">
+    <p>Seçenekler (a–o):</p>
+    ${Object.entries(options).filter(([,v])=>v).map(([l,v])=>`<div style="font-size:.82rem;padding:.12rem 0;"><strong>${l.toUpperCase()})</strong> ${v}</div>`).join('')}
+  </div>`;
+
+  const qRows = questions.map((q,i)=>{
+    const qn=startQ+i; const id=`spb2-${qn}`;
+    totalQ++;
+    return `<div class="spb2-q-row">
+      <div class="spb2-qnum">${qn}</div>
+      ${q.q ? `<div class="spb2-qt">${q.q}</div>` : '<div class="spb2-qt" style="color:var(--muted);font-size:.78rem;">—</div>'}
+      <select class="spb2-sel" id="${id}" onchange="markAnswered('${id}')">
+        <option value="">—</option>${opts15}
+      </select>
+    </div>`;
+  }).join('');
+
+  return `<div class="section-card">
+    <div class="section-tag">Sprachbausteine · Teil 2 · Sorular ${startQ}–${startQ+questions.length-1}</div>
+    <h2>Sprachbausteine – Teil 2</h2>
+    <p class="instr">Wählen Sie für jede Aufgabe (${startQ}–${startQ+questions.length-1}) die passende Antwort.</p>
+    ${optRef}
+    <div>${qRows}</div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   MC Seçimi
+──────────────────────────────────────────────────*/
+const mcAnswers = {};
+function selMC(id, val, correct) {
+  mcAnswers[id] = val;
+  markAnswered(id);
+  ['a','b','c'].forEach(k=>{
+    const btn=document.getElementById(id+'-'+k);
+    if(btn) btn.className='mc-opt'+(k===val?' selected':'');
+  });
+}
+
+/* ─────────────────────────────────────────────────
+   SUBMIT
+──────────────────────────────────────────────────*/
+// Kaydedilen yapıları submit için tut
+const renderedParts = [];
+
+function submitExam() {
+  let correct = 0;
+  renderedParts.forEach(p => {
+    const {type, content, startQ} = p;
+    if (type === 'lsv-t1') {
+      content.texts.forEach((t,i)=>{
+        const qn=startQ+i; const id=`lsv1-${qn}`;
+        const sel=document.getElementById(id);
+        const ok=sel?.value===t.answer; if(ok) correct++;
+        if(sel){sel.className='match-sel-split'+(ok?' correct':' wrong');sel.disabled=true;}
+        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+t.answer.toUpperCase()+') '+(content.headings[t.answer]||'');fb.className='fb show '+(ok?'ok':'err');}}
+      });
+    } else if (type === 'lsv-t2') {
+      content.questions.forEach((q,i)=>{
+        const qn=startQ+i; const id=`lsv2-${qn}`;
+        const sel=mcAnswers[id]||''; const ok=sel===q.answer; if(ok) correct++;
+        ['a','b','c'].forEach(k=>{
+          const btn=document.getElementById(id+'-'+k);
+          if(!btn) return; btn.onclick=null; btn.style.cursor='default';
+          if(k===q.answer) btn.classList.add('correct');
+          else if(k===sel) btn.classList.add('wrong');
+        });
+        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+q.answer.toUpperCase();fb.className='fb show '+(ok?'ok':'err');}}
+      });
+    } else if (type === 'lsv-t3') {
+      content.situations.forEach((s,i)=>{
+        const qn=startQ+i; const id=`lsv3-${qn}`;
+        const sel=document.getElementById(id);
+        const ok=sel?.value===s.answer; if(ok) correct++;
+        if(sel){sel.className='match-sel-split'+(ok?' correct':' wrong');sel.disabled=true;}
+        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+(s.answer==='x'?'X – Keine':s.answer.toUpperCase());fb.className='fb show '+(ok?'ok':'err');}}
+      });
+    } else if (type === 'spb-t1') {
+      content.gaps.forEach((g,i)=>{
+        const qn=startQ+i; const id=`spb1-${qn}`;
+        const sel=document.getElementById(id);
+        const ok=sel?.value===g.answer; if(ok) correct++;
+        if(sel){sel.className='gap-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+      });
+    } else if (type === 'spb-t2') {
+      content.questions.forEach((q,i)=>{
+        const qn=startQ+i; const id=`spb2-${qn}`;
+        const sel=document.getElementById(id);
+        const ok=sel?.value===q.answer; if(ok) correct++;
+        if(sel){sel.className='spb2-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+      });
+    }
+  });
+
+  const pct=totalQ>0?Math.round(correct/totalQ*100):0;
+  document.getElementById('res-score').textContent=correct+'/'+totalQ;
+  document.getElementById('res-label').textContent=pct>=60?'🎉 Sehr gut!':pct>=40?'📚 Weiter üben.':'💪 Noch einmal versuchen.';
+  document.getElementById('submit-wrap').style.display='none';
+  document.getElementById('results').style.display='block';
+  document.getElementById('page-end-cta').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ─────────────────────────────────────────────────
+   INIT
+──────────────────────────────────────────────────*/
+(function init(){
+  // Mode banner — şimdilik devre dışı
+  // const banner=document.getElementById('mode-banner');
+
+  const all = getAllSets();
+
+  // Hangi bölümler yüklenecek?
+  // B1_LSV → T1+T2+T3 birleşik
+  // B1_SPB → T1+T2 birleşik
+  // B1_LSV_T1/T2/T3 → sadece o bölüm (admin önizleme)
+  let parts = [];
+  if (MODULE === 'B1_LSV') {
+    parts = [
+      { key:'B1_LSV_T1', type:'lsv-t1',  startQ: NUM['B1_LSV_T1'].start },
+      { key:'B1_LSV_T2', type:'lsv-t2',  startQ: NUM['B1_LSV_T2'].start },
+      { key:'B1_LSV_T3', type:'lsv-t3',  startQ: NUM['B1_LSV_T3'].start },
+    ];
+  } else if (MODULE === 'B1_SPB') {
+    parts = [
+      { key:'B1_SPB_T1', type:'spb-t1', startQ: NUM['B1_SPB_T1'].start },
+      { key:'B1_SPB_T2', type:'spb-t2', startQ: NUM['B1_SPB_T2'].start },
+    ];
+  } else if (NUM[MODULE]) {
+    // Tekli bölüm önizleme
+    const structure = MODULE.includes('LSV_T1')?'lsv-t1':MODULE.includes('LSV_T2')?'lsv-t2':MODULE.includes('LSV_T3')?'lsv-t3':MODULE.includes('SPB_T1')?'spb-t1':'spb-t2';
+    parts = [{ key: MODULE, type: structure, startQ: NUM[MODULE].start }];
+  } else {
+    // Bilinmeyen modül
+    document.getElementById('gate-title').textContent='Bilinmeyen modül';
+    document.getElementById('gate-text').textContent='URL parametresi hatalı.';
+    document.getElementById('gate-wrap').style.display='block';
+    return;
+  }
+
+  // Her bölümü kontrol et
+  for (const p of parts) {
+    const setData = all[p.key]?.[SET_NUM];
+    if (!setData?.hasContent) {
+      document.getElementById('gate-title').textContent='İçerik bulunamadı';
+      document.getElementById('gate-text').textContent=`${p.key} – Set ${SET_NUM} henüz eklenmemiş. Admin panelinden ekleyin.`;
+      document.getElementById('gate-wrap').style.display='block';
+      return;
+    }
+    p.content = setData.content;
+  }
+
+  // Başlık
+  const moduleLabel = MODULE==='B1_LSV'?'Leseverstehen':MODULE==='B1_SPB'?'Sprachbausteine':MODULE.replace('B1_','').replace('_',' ');
+  document.getElementById('exam-badge').textContent = `${moduleLabel} · Set ${SET_NUM}`;
+  document.getElementById('exam-title').textContent = moduleLabel;
+  document.getElementById('exam-sub').textContent   = `Set ${SET_NUM} · ${isStudy?'Çalışma':'Sınav'} Modu`;
+
+  // Render
+  let html = '';
+  for (const p of parts) {
+    renderedParts.push(p);
+    if (p.type==='lsv-t1')      html += renderLSVT1(p.content, p.startQ);
+    else if (p.type==='lsv-t2') html += renderLSVT2(p.content, p.startQ);
+    else if (p.type==='lsv-t3') html += renderLSVT3(p.content, p.startQ);
+    else if (p.type==='spb-t1') html += renderSPBT1(p.content, p.startQ);
+    else if (p.type==='spb-t2') html += renderSPBT2(p.content, p.startQ);
+  }
+
+  document.getElementById('question-area').innerHTML = html;
+  document.getElementById('exam-wrap').style.display='block';
+  document.getElementById('submit-wrap').style.display='block';
+  updateProg();
+})();
+</script>
+</body>
+</html>

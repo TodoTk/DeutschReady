@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamReady – Schreiben</title>
+<style>
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#22c55e;--red:#f87171;--text:#e8eaf0;--muted:#8b90a7;--border:#2a2d3e;--radius:12px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);}
+  .back-link:hover{color:var(--accent);}
+  .wrap{max-width:760px;margin:0 auto;padding:2rem;}
+  .badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.2rem;}
+  .tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;}
+  h1{font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;margin-bottom:.4rem;}
+  .task-text{font-size:.95rem;line-height:1.75;color:var(--text);margin-bottom:1rem;}
+  .points-list{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.2rem;}
+  .points-list li{font-size:.88rem;color:var(--muted);padding-left:1rem;}
+  .ai-eval-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;margin-top:.8rem;display:none;font-size:.87rem;line-height:1.7;color:var(--text);}
+  .ai-eval-box.show{display:block;}
+  .btn-evaluate{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:none;padding:.65rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;}
+  .btn-evaluate:hover{opacity:.88;}
+  textarea.answer-box{width:100%;min-height:220px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;color:var(--text);font-size:.9rem;font-family:inherit;line-height:1.7;outline:none;resize:vertical;}
+  textarea.answer-box:focus{border-color:var(--accent);}
+  .word-count{font-size:.75rem;color:var(--muted);text-align:right;margin-top:.3rem;}
+  .btn-row{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.7rem 1.4rem;border-radius:9px;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-ghost{border:1px solid var(--border);color:var(--muted);padding:.7rem 1.2rem;border-radius:9px;font-weight:600;font-size:.9rem;background:none;cursor:pointer;}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .example-box{background:var(--surface2);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:1rem 1.1rem;font-size:.88rem;line-height:1.75;color:var(--text);display:none;white-space:pre-wrap;}
+  .criteria-box{background:var(--surface2);border-radius:8px;padding:.8rem 1rem;font-size:.8rem;color:var(--muted);display:none;}
+  .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
+  .mode-study{background:rgba(34,197,94,.1);color:var(--green);border-bottom:1px solid rgba(34,197,94,.2);}
+  .mode-exam{background:rgba(79,142,247,.08);color:var(--accent);border-bottom:1px solid rgba(79,142,247,.2);}
+  #gate-wrap{display:none;max-width:440px;margin:4rem auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center;}
+  .empty-state{text-align:center;padding:3rem;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+
+<div id="gate-wrap">
+  <div style="font-size:2.5rem;margin-bottom:.8rem;">🔒</div>
+  <div id="gate-title" style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;"></div>
+  <div id="gate-text" style="font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;"></div>
+  <a id="gate-cta" href="register.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;"></a>
+</div>
+
+<div id="mode-banner" class="mode-banner" style="display:none;"></div>
+
+<div id="exam-wrap" style="display:none;">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div class="badge">Subtest: Schreiben</div>
+      <h1>Schreiben – Aufgabe</h1>
+      <p style="color:var(--muted);font-size:.92rem;">Bir yazma görevi — istediğin zaman yeni rastgele soru yükle.</p>
+    </div>
+
+    <div id="question-area"></div>
+
+    <div style="text-align:center;margin-top:1.5rem;">
+      <button class="btn-ghost" onclick="loadRandom()">🔀 Yeni Rastgele Soru</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SESSION_KEY = 'examready_session_v1';
+const SCH_KEY     = 'examready_schreiben_v1';
+
+function getSession() {
+  try { const s=JSON.parse(localStorage.getItem(SESSION_KEY)); return (s&&s.role==='student')?s:null; } catch(e){return null;}
+}
+function getMode() {
+  return new URLSearchParams(location.search).get('mode') || 'exam';
+}
+function loadPool() {
+  try { return JSON.parse(localStorage.getItem(SCH_KEY)||'[]'); } catch(e){ return []; }
+}
+
+let currentQ = null;
+const isStudy = getMode() === 'study';
+
+function loadRandom() {
+  const pool = loadPool().filter(q => q.level === (getSession()?.level || 'B1') || true);
+  if (!pool.length) {
+    document.getElementById('question-area').innerHTML = '<div class="empty-state">📭 Henüz soru eklenmedi.<br><a href="admin.html" style="color:var(--accent);font-weight:700;">Admin panelinden</a> soru ekleyin.</div>';
+    return;
+  }
+  currentQ = pool[Math.floor(Math.random() * pool.length)];
+  renderQ(currentQ);
+}
+
+function renderQ(q) {
+  const pointsHTML = (q.points||[]).map(p=>`<li>${p}</li>`).join('');
+  const exampleHTML = q.example && isStudy
+    ? `<div style="margin-top:1rem;">
+        <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Örnek Yanıtı Göster</button>
+        <div class="example-box" id="example-box">${q.example}</div>
+       </div>` : '';
+  const criteriaHTML = q.criteria && isStudy
+    ? `<div class="criteria-box" id="criteria-box">${q.criteria}</div>` : '';
+
+  document.getElementById('question-area').innerHTML = `
+    <div class="card">
+      <div class="tag">${q.type==='brief'?'Brief (Mektup)':q.type==='email'?'E-Mail':'Notiz'} · ${q.level}${q.setNo?` · Set ${q.setNo}`:''}</div>
+      <div class="task-text">${q.task}</div>
+      ${pointsHTML ? `<ul class="points-list">${pointsHTML}</ul>` : ''}
+      ${criteriaHTML}
+    </div>
+    <div class="card">
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Yanıtınızı yazın:</div>
+      <textarea class="answer-box" id="answer-box" oninput="updateWC()" placeholder="Hier schreiben Sie Ihren Text..."></textarea>
+      <div class="word-count" id="wc">0 kelime</div>
+      <div class="btn-row">
+        <button class="btn-evaluate" onclick="evaluateAnswer()">🤖 Değerlendir</button>
+        ${isStudy ? `<button class="btn-primary" onclick="showCriteria()">📋 Kriterleri Gör</button>` : ''}
+        <button class="btn-ghost" onclick="clearAnswer()">Temizle</button>
+      </div>
+      <div class="ai-eval-box" id="ai-eval-box"></div>
+      ${exampleHTML}
+    </div>`;
+}
+
+function evaluateAnswer() {
+  const answer = document.getElementById('answer-box')?.value?.trim();
+  const box = document.getElementById('ai-eval-box');
+  if (!answer) {
+    box.innerHTML = '<span style="color:var(--muted);">Önce bir yanıt yazın.</span>';
+    box.classList.add('show'); return;
+  }
+  // AI bağlantısı ileriki adımda eklenecek
+  box.innerHTML = `<div style="color:var(--muted);font-size:.84rem;text-align:center;padding:.5rem 0;">
+    <div style="font-size:1.2rem;margin-bottom:.4rem;">🤖</div>
+    AI değerlendirmesi yakında eklenecek. Bu alan API entegrasyonu sonrası aktif olacak.
+  </div>`;
+  box.classList.add('show');
+}
+
+function updateWC() {
+  const words = (document.getElementById('answer-box')?.value||'').trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wc').textContent = words + ' kelime';
+}
+function clearAnswer() {
+  const el = document.getElementById('answer-box');
+  if (el) { el.value=''; updateWC(); }
+}
+function toggleExample() {
+  const box = document.getElementById('example-box');
+  const btn = document.getElementById('ex-btn');
+  const show = box.style.display==='block';
+  box.style.display = show ? 'none' : 'block';
+  btn.textContent = show ? '💡 Örnek Yanıtı Göster' : '💡 Örneği Gizle';
+}
+function showCriteria() {
+  const box = document.getElementById('criteria-box');
+  if (box) box.style.display = box.style.display==='block'?'none':'block';
+}
+
+(function init(){
+  const sess = getSession();
+  if (!sess) {
+    document.getElementById('gate-title').textContent='Giriş gerekli';
+    document.getElementById('gate-text').textContent='Bu içeriğe erişmek için hesabınızla giriş yapın.';
+    document.getElementById('gate-cta').textContent='Giriş Yap →';
+    document.getElementById('gate-cta').href='dashboard.html';
+    document.getElementById('gate-wrap').style.display='block';
+    return;
+  }
+
+  // Mode banner — şimdilik devre dışı
+
+  document.getElementById('exam-wrap').style.display='block';
+  loadRandom();
+})();
+</script>
+</body>
+</html>

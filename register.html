@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ücretsiz Kayıt Ol – ExamReady</title>
+<style>
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #222535;
+  --accent: #4f8ef7; --accent2: #7c5cfc; --green: #22c55e;
+  --text: #e8eaf0; --muted: #8b90a7; --border: #2a2d3e; --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); }
+.logo { font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.back-link { font-size: .85rem; color: var(--muted); }
+.back-link:hover { color: var(--accent); }
+
+.wrap { display: flex; align-items: center; justify-content: center; padding: 2.5rem 1.5rem; min-height: calc(100vh - 65px); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.4rem; width: 100%; max-width: 480px; }
+.card h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: .3rem; }
+.card .sub { font-size: .87rem; color: var(--muted); margin-bottom: 1.8rem; }
+
+.step-indicator { display: flex; gap: .4rem; margin-bottom: 1.8rem; }
+.step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--border); transition: background .2s; }
+.step-dot.active { background: var(--accent); }
+
+.field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1rem; }
+.field label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.field input { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: .7rem .95rem; color: var(--text); font-size: .92rem; outline: none; }
+.field input:focus { border-color: var(--accent); }
+.err { color: #f87171; font-size: .8rem; margin-top: .4rem; display: none; }
+
+.next-btn, .submit-btn { width: 100%; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: .85rem; border-radius: 9px; font-weight: 700; font-size: .95rem; margin-top: .4rem; }
+.next-btn:hover, .submit-btn:hover { opacity: .9; }
+.back-step { display: block; text-align: center; margin-top: .9rem; font-size: .82rem; color: var(--muted); cursor: pointer; }
+.back-step:hover { color: var(--accent); }
+
+/* LEVEL PICKER */
+.level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin-bottom: 1.4rem; }
+.level-card { border: 2px solid var(--border); border-radius: 10px; padding: 1.3rem 1rem; text-align: center; cursor: pointer; transition: all .2s; background: var(--surface2); }
+.level-card:hover { border-color: rgba(79,142,247,.5); }
+.level-card.selected { border-color: var(--accent); background: rgba(79,142,247,.1); }
+.level-card .lvl-tag { font-size: 1.5rem; font-weight: 900; margin-bottom: .3rem; }
+.level-card .lvl-desc { font-size: .76rem; color: var(--muted); }
+.level-warn { background: rgba(251,191,36,.1); border: 1px solid rgba(251,191,36,.3); border-radius: 8px; padding: .8rem .9rem; font-size: .78rem; color: #fbbf24; margin-bottom: 1.2rem; display: flex; gap: .5rem; align-items: flex-start; }
+
+.login-link { text-align: center; font-size: .82rem; color: var(--muted); margin-top: 1.2rem; }
+.login-link a { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="text-decoration:none;"><span class="logo">ExamReady</span></a>
+  <a href="index.html" class="back-link">← Ana Sayfa</a>
+</div>
+
+<div class="wrap">
+  <div class="card">
+
+    <!-- STEP 1: account info -->
+    <div id="step-account">
+      <h1>Ücretsiz Hesap Oluştur</h1>
+      <div class="sub">1 dakikada hesabını aç, ücretsiz deneme sınavına başla.</div>
+      <div class="step-indicator"><div class="step-dot active"></div><div class="step-dot"></div></div>
+
+      <div class="field"><label>Ad Soyad</label><input type="text" id="reg-name" placeholder="Ayşe Kaya"/></div>
+      <div class="field"><label>E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com"/></div>
+      <div class="field"><label>Şifre</label><input type="password" id="reg-pw" placeholder="En az 6 karakter"/></div>
+      <div class="err" id="err-account"></div>
+
+      <button class="next-btn" onclick="goToLevelStep()">Devam Et →</button>
+      <div class="login-link">Zaten hesabın var mı? <a href="dashboard.html">Giriş yap</a></div>
+    </div>
+
+    <!-- STEP 2: level selection -->
+    <div id="step-level" style="display:none;">
+      <h1>Seviyeni Seç</h1>
+      <div class="sub">Bu seçim ücretsiz erişimini belirler — dikkatli seç.</div>
+      <div class="step-indicator"><div class="step-dot active"></div><div class="step-dot active"></div></div>
+
+      <div class="level-grid">
+        <div class="level-card" id="lvl-A1" onclick="pickLevel('A1')">
+          <div class="lvl-tag">A1</div>
+          <div class="lvl-desc">Temel seviye. Yeni başlayanlar, vatandaşlık/oturma izni için.</div>
+        </div>
+        <div class="level-card" id="lvl-B1" onclick="pickLevel('B1')">
+          <div class="lvl-tag">B1</div>
+          <div class="lvl-desc">Orta seviye. Kariyer, üniversite veya ileri vatandaşlık için.</div>
+        </div>
+      </div>
+
+      <div class="level-warn">
+        <span>⚠️</span>
+        <span>Seçtiğin seviyenin ücretsiz deneme sınavına erişeceksin. Diğer seviyeye geçmek istersen tam üyelik (€25) almanız gerekir — ücretsiz hesapla seviye değiştirilemez.</span>
+      </div>
+
+      <div class="err" id="err-level"></div>
+      <button class="submit-btn" onclick="completeRegistration()">Hesabımı Oluştur ve Sınava Başla →</button>
+      <div class="back-step" onclick="goToAccountStep()">← Geri dön</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<script>
+const SESSION_KEY   = 'examready_session_v1';
+const REG_USERS_KEY = 'examready_registered_users_v1';
+
+let chosenLevel = null;
+
+// ── localStorage fallback helpers ──
+function loadRegisteredUsers() {
+  try { return JSON.parse(localStorage.getItem(REG_USERS_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveRegisteredUsers(u) { localStorage.setItem(REG_USERS_KEY, JSON.stringify(u)); }
+
+function goToLevelStep() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('reg-pw').value;
+  const errEl = document.getElementById('err-account');
+
+  if (!name || !email || !pw) { errEl.textContent='Lütfen tüm alanları doldurun.'; errEl.style.display='block'; return; }
+  if (!email.includes('@') || !email.includes('.')) { errEl.textContent='Geçerli bir e-posta girin.'; errEl.style.display='block'; return; }
+  if (pw.length < 6) { errEl.textContent='Şifre en az 6 karakter olmalı.'; errEl.style.display='block'; return; }
+
+  errEl.style.display = 'none';
+  document.getElementById('step-account').style.display = 'none';
+  document.getElementById('step-level').style.display   = 'block';
+}
+
+function goToAccountStep() {
+  document.getElementById('step-level').style.display   = 'none';
+  document.getElementById('step-account').style.display = 'block';
+}
+
+function pickLevel(level) {
+  chosenLevel = level;
+  document.getElementById('lvl-A1').classList.toggle('selected', level==='A1');
+  document.getElementById('lvl-B1').classList.toggle('selected', level==='B1');
+  document.getElementById('err-level').style.display = 'none';
+}
+
+async function completeRegistration() {
+  if (!chosenLevel) {
+    const errEl = document.getElementById('err-level');
+    errEl.textContent = 'Devam etmeden önce bir seviye seçmelisin.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pw    = document.getElementById('reg-pw').value;
+  const btn   = document.querySelector('.submit-btn');
+  btn.disabled = true; btn.textContent = 'Kayıt yapılıyor…';
+
+  const initials = name.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase();
+  const colors   = ['#4f8ef7','#7c5cfc','#22c55e','#f59e0b','#ec4899','#06b6d4','#8b5cf6','#14b8a6'];
+  const color    = colors[Math.floor(Math.random()*colors.length)];
+  const refCode  = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
+
+  try {
+    if (USE_SUPABASE) {
+      // ── Supabase Auth kaydı ──
+      await sbSignUp(email, pw, name, chosenLevel);
+    } else {
+      // ── localStorage fallback ──
+      const regUsers = loadRegisteredUsers();
+      if (regUsers[email]) {
+        document.getElementById('err-account').textContent = 'Bu e-posta ile zaten hesap var.';
+        document.getElementById('err-account').style.display = 'block';
+        btn.disabled=false; btn.textContent='Hesabımı Oluştur ve Sınava Başla →'; return;
+      }
+      regUsers[email] = { pw, name, initials, color, level:chosenLevel, credits:0, freeExamDone:false, referralCount:0, referralCode:refCode, unlockedFull:false, createdAt:new Date().toISOString() };
+      saveRegisteredUsers(regUsers);
+    }
+
+    // Oturum oluştur
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      email, role:'student', name, level:chosenLevel, source:'registered'
+    }));
+    window.location.href = 'dashboard.html';
+
+  } catch(err) {
+    btn.disabled=false; btn.textContent='Hesabımı Oluştur ve Sınava Başla →';
+    const errEl = document.getElementById('err-account');
+    errEl.textContent = err.message || 'Kayıt sırasında hata oluştu.';
+    errEl.style.display = 'block';
+    document.getElementById('step-level').style.display   = 'none';
+    document.getElementById('step-account').style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

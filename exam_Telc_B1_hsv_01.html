@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamReady – telc B1 Hörverstehen Teil 1</title>
+<style>
+  :root {
+    --bg:#181c2a;--surface:#222840;--surface2:#2c3250;--surface3:#353d5e;
+    --accent:#7aabff;--accent2:#9d7dff;--green:#34d672;
+    --red:#ff7070;--text:#f2f4fc;--muted:#b0b8d8;--border:#404870;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);}
+  .back-link:hover{color:var(--accent);}
+
+  .exam-wrap{max-width:860px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2.5rem;}
+  .exam-badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .exam-header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;margin-bottom:.4rem;}
+  .exam-header p{color:var(--muted);font-size:.95rem;}
+
+  .progress-bar{background:var(--border);border-radius:6px;height:8px;margin-bottom:.4rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;text-align:right;}
+
+  /* GATE */
+  #gate-wrap{display:none;max-width:480px;margin:4rem auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center;}
+  #gate-icon{font-size:2.5rem;margin-bottom:.8rem;}
+  #gate-title{font-size:1.1rem;font-weight:800;margin-bottom:.5rem;}
+  #gate-text{font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.5rem;}
+  .section-tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  .section-card h2{font-size:1.05rem;font-weight:800;margin-bottom:.3rem;}
+  .section-card .instr{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+
+  /* AUDIO */
+  .audio-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .audio-label{font-size:.78rem;font-weight:700;color:var(--accent);white-space:nowrap;}
+  audio{flex:1;min-width:200px;height:36px;}
+
+  /* TRUE/FALSE */
+  .tf-question{margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border);}
+  .tf-question:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .tf-nr{font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem;}
+  .tf-aussage{font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:.7rem;line-height:1.5;}
+  .tf-options{display:flex;gap:.6rem;}
+  .tf-btn{flex:1;padding:.55rem;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;}
+  .tf-btn:hover{border-color:var(--accent);color:var(--text);}
+  .tf-btn.selected-r{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.1);}
+  .tf-btn.selected-f{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08);}
+  .tf-btn.correct{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.1)!important;}
+  .tf-btn.wrong{border-color:var(--red)!important;color:var(--red)!important;background:rgba(248,113,113,.1)!important;}
+  .tf-feedback{margin-top:.6rem;font-size:.8rem;color:var(--muted);display:none;background:var(--bg);border-left:3px solid var(--border);padding:.5rem .7rem;border-radius:0 6px 6px 0;}
+  .tf-feedback.show{display:block;}
+  .tf-feedback.correct-fb{border-left-color:var(--green);color:var(--green);}
+  .tf-feedback.wrong-fb{border-left-color:var(--red);}
+
+  /* MC */
+  .mc-question{margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border);}
+  .mc-question:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .mc-q{font-size:.92rem;font-weight:600;margin-bottom:.6rem;}
+  .mc-options{display:flex;flex-direction:column;gap:.35rem;}
+  .mc-opt{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .7rem;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-size:.85rem;color:var(--muted);transition:all .2s;background:none;width:100%;text-align:left;}
+  .mc-opt:hover{border-color:var(--accent);color:var(--text);}
+  .mc-opt.selected{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.08);}
+  .mc-opt.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
+  .mc-opt.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08);}
+  .mc-feedback{margin-top:.6rem;font-size:.8rem;color:var(--muted);display:none;background:var(--bg);border-left:3px solid var(--border);padding:.5rem .7rem;border-radius:0 6px 6px 0;}
+  .mc-feedback.show{display:block;}
+  .mc-feedback.correct-fb{border-left-color:var(--green);color:var(--green);}
+  .mc-feedback.wrong-fb{border-left-color:var(--red);}
+
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+
+  #results{display:none;}
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .result-score{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .result-label{font-size:1rem;color:var(--muted);margin-top:.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1.5rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.75rem;color:var(--muted);}
+  .cta-section{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.95rem;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  .empty-state{text-align:center;padding:3rem 2rem;color:var(--muted);}
+  .empty-state a{color:var(--accent);font-weight:700;}
+
+  @media(max-width:600px){
+    header{padding:.8rem 1rem;}
+    .exam-wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+    .tf-options{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+
+<!-- GATE -->
+<div id="gate-wrap">
+  <div id="gate-icon">🔒</div>
+  <div id="gate-title"></div>
+  <div id="gate-text"></div>
+  <a id="gate-cta" href="register.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;margin-top:.5rem;"></a>
+</div>
+
+<div id="exam-wrap-outer" style="display:none;">
+  <div id="login-banner" style="display:none;background:rgba(34,197,94,.08);border-bottom:1px solid rgba(34,197,94,.2);padding:.5rem 2rem;font-size:.8rem;color:var(--green);text-align:center;">
+    <span id="login-banner-text"></span>
+  </div>
+
+  <div class="exam-wrap">
+    <div class="exam-header">
+      <div class="exam-badge">Subtest: Hörverstehen · Teil 1</div>
+      <h1>Hörverstehen – Teil 1</h1>
+      <p>Gespräche hören und Aussagen als Richtig oder Falsch bewerten</p>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 0 beantwortet</div>
+
+    <!-- Sorular buraya JS ile render edilir -->
+    <div id="questions-container"></div>
+
+    <div id="results">
+      <div class="result-card">
+        <div class="result-score" id="res-score">0/0</div>
+        <div class="result-label" id="res-label"></div>
+        <div class="result-breakdown">
+          <div class="rb-item"><div class="rb-num" id="rb-correct">0</div><div class="rb-lab">Richtig</div></div>
+          <div class="rb-item"><div class="rb-num" id="rb-wrong" style="color:var(--red)">0</div><div class="rb-lab">Falsch</div></div>
+          <div class="rb-item"><div class="rb-num" id="rb-pct">0%</div><div class="rb-lab">Ergebnis</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap" id="submit-wrap" style="display:none;">
+      <button class="submit-btn" onclick="submitExam()">Sınavı Bitir ve Detaylı İncele →</button>
+    </div>
+
+    <div id="page-end-cta" style="display:none;text-align:center;margin:2.5rem 0;">
+      <p style="color:var(--muted);font-size:.95rem;margin-bottom:1.2rem;">Daha fazla Hörverstehen alıştırması ve tam mock exam için tam erişim alın.</p>
+      <div class="cta-section">
+        <a href="index.html#fiyatlar" class="cta-btn">Tam Erişim – €25'ten Başlayan Fiyatlar</a>
+        <a href="dashboard.html" class="cta-ghost">Profile Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── SABIT DEĞERLER ─── */
+const SESSION_KEY = 'examready_session_v1';
+const STATS_KEY   = 'examready_student_stats_v1';
+const Q_KEY       = 'examready_hsv_questions_v1';
+const SECTION_ID  = 'B1_T1';
+const EXAM_LEVEL  = 'B1';
+
+/* ─── SESSION ─── */
+function getSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SESSION_KEY));
+    return (s && s.role === 'student') ? s : null;
+  } catch(e) { return null; }
+}
+
+/* ─── INDEXEDDB ─── */
+const DB_NAME  = 'examready_audio_db';
+const DB_STORE = 'audio';
+let db = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE);
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e);
+  });
+}
+function getAudio(key) {
+  return new Promise((res, rej) => {
+    const tx  = db.transaction(DB_STORE, 'readonly');
+    const req = tx.objectStore(DB_STORE).get(key);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = rej;
+  });
+}
+
+/* ─── SORULAR ─── */
+let QUESTIONS = [];
+const selected = {};
+
+function loadQuestionsFromAdmin() {
+  try {
+    const data = JSON.parse(localStorage.getItem(Q_KEY)) || {};
+    return (data[SECTION_ID]?.questions) || [];
+  } catch(e) { return []; }
+}
+
+/* ─── RENDER ─── */
+async function renderQuestions(qs) {
+  const container = document.getElementById('questions-container');
+  if (!qs.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div style="font-size:2rem;margin-bottom:.8rem;">🎧</div>
+        <p>Henüz bu bölümde soru eklenmedi.</p>
+        <p style="margin-top:.4rem;font-size:.85rem;"><a href="admin.html">Admin panelinden</a> soru ve ses dosyası ekleyebilirsiniz.</p>
+      </div>`;
+    document.getElementById('submit-wrap').style.display = 'none';
+    document.getElementById('prog-label').textContent = '0 / 0 beantwortet';
+    return;
+  }
+
+  const isTF = qs[0].aussage !== undefined;
+
+  // Her soru için HTML + audio blob oluştur
+  const parts = await Promise.all(qs.map(async (q, i) => {
+    let audioHTML = '';
+    if (q.audioKey) {
+      const buf = await getAudio(q.audioKey);
+      if (buf) {
+        const url  = URL.createObjectURL(new Blob([buf], {type:'audio/mpeg'}));
+        audioHTML = `<div class="audio-block">
+          <span class="audio-label">🎧 Aufgabe ${i+1}</span>
+          <audio controls controlsList="nodownload" src="${url}"></audio>
+        </div>`;
+      }
+    }
+
+    if (isTF) {
+      return `
+        <div class="tf-question">
+          <div class="tf-nr">Aussage ${i+1}</div>
+          ${audioHTML}
+          <div class="tf-aussage">${q.aussage}</div>
+          <div class="tf-options">
+            <button class="tf-btn" id="${q.id}-r" onclick="selectTF('${q.id}','R')">✓ Richtig</button>
+            <button class="tf-btn" id="${q.id}-f" onclick="selectTF('${q.id}','F')">✗ Falsch</button>
+          </div>
+          <div class="tf-feedback" id="${q.id}-fb"></div>
+        </div>`;
+    } else {
+      const opts = ['a','b','c'].map(k =>
+        `<button class="mc-opt" id="${q.id}-${k}" onclick="selectMC('${q.id}','${k}')">
+          <span style="font-weight:800;margin-right:.3rem;">${k})</span> ${q.options[k]}
+        </button>`
+      ).join('');
+      return `
+        <div class="mc-question">
+          <div class="tf-nr">Frage ${i+1}</div>
+          ${audioHTML}
+          <div class="mc-q">${q.question}</div>
+          <div class="mc-options">${opts}</div>
+          <div class="mc-feedback" id="${q.id}-fb"></div>
+        </div>`;
+    }
+  }));
+
+  const isTFType = qs[0].aussage !== undefined;
+  container.innerHTML = `
+    <div class="section-card">
+      <div class="section-tag">Hörverstehen · Teil 1</div>
+      <h2>Teil 1</h2>
+      <p class="instr">${isTFType
+        ? 'Hören Sie die Dialoge und entscheiden Sie: Ist die Aussage <strong>Richtig</strong> oder <strong>Falsch</strong>?'
+        : 'Hören Sie die Texte und wählen Sie die richtige Antwort.'
+      }</p>
+      ${parts.join('')}
+    </div>`;
+
+  document.getElementById('submit-wrap').style.display = 'block';
+  updateProgress();
+}
+
+/* ─── SEÇİM ─── */
+function selectTF(id, val) {
+  selected[id] = val;
+  document.getElementById(id+'-r').className = 'tf-btn' + (val==='R'?' selected-r':'');
+  document.getElementById(id+'-f').className = 'tf-btn' + (val==='F'?' selected-f':'');
+  updateProgress();
+}
+
+function selectMC(id, val) {
+  selected[id] = val;
+  ['a','b','c'].forEach(k => {
+    document.getElementById(id+'-'+k).className = 'mc-opt' + (val===k?' selected':'');
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = Object.keys(selected).length;
+  const total    = QUESTIONS.length;
+  const pct      = total > 0 ? Math.round(answered/total*100) : 0;
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = answered + ' / ' + total + ' beantwortet';
+}
+
+/* ─── SUBMIT ─── */
+function submitExam() {
+  let correct = 0;
+  const isTF  = QUESTIONS.length > 0 && QUESTIONS[0].aussage !== undefined;
+
+  QUESTIONS.forEach(q => {
+    const ans       = selected[q.id];
+    const isCorrect = ans === q.correctAnswer;
+    if (isCorrect) correct++;
+
+    const fb = document.getElementById(q.id+'-fb');
+
+    if (isTF) {
+      const rBtn = document.getElementById(q.id+'-r');
+      const fBtn = document.getElementById(q.id+'-f');
+      [rBtn,fBtn].forEach(b => { b.onclick = null; b.style.cursor='default'; });
+      if (q.correctAnswer==='R') {
+        rBtn.classList.add('correct');
+        if (ans==='F') fBtn.classList.add('wrong');
+      } else {
+        fBtn.classList.add('correct');
+        if (ans==='R') rBtn.classList.add('wrong');
+      }
+    } else {
+      ['a','b','c'].forEach(k => {
+        const btn = document.getElementById(q.id+'-'+k);
+        btn.onclick = null; btn.style.cursor = 'default';
+        if (k === q.correctAnswer) btn.classList.add('correct');
+        else if (k === ans && k !== q.correctAnswer) btn.classList.add('wrong');
+      });
+    }
+
+    if (q.feedback) {
+      fb.textContent = q.feedback;
+      fb.className   = (isTF ? 'tf-feedback' : 'mc-feedback') + ' show ' + (isCorrect?'correct-fb':'wrong-fb');
+    }
+  });
+
+  const total = QUESTIONS.length;
+  const pct   = total > 0 ? Math.round(correct/total*100) : 0;
+  document.getElementById('res-score').textContent    = correct + '/' + total;
+  document.getElementById('rb-correct').textContent   = correct;
+  document.getElementById('rb-wrong').textContent     = total - correct;
+  document.getElementById('rb-pct').textContent       = pct + '%';
+  document.getElementById('res-label').textContent    =
+    pct >= 60 ? '🎉 Geçer Not! Tebrikler.' :
+    pct >= 40 ? '📚 Sınırdasınız — yanlışlarınızı inceleyin.' :
+                '💪 Tekrar dinleyin ve geri bildirimleri okuyun.';
+
+  document.getElementById('submit-wrap').style.display   = 'none';
+  document.getElementById('results').style.display       = 'block';
+  document.getElementById('page-end-cta').style.display  = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // İstatistik kaydet
+  try {
+    const sess = getSession();
+    if (sess?.email && total > 0) {
+      const all    = JSON.parse(localStorage.getItem(STATS_KEY)||'{}');
+      const uStats = all[sess.email] || {};
+      const ls     = uStats['B1'] || {examsCompleted:0,questionsAnswered:0,questionsCorrect:0,weaknessCounts:{},history:[]};
+      ls.examsCompleted   = (ls.examsCompleted||0) + 1;
+      ls.questionsAnswered= (ls.questionsAnswered||0) + total;
+      ls.questionsCorrect = (ls.questionsCorrect||0) + correct;
+      ls.weaknessCounts   = ls.weaknessCounts || {};
+      const wrong = total - correct;
+      if (wrong > 0) ls.weaknessCounts['Hörverstehen T1'] = (ls.weaknessCounts['Hörverstehen T1']||0) + wrong;
+      ls.history = ls.history || [];
+      ls.history.push({date:new Date().toISOString(), score:correct, total});
+      uStats['B1'] = ls;
+      all[sess.email] = uStats;
+      localStorage.setItem(STATS_KEY, JSON.stringify(all));
+    }
+  } catch(e) {}
+}
+
+/* ─── GATE + INIT ─── */
+(function init(){
+  const sess     = getSession();
+  const examWrap = document.getElementById('exam-wrap-outer');
+  const gateWrap = document.getElementById('gate-wrap');
+
+  if (!sess) {
+    document.getElementById('gate-icon').textContent  = '🔒';
+    document.getElementById('gate-title').textContent = 'Bu sınava erişmek için ücretsiz hesap gerekiyor';
+    document.getElementById('gate-text').textContent  = '1 dakikada ücretsiz hesabını oluştur ve seviyeni seç.';
+    document.getElementById('gate-cta').textContent   = 'Ücretsiz Hesap Oluştur →';
+    document.getElementById('gate-cta').href          = 'register.html';
+    gateWrap.style.display = 'block';
+    return;
+  }
+  if (sess.level !== EXAM_LEVEL && sess.level !== 'BOTH') {
+    document.getElementById('gate-icon').textContent  = '🔐';
+    document.getElementById('gate-title').textContent = 'Bu seviye senin planında değil';
+    document.getElementById('gate-text').textContent  = sess.name + ', sen ' + sess.level + ' seviyesiyle kayıtlısın. B1 sorularına erişmek için tam üyelik gerekiyor.';
+    document.getElementById('gate-cta').textContent   = 'Tam Üyeliğe Geç →';
+    document.getElementById('gate-cta').href          = 'index.html#fiyatlar';
+    gateWrap.style.display = 'block';
+    return;
+  }
+
+  examWrap.style.display = 'block';
+  document.getElementById('login-banner-text').textContent = sess.name + ' olarak giriş yapıldı — sonuçların profiline kaydedilecek.';
+  document.getElementById('login-banner').style.display = 'block';
+
+  openDB().then(() => {
+    QUESTIONS = loadQuestionsFromAdmin();
+    renderQuestions(QUESTIONS);
+  });
+})();
+</script>
+</body>
+</html>

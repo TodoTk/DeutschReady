@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ücretsiz telc B1 Leseverstehen Deneme Sınavı – ExamReady</title>
+<style>
+  :root {
+    --bg:#181c2a;--surface:#222840;--surface2:#2c3250;--surface3:#353d5e;
+    --accent:#7aabff;--accent2:#9d7dff;--green:#34d672;
+    --red:#ff7070;--text:#f2f4fc;--muted:#b0b8d8;--border:#404870;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;}
+  .back-link:hover{color:var(--accent);}
+
+  .exam-wrap{max-width:860px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2.5rem;}
+  .exam-badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .exam-header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;margin-bottom:.4rem;}
+  .exam-header p{color:var(--muted);font-size:.95rem;}
+
+  .progress-bar{background:var(--border);border-radius:6px;height:8px;margin-bottom:.4rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;text-align:right;}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.5rem;}
+  .section-tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  .section-card h2{font-size:1.05rem;font-weight:800;margin-bottom:.3rem;}
+  .section-card .instr{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+
+  .headings-box{background:var(--surface2);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;}
+  .headings-box p{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;}
+  .heading-item{font-size:.84rem;color:var(--text);padding:.3rem 0;border-bottom:1px solid var(--border);}
+  .heading-item:last-child{border-bottom:none;}
+
+  .text-block{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:.9rem 1rem;margin-bottom:.8rem;font-size:.88rem;color:var(--text);}
+  .text-label{font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:.3rem;}
+
+  .q-select{background:#f0f2ff;border:1px solid var(--border);color:#1a1a2e;border-radius:6px;padding:.35rem .6rem;font-size:.82rem;margin-top:.5rem;cursor:pointer;outline:none;display:block;}
+  .q-select:focus{border-color:var(--accent);}
+  .q-select.correct{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green);}
+  .q-select.wrong{border-color:var(--red);background:rgba(248,113,113,.1);color:var(--red);}
+
+  .mc-question{margin-bottom:1.2rem;}
+  .mc-q{font-size:.9rem;font-weight:600;margin-bottom:.5rem;}
+  .mc-options{display:flex;flex-direction:column;gap:.35rem;}
+  .mc-opt{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .7rem;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-size:.85rem;color:var(--muted);transition:all .2s;background:none;}
+  .mc-opt:hover{border-color:var(--accent);color:var(--text);}
+  .mc-opt.selected{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.08);}
+  .mc-opt.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
+  .mc-opt.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08);}
+  .mc-opt input{accent-color:var(--accent);margin-top:2px;}
+
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .result-score{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .result-label{font-size:1rem;color:var(--muted);margin-top:.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-top:1.5rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.75rem;color:var(--muted);}
+  .cta-section{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.95rem;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  .exp-item{padding:.8rem 0;border-bottom:1px dashed var(--border);font-size:.85rem;color:var(--muted);}
+  .exp-item:last-child{border-bottom:none;}
+  .exp-item .exp-head{font-weight:700;margin-bottom:.3rem;}
+  .exp-item.correct .exp-head{color:var(--green);}
+  .exp-item.wrong .exp-head{color:var(--red);}
+
+  @media(max-width:600px){
+    header{padding:.8rem 1rem;}
+    .exam-wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+  }
+  .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
+  .mode-study{background:rgba(34,197,94,.1);color:#22c55e;border-bottom:1px solid rgba(34,197,94,.2);}
+  .mode-exam{background:rgba(79,142,247,.08);color:#4f8ef7;border-bottom:1px solid rgba(79,142,247,.2);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+<div id="mode-banner" style="display:none;padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;"></div>
+
+<div id="login-banner" style="display:none;max-width:860px;margin:1rem auto 0;padding:0 2rem;">
+  <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:.7rem 1.1rem;font-size:.83rem;color:var(--green);display:flex;align-items:center;gap:.5rem;">
+    <span>✓</span><span id="login-banner-text"></span>
+  </div>
+</div>
+
+<div id="gate-wrap" style="display:none;max-width:600px;margin:3rem auto;padding:0 2rem;text-align:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem 2rem;">
+    <div id="gate-icon" style="font-size:2.5rem;margin-bottom:1rem;"></div>
+    <h2 id="gate-title" style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;"></h2>
+    <p id="gate-text" style="color:var(--muted);font-size:.9rem;margin-bottom:1.6rem;"></p>
+    <a id="gate-cta" href="register.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;"></a>
+  </div>
+</div>
+
+<div class="exam-wrap" id="exam-wrap-outer" style="display:none;">
+  <div class="exam-header">
+    <div class="exam-badge">Ücretsiz Hesabınla Erişilebilir</div>
+    <h1>telc Deutsch (B1)<br>Leseverstehen</h1>
+    <p>20 soru · 3 bölüm · Gerçek telc Puanlama Yapısında</p>
+  </div>
+
+  <div id="exam-form">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 20 tamamlandı</div>
+
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 1</div>
+      <h2>5 Texte - 10 Überschriften</h2>
+      <div class="instr">Lesen Sie die Überschriften a–j und die Texte 1–5. Finden Sie für jeden Text die passende Überschrift.</div>
+      <div class="headings-box">
+        <p>Olası Başlıklar:</p>
+        <div class="heading-item">a) Neue Trends beim Autokauf in Deutschland</div>
+        <div class="heading-item">b) Gesunde Ernährung: Bio-Lebensmittel werden immer billiger</div>
+        <div class="heading-item">c) Wohnungsmarkt: Mietpreise in Großstädten steigen weiter drastisch</div>
+        <div class="heading-item">d) Klimafreundliche Mobilität: Mehr Radwege in deutschen Innenstädten</div>
+        <div class="heading-item">e) Umfrage zeigt: Junge Leute verzichten komplett auf Kaffeekonsum</div>
+        <div class="heading-item font-weight-bold">f) Technik im Unterricht: Wie Tablets das Lernen an Schulen verändern</div>
+        <div class="heading-item">g) Volkshochschulen melden Teilnahmerekorde bei Fremdsprachen</div>
+        <div class="heading-item">h) Urlaubstrend: Kulturreisen in europäische Hauptstädte boomen</div>
+        <div class="heading-item">i) Generation 65+ entdeckt das Internet als wichtige Informationsquelle</div>
+        <div class="heading-item">j) Karriere im Fokus: Handwerksberufe bei Schulabgängern sehr beliebt</div>
+      </div>
+
+      <div class="text-block">
+        <div class="text-label">Text 1</div>
+        Wer in Großstädten wie München, Frankfurt oder Berlin eine bezahlbare Wohnung sucht, braucht viel Geduld. Eine aktuelle Studie zeigt, dass die Kosten für Wohnraum im Vergleich zum Vorjahr erneut um durchschnittlich sechs Prozent gestiegen sind.
+        <select class="q-select" id="q1" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option>
+          <option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option>
+          <option value="i">i</option><option value="j">j</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 2</div>
+        Viele Städte wollen den Ausbau der Infrastruktur für Fahrradfahrer beschleunigen. Geplant sind breitere Spuren und separate Fahrradstraßen im Zentrum, um das Pendeln ohne Auto attraktiver und sicherer zu machen.
+        <select class="q-select" id="q2" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 3</div>
+        Eine neue Sprache zu lernen liegt voll im Trend. Die Nachfrage an den Bildungseinrichtungen ist so hoch wie nie zuvor. Besonders Spanisch ve Japanisch boomen zurzeit bei Erwachsenen, die sich beruflich weiterbilden möchten.
+        <select class="q-select" id="q3" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 4</div>
+        Digitale Medien gehören mittlerweile fest zum Alltag im Klassenzimmer. An vielen Gymnasien werden gedruckte Schulbücher immer häufiger durch Apps auf Tablets ersetzt. Experten betonen, dass dies den Unterricht interaktiver gestaltet.
+        <select class="q-select" id="q4" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 5</div>
+        Städte wie Rom, Paris und Wien verzeichnen einen echten Rekord an Besuchern. Eine Analyse zeigt, dass Reisende zwischen 20 und 45 Jahren verstärkt historische Sehenswürdigkeiten besuchen wollen, statt nur am Strand zu liegen.
+        <select class="q-select" id="q5" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 2</div>
+      <h2>Ein neues Leben im Grünen</h2>
+      <div class="instr">Metni okuyun ve soruları (6-10) yanıtlayın.</div>
+      <div class="text-block" style="margin-bottom:1.2rem;border-left-color:var(--accent2);">
+        Immer mehr junge Familien entscheiden sich in den letzten Jahren dazu, den großen Städten den Rücken zu kehren und aufs Land zu ziehen. Zu den Hauptgründen gehören die Sehnsucht nach Natur, der Wunsch nach einer sichereren Umgebung für die Kinder und vor allem die extrem hohen Immobilienpreise in den Ballungszentren. Auf dem Dorf bekommt man für das gleiche Geld oft ein ganzes Haus mit Garten, für das man in der Stadt maximal eine kleine Dreizimmerwohnung mieten könnte.<br><br>
+        Doch das Leben im Dorf bringt nicht nur Vorteile mit sich. Viele Städter unterschätzen die logistischen Herausforderungen. Während in der Stadt Busse und Bahnen im Minutentakt fahren, ist man auf dem Land fast immer auf ein eigenes Auto angewiesen. Der Weg zur Arbeit, zum nächsten großen Supermarkt oder zum Arzt kann schnell dreißig Minuten oder länger dauern. Auch das kulturelle Angebot wie Kinos, Theater oder Restaurants ist stark eingeschränkt.
+      </div>
+
+      <div class="mc-question">
+        <div class="mc-q">6. Warum ziehen viele Familien aus der Stadt aufs Land?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q6','a')"><input type="radio" name="q6"> a) Weil es auf dem Land viel bessere Arbeitsplätze gibt.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q6','b')"><input type="radio" name="q6"> b) Weil die Immobilienpreise in den Großstädten zu hoch sind.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q6','c')"><input type="radio" name="q6"> c) Weil sie in der Stadt kein Auto benutzen dürfen.</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">7. Was wird im Text als logistischer Nachteil des Landlebens genannt?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q7','a')"><input type="radio" name="q7"> a) Man muss alle Einkäufe online erledigen.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q7','b')"><input type="radio" name="q7"> b) Busse fahren im Dorf viel zu oft.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q7','c')"><input type="radio" name="q7"> c) Man ist meistens auf ein eigenes Auto angewiesen.</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">8. Wie lange dauert der Weg zum Arzt oder Supermarkt auf dem Land oft?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q8','a')"><input type="radio" name="q8"> a) Nur wenige Minuten zu Fuß.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q8','b')"><input type="radio" name="q8"> b) Dreißig Minuten oder länger.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q8','c')"><input type="radio" name="q8"> c) Mehrere Stunden mit dem Zug.</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">9. Was bietet ein Dorf laut Text im Vergleich zur Stadt für das gleiche Geld?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q9','a')"><input type="radio" name="q9"> a) Oft ein ganzes Haus mit Garten.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q9','b')"><input type="radio" name="q9"> b) Eine moderne kleine Dreizimmerwohnung.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q9','c')"><input type="radio" name="q9"> c) Kostenlose Tickets für Theater und Kinos.</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">10. Wie ist das kulturelle Angebot auf dem Land?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q10','a')"><input type="radio" name="q10"> a) Es ist vielseitiger als in der Stadt.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q10','b')"><input type="radio" name="q10"> b) Es ist stark eingeschränkt.</label>
+          <label class="mc-opt" onclick="selectMC(this,'q10','c')"><input type="radio" name="q10"> c) Es wird komplett vom Staat bezahlt.</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 3</div>
+      <h2>10 Situationen - 12 Anzeigen</h2>
+      <div class="instr">Ordnen Sie jeder Situation (11–20) die passende Anzeige (a–l) zu. Wenn keine Anzeige passt, wählen Sie X.</div>
+      <div class="headings-box">
+        <p>İlanlar:</p>
+        <div class="heading-item">a) Tierpension Pfote: Professionelle Betreuung für Hunde und Katzen im Urlaub.</div>
+        <div class="heading-item">b) Blitz-Sauber GmbH: Zuverlässige Reinigung von Wohnungen vor dem Umzug.</div>
+        <div class="heading-item">c) Sportverein Aktiv: Sommer-Fußballcamp für Jugendliche von 10-15 Jahren.</div>
+        <div class="heading-item">d) Nachhilfe Plus: Einzelunterricht für Schüler in Mathe, Physik ve Chemie.</div>
+        <div class="heading-item">e) Auto Müller: Günstige Werkstatt für Reparaturen aller Marken.</div>
+        <div class="heading-item">f) Musikschule Tonleiter: Klavier- ve Gitarrenunterricht für Anfänger jeden Alters.</div>
+        <div class="heading-item">g) Centro Italiano: Intensivkurse für Italienisch am Wochenende.</div>
+        <div class="heading-item">h) Klassik im Schloss: Konzerte mit Meisterwerken von Mozart. Jeden Freitag.</div>
+        <div class="heading-item">i) Drahtesel-Markt: Ankauf ve Verkauf von gebrauchten Fahrrädern.</div>
+        <div class="heading-item">j) Jobbörse Regional: Wir suchen Bürokräfte in Teilzeit auf 520-Euro-Basis.</div>
+        <div class="heading-item">k) Reisebüro Sonne: Last-Minute-Flüge ausschließlich nach Mallorca und Ibiza.</div>
+        <div class="heading-item">l) Volkshochschule: Neuer Grundkurs für Fotografie-Einsteiger ab Dienstag.</div>
+      </div>
+
+      <div class="text-block">
+        <div class="text-label">Situation 11</div>
+        Sie suchen einen professionellen Service, der Ihre Wohnung vor dem Umzug gründlich reinigt.
+        <select class="q-select" id="q11" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 12</div>
+        Ihr 12-jähriger Sohn möchte in den Sommerferien ein paar Tage intensiv Fußball spielen und trainieren.
+        <select class="q-select" id="q12" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 13</div>
+        Sie möchten Ihr gebrauchtes Fahrrad verkaufen und suchen eine Verkaufsplattform oder ein Geschäft.
+        <select class="q-select" id="q13" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 14</div>
+        Sie planen eine Reise nach Italien und möchten vorab einen intensiven Sprachkurs am Wochenende besuchen.
+        <select class="q-select" id="q14" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 15</div>
+        Sie suchen eine liebevolle Betreuung für Ihre Katze für zwei Wochen, während Sie im Urlaub sind.
+        <select class="q-select" id="q15" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 16</div>
+        Sie möchten am Abend ein günstiges Musikkonzert besuchen, am liebsten klassische Musik von Mozart.
+        <select class="q-select" id="q16" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 17</div>
+        Ihre Tochter steht kurz vor dem Abitur und benötigt dringend professionelle Nachhilfe im Fach Chemie.
+        <select class="q-select" id="q17" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 18</div>
+        Sie suchen ein Last-Minute-Angebot für einen günstigen Flug nach Thailand (Bangkok) für nächsten Monat.
+        <select class="q-select" id="q18" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 19</div>
+        Sie suchen eine flexible Teilzeitstelle im kaufmännischen Bereich für allgemeine Büroarbeiten.
+        <select class="q-select" id="q19" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 20</div>
+        Sie möchten ein Musikinstrument neu erlernen und suchen Klavierunterricht für erwachsene Anfänger.
+        <select class="q-select" id="q20" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="X">X</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="submit-btn" onclick="submitExam()">Sonuçları Göster →</button>
+    </div>
+  </div>
+
+  <div id="results" style="display:none;">
+    <div class="result-card">
+      <div class="result-score" id="res-score">0/20</div>
+      <div class="result-label" id="res-label">Hesaplanıyor...</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-num" id="rb1">-</div><div class="rb-lab">Leseverstehen Teil 1</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb2">-</div><div class="rb-lab">Leseverstehen Teil 2</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb3">-</div><div class="rb-lab">Leseverstehen Teil 3</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <h2 style="margin-bottom:1rem;">Soru Analizleri ve Açıklamalar (Feedback)</h2>
+      <div id="explanation-list"></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;">Tam 1,000+ soruluk soru bankasına erişmek ve gerçek mock exam oturumlarına katılmak ister misiniz?</div>
+      <div class="cta-section">
+        <a href="index.html#fiyatlar" class="cta-btn">Tam Erişim – €25'ten Başlayan Fiyatlar</a>
+        <a href="dashboard.html" class="cta-ghost">Profile Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const answers = {
+    q1:'c', q2:'d', q3:'g', q4:'f', q5:'h',
+    q6:'b', q7:'c', q8:'b', q9:'a', q10:'b',
+    q11:'b', q12:'c', q13:'i', q14:'g', q15:'a', q16:'h', q17:'d', q18:'X', q19:'j', q20:'f'
+  };
+
+  const explanations = {
+    q1: "Text 1 passt zu Überschrift 'c'. Es wird explizit über die steigenden Kosten für Wohnraum in Großstädten wie München, Frankfurt oder Berlin berichtet.",
+    q2: "Text 2 passt zu Überschrift 'd'. Der Text beschreibt den Ausbau der Radinfrastruktur durch separate Fahrradstraßen für eine umweltfreundliche Mobilität.",
+    q3: "Text 3 passt zu Überschrift 'g'. Im Fokus steht die hohe Nachfrage an Sprachkursen bei Erwachsenen an Bildungseinrichtungen (Volkshochschulen).",
+    q4: "Text 4 passt zu Überschrift 'f'. Der Text thematisiert den digitalen Unterricht an Gymnasien, bei dem klassische Schulbücher durch Tablets ersetzt werden.",
+    q5: "Text 5 passt zu Überschrift 'h'. Kulturreisen in historische europäische Großstädte wie Rom, Paris oder Wien boomen laut der aktuellen Analyse.",
+    q6: "Die richtige Option ist b. Als Hauptgründe für den Umzug aufs Land werden Sehnsucht nach Natur und vor allem extrem hohe Immobilienpreise genannt.",
+    q7: "Die richtige Option ist c. Ein logistischer Nachteil auf dem Land ist die Infrastruktur; man ist fast immer auf ein eigenes Auto angewiesen.",
+    q8: "Die richtige Option ist b. Im zweiten Absatz wird verdeutlicht, dass der Weg zur Arbeit, zum Supermarkt oder zum Arzt dreißig Minuten oder länger dauern kann.",
+    q9: "Die richtige Option is a. Die Stadt unterstützt das Generationenprojekt finanziell, weil die gegenseitige Nachbarschaftshilfe die staatlichen Pflegekassen entlastet.",
+    q10: "Die richtige Option ist b. Konflikte im gemeinschaftlichen Wohnprojekt gibt es laut Text selten, und wenn, dann geht es meistens um die Nutzung des Gartens oder um Wochenendlärm.",
+    q11: "Die richtige Anzeige ist b. 'Blitz-Sauber GmbH' bietet eine professionelle Reinigung von Wohnungen an, die ideal auf eine Endreinigung vor dem Umzug passt.",
+    q12: "Die richtige Anzeige ist c. Für einen 12-jährigen Jungen, der in den Ferien trainieren möchte, ist das Sommer-Fußballcamp vom Sportverein Aktiv (10-15 Jahre) perfekt.",
+    q13: "Die richtige Anzeige ist i. Wer sein gebrauchtes Rad abgeben möchte, findet im 'Drahtesel-Markt' ein Fachgeschäft für den Ankauf von Fahrrädern.",
+    q14: "Die richtige Anzeige ist g. 'Centro Italiano' bietet die passenden Italienisch-Intensivkurse an Wochenenden (Sa/So) zur Urlaubsvorbereitung an.",
+    q15: "Die richtige Anzeige ist a. Die Tierpension 'Pfote' kümmert sich professionell um Katzen und Hunde während der Urlaubsabwesenheit der Besitzer.",
+    q16: "Die richtige Anzeige ist h. Das Angebot 'Klassik im Schloss' veranstaltet jeden Freitagabend Konzerte mit klassischen Meisterwerken von Mozart.",
+    q17: "Die richtige Anzeige ist d. 'Nachhilfe Plus' bietet gezielten Einzelunterricht für Schüler in naturwissenschaftlichen Fächern wie Physik und Chemie.",
+    q18: "Die richtige Option ist X. Anzeige 'k' (Reisebüro Sonne) wirbt explizit mit Flügen *ausschließlich* nach Mallorca und Ibiza. Für Flüge nach Thailand gibt es kein passendes Angebot.",
+    q19: "Die richtige Anzeige ist j. Die Jobbörse sucht gezielt Bürokräfte für allgemeine Verwaltungsarbeiten auf Teilzeit-Basis (520-Euro-Minijob).",
+    q20: "Die richtige Anzeige ist f. Die Musikschule 'Tonleiter' bietet qualifizierten Klavierunterricht für Anfänger jeden Alters an."
+  };
+
+  const mcAnswers = {q6:null, q7:null, q8:null, q9:null, q10:null};
+  const ALL_SELECT_IDS = ['q1','q2','q3','q4','q5','q11','q12','q13','q14','q15','q16','q17','q18','q19','q20'];
+
+  function selectMC(el, qid, val) {
+    document.querySelectorAll('[name="'+qid+'"]').forEach(r => r.closest('.mc-opt').classList.remove('selected'));
+    el.classList.add('selected');
+    mcAnswers[qid] = val;
+    updateProgress();
+  }
+
+  function updateProgress() {
+    let done = 0;
+    ALL_SELECT_IDS.forEach(q => { if (document.getElementById(q).value) done++; });
+    Object.values(mcAnswers).forEach(v => { if (v) done++; });
+    const total = 20;
+    const pct = Math.round(done / total * 100);
+    document.getElementById('prog').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = done + ' / ' + total + ' tamamlandı';
+  }
+
+  function buildExpItem(qid, isCorrect, userAns) {
+    const num = qid.replace('q','');
+    const item = document.createElement('div');
+    item.className = 'exp-item ' + (isCorrect ? 'correct' : 'wrong');
+    const head = isCorrect ? ('✓ Soru ' + num) : ('✗ Soru ' + num + ' — Senin cevabın: ' + (userAns || 'Boş'));
+    item.innerHTML = '<div class="exp-head">' + head + '</div><div>' + explanations[qid] + '</div>';
+    return item;
+  }
+
+  function submitExam() {
+    let total = 0, s1 = 0, s2 = 0, s3 = 0;
+    const expList = document.getElementById('explanation-list');
+    expList.innerHTML = '';
+    const wrongTopics = [];
+
+    ['q1','q2','q3','q4','q5'].forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'q-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s1++; total++; } else wrongTopics.push('Leseverstehen Teil 1');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    ['q6','q7','q8','q9','q10'].forEach(q => {
+      const val = mcAnswers[q];
+      const correct = val === answers[q];
+      if (correct) { s2++; total++; } else wrongTopics.push('Leseverstehen Teil 2');
+      document.querySelectorAll('[name="'+q+'"]').forEach(r => {
+        const opt = r.closest('.mc-opt');
+        const optVal = opt.textContent.trim()[0].toLowerCase();
+        if (optVal === answers[q]) opt.classList.add('correct');
+        else if (optVal === val && !correct) opt.classList.add('wrong');
+      });
+      expList.appendChild(buildExpItem(q, correct, val));
+    });
+
+    ['q11','q12','q13','q14','q15','q16','q17','q18','q19','q20'].forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'q-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s3++; total++; } else wrongTopics.push('Leseverstehen Teil 3');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    document.getElementById('res-score').textContent = total + '/20';
+    const pct = total / 20 * 100;
+    document.getElementById('res-label').textContent = pct >= 60 ? '🎉 Geçer Not! telc B1 Leseverstehen modülünü başarıyla tamamladınız.' : '📚 Sınırda kaldınız veya yetersiz. Yanlışlarınızı analiz ederek kelime dağarcığınızı geliştirin.';
+    document.getElementById('rb1').textContent = s1 + '/5';
+    document.getElementById('rb2').textContent = s2 + '/5';
+    document.getElementById('rb3').textContent = s3 + '/10';
+
+    document.getElementById('exam-form').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+
+    recordExamResult(total, 20, wrongTopics);
+  }
+
+  const SESSION_KEY = 'examready_session_v1';
+  const STATS_KEY = 'examready_student_stats_v1';
+  const EXAM_LEVEL = 'B1';
+
+  function getSession() {
+    try { const s = JSON.parse(localStorage.getItem(SESSION_KEY)); return (s && s.role === 'student') ? s : null; } catch(e) { return null; }
+  }
+  function loadStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { return {}; } }
+  function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+  function recordExamResult(correct, totalQ, wrongTopics) {
+    const sess = getSession();
+    if (!sess) return;
+    const email = sess.email;
+    const stats = loadStats();
+    if (!stats[email]) stats[email] = {};
+    if (!stats[email][EXAM_LEVEL]) stats[email][EXAM_LEVEL] = {examsCompleted:0, questionsAnswered:0, questionsCorrect:0, weaknessCounts:{}, history:[]};
+    const u = stats[email][EXAM_LEVEL];
+    u.examsCompleted++;
+    u.questionsAnswered += totalQ;
+    u.questionsCorrect += correct;
+    wrongTopics.forEach(t => { u.weaknessCounts[t] = (u.weaknessCounts[t] || 0) + 1; });
+    u.history.push({date: new Date().toISOString(), score: correct, total: totalQ});
+    saveStats(stats);
+  }
+
+  (function initGate() {
+    const sess = getSession();
+    const examWrap = document.getElementById('exam-wrap-outer');
+    const gateWrap = document.getElementById('gate-wrap');
+
+    if (!sess) {
+      document.getElementById('gate-icon').textContent = '🔒';
+      document.getElementById('gate-title').textContent = 'Bu sınava erişmek için ücretsiz hesap gerekiyor';
+      document.getElementById('gate-text').textContent = 'Sorulara bakabilmen için önce 1 dakikada ücretsiz hesabını oluşturman ve seviyeni (A1 veya B1) seçmen gerekiyor.';
+      document.getElementById('gate-cta').textContent = 'Ücretsiz Hesap Oluştur →';
+      document.getElementById('gate-cta').href = 'register.html';
+      gateWrap.style.display = 'block';
+      return;
+    }
+    examWrap.style.display = 'block';
+    document.getElementById('login-banner-text').textContent = sess.name + ' olarak giriş yapıldı — sonuçların profiline kaydedilecek.';
+    document.getElementById('login-banner').style.display = 'block';
+  })();
+</script>
+</body>
+</html>

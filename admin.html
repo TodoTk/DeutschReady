@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamReady – Admin Paneli</title>
+<style>
+:root {
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;
+  --accent:#4f8ef7;--accent2:#7c5cfc;--green:#22c55e;
+  --yellow:#fbbf24;--red:#f87171;
+  --text:#e8eaf0;--muted:#8b90a7;--border:#2a2d3e;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.97);position:sticky;top:0;z-index:200;}
+.logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.admin-badge{font-size:.72rem;font-weight:700;background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:20px;padding:.2rem .7rem;margin-left:.5rem;}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:7px;font-size:.82rem;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* LOGIN */
+#page-login{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 57px);padding:2rem;}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.2rem;width:100%;max-width:380px;text-align:center;}
+.login-box h2{font-size:1.3rem;font-weight:800;margin-bottom:.3rem;}
+.login-box p{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;}
+.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;text-align:left;}
+.field label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;outline:none;}
+.field input:focus{border-color:var(--accent);}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.8rem;border-radius:9px;font-weight:700;font-size:.95rem;}
+.err{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none;}
+
+/* ADMIN LAYOUT */
+#page-admin{display:none;padding:2rem;max-width:1000px;margin:0 auto;}
+
+/* TABS */
+.tabs{display:flex;gap:.5rem;margin-bottom:1.8rem;border-bottom:1px solid var(--border);padding-bottom:0;}
+.tab{padding:.6rem 1.2rem;border-radius:9px 9px 0 0;border:1px solid transparent;background:none;color:var(--muted);font-size:.88rem;font-weight:600;margin-bottom:-1px;}
+.tab.active{border-color:var(--border);border-bottom-color:var(--bg);color:var(--accent);background:var(--bg);}
+
+/* PANELS */
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* SECTION HEADER */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.sh h2{font-size:1rem;font-weight:800;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;font-size:.85rem;}
+.btn-danger{background:none;border:1px solid var(--red);color:var(--red);padding:.4rem .8rem;border-radius:7px;font-size:.78rem;font-weight:700;}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);padding:.4rem .8rem;border-radius:7px;font-size:.78rem;font-weight:700;}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-sm{padding:.3rem .7rem;font-size:.76rem;border-radius:6px;}
+
+/* QUESTION LIST */
+.q-list{display:flex;flex-direction:column;gap:.7rem;}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;}
+.q-card-top{display:flex;align-items:flex-start;gap:.8rem;}
+.q-num{min-width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;flex-shrink:0;}
+.q-body{flex:1;}
+.q-aussage{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:.3rem;}
+.q-meta{font-size:.76rem;color:var(--muted);display:flex;gap:.8rem;flex-wrap:wrap;}
+.q-actions{display:flex;gap:.4rem;flex-shrink:0;flex-wrap:wrap;}
+.audio-chip{display:inline-flex;align-items:center;gap:.3rem;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);color:var(--accent);border-radius:6px;padding:.15rem .5rem;font-size:.72rem;font-weight:700;}
+
+/* ADD/EDIT FORM */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.4rem;margin-bottom:1.2rem;display:none;}
+.form-card.open{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem;}
+.form-field label{font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.form-field input,.form-field select,.form-field textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.6rem .85rem;color:var(--text);font-size:.88rem;outline:none;width:100%;}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent);}
+.form-field textarea{resize:vertical;min-height:80px;}
+.form-row{display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;}
+.form-actions{display:flex;gap:.6rem;margin-top:.5rem;}
+
+/* AUDIO DROP ZONE */
+.drop-zone{border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:rgba(79,142,247,.05);}
+.drop-zone p{font-size:.85rem;color:var(--muted);}
+.drop-zone strong{color:var(--accent);}
+.audio-preview{margin-top:.8rem;}
+.audio-preview audio{width:100%;height:36px;}
+
+/* SECTION SELECTOR */
+.section-sel{display:flex;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.ssel{padding:.4rem .9rem;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.82rem;font-weight:600;}
+.ssel.active{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.1);}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;}
+.stat-num{font-size:1.6rem;font-weight:900;color:var(--accent);}
+.stat-lbl{font-size:.75rem;color:var(--muted);}
+
+/* NOTIF */
+.notif{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.9rem 1.2rem;font-size:.83rem;z-index:999;transform:translateY(120px);transition:transform .3s;max-width:280px;}
+.notif.show{transform:translateY(0);}
+.notif strong{display:block;margin-bottom:.1rem;}
+.notif.ok strong{color:var(--green);}
+.notif.err strong{color:var(--red);}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.5rem;color:var(--muted);font-size:.88rem;background:var(--surface);border:1px dashed var(--border);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:.5rem;">
+    <a href="index.html" style="text-decoration:none;"><span class="logo">ExamReady</span></a>
+    <span class="admin-badge">ADMIN</span>
+  </div>
+  <button class="logout-btn" id="logout-btn" onclick="adminLogout()" style="display:none">Çıkış</button>
+</div>
+
+<!-- LOGIN -->
+<div id="page-login">
+  <div class="login-box">
+    <div style="font-size:2rem;margin-bottom:.5rem;">🔐</div>
+    <h2>Admin Girişi</h2>
+    <p>ExamReady içerik yönetimi</p>
+    <div class="field"><label>Şifre</label><input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+    <button class="login-btn" onclick="adminLogin()">Giriş Yap</button>
+    <div class="err" id="admin-err">Şifre hatalı.</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin">
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('hoer')">🎧 Hörverstehen</button>
+    <button class="tab" onclick="switchTab('modul')">📖 Modül Alıştırmaları</button>
+    <button class="tab" onclick="switchTab('schreiben')">✍️ Schreiben</button>
+    <button class="tab" onclick="switchTab('stats')">📊 İstatistikler</button>
+    <button class="tab" onclick="switchTab('settings')">⚙️ Ayarlar</button>
+  </div>
+
+  <!-- ── HÖRVERSTEHEN TAB ── -->
+  <div class="tab-panel active" id="tab-hoer">
+
+    <div class="sh">
+      <h2>Hörverstehen Soru Yönetimi</h2>
+      <button class="btn-primary" onclick="openAddForm()">+ Yeni Soru Ekle</button>
+    </div>
+
+    <!-- Soru seti seçici -->
+    <div class="section-sel" id="section-sel"></div>
+
+    <!-- EKLE / DÜZENLE FORMU -->
+    <div class="form-card" id="add-form">
+      <h3 style="font-size:.92rem;font-weight:800;margin-bottom:1rem;" id="form-title">Yeni Soru Ekle</h3>
+
+      <div class="form-field">
+        <label>Soru Seti</label>
+        <select id="f-section">
+          <option value="B1_T1">B1 – Hörverstehen Teil 1 (Richtig/Falsch)</option>
+          <option value="B1_T2">B1 – Hörverstehen Teil 2 (Çoktan Seçmeli)</option>
+          <option value="B1_T3">B1 – Hörverstehen Teil 3 (Çoktan Seçmeli)</option>
+          <option value="A1_T1">A1 – Hörverstehen Teil 1 (Richtig/Falsch)</option>
+        </select>
+      </div>
+
+      <div class="form-field" id="f-aussage-wrap">
+        <label>Aussage (İfade)</label>
+        <textarea id="f-aussage" placeholder="Der Mann wird am Samstag mit seiner Schwester umziehen."></textarea>
+      </div>
+
+      <!-- MC seçenekler (T2/T3 için) -->
+      <div id="f-mc-wrap" style="display:none;">
+        <div class="form-field">
+          <label>Soru Metni</label>
+          <textarea id="f-mc-q" placeholder="Was plant der Mann am Wochenende?"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Seçenek a</label><input id="f-mc-a" type="text" placeholder="Er will umziehen."/></div>
+          <div class="form-field"><label>Seçenek b</label><input id="f-mc-b" type="text" placeholder="Er besucht seine Schwester."/></div>
+          <div class="form-field"><label>Seçenek c</label><input id="f-mc-c" type="text" placeholder="Er bleibt zu Hause."/></div>
+          <div class="form-field">
+            <label>Doğru Seçenek</label>
+            <select id="f-mc-correct">
+              <option value="a">a</option>
+              <option value="b">b</option>
+              <option value="c">c</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field" style="flex:1;min-width:150px;" id="f-answer-wrap">
+          <label>Doğru Cevap</label>
+          <select id="f-answer">
+            <option value="R">Richtig (Doğru)</option>
+            <option value="F">Falsch (Yanlış)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Feedback Açıklaması</label>
+        <textarea id="f-feedback" placeholder="Falsch. Im Dialog erwähnt der Mann, dass er alleine umzieht..."></textarea>
+      </div>
+
+      <!-- AUDIO UPLOAD -->
+      <div class="form-field">
+        <label>Ses Dosyası (MP3)</label>
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('audio-file-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <p>🎵 MP3 dosyasını buraya sürükle veya <strong>tıklayarak seç</strong></p>
+          <p style="font-size:.73rem;margin-top:.3rem;">Mevcut dosya varsa üzerine yazar</p>
+        </div>
+        <input type="file" id="audio-file-input" accept="audio/mp3,audio/mpeg,audio/*" style="display:none" onchange="handleFileSelect(event)"/>
+        <div class="audio-preview" id="audio-preview" style="display:none;">
+          <div style="font-size:.76rem;color:var(--green);margin-bottom:.3rem;" id="audio-filename"></div>
+          <audio controls id="audio-preview-player" style="width:100%;height:36px;"></audio>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveQuestion()">💾 Kaydet</button>
+        <button class="btn-ghost" onclick="closeAddForm()">İptal</button>
+      </div>
+    </div>
+
+    <!-- SORU LİSTESİ -->
+    <div id="q-list-container">
+      <div class="empty" id="q-empty">Henüz soru eklenmedi. "+ Yeni Soru Ekle" butonuna tıklayın.</div>
+      <div class="q-list" id="q-list"></div>
+    </div>
+
+  </div>
+
+  <!-- ── MODÜL ALIŞTIRMALARI TAB ── -->
+  <div class="tab-panel" id="tab-modul">
+    <div class="sh">
+      <h2>Modül Alıştırmaları (LSV / SPB)</h2>
+      <button class="btn-primary" onclick="openModulForm()">+ Yeni Set Ekle</button>
+    </div>
+
+    <!-- Set seçici -->
+    <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;" id="modul-section-sel"></div>
+
+    <!-- FORM -->
+    <div class="form-card" id="modul-form">
+      <h3 style="font-size:.92rem;font-weight:800;margin-bottom:1rem;" id="modul-form-title">Yeni Set Ekle</h3>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Modül</label>
+          <select id="mf-module" onchange="updateModulTypeUI()">
+            <option value="B1_LSV_T1">B1 – Leseverstehen Teil 1 (Zuordnung: Überschrift)</option>
+            <option value="B1_LSV_T2">B1 – Leseverstehen Teil 2 (MC: Langer Text)</option>
+            <option value="B1_LSV_T3">B1 – Leseverstehen Teil 3 (Zuordnung: Anzeige)</option>
+            <option value="B1_SPB_T1">B1 – Sprachbausteine Teil 1 (Lückentext MC)</option>
+            <option value="B1_SPB_T2">B1 – Sprachbausteine Teil 2 (Lückentext MC)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Set Numarası (1-15)</label>
+          <input type="number" id="mf-set" min="1" max="15" value="3" placeholder="3"/>
+        </div>
+      </div>
+
+      <!-- LSV T1: 5 kısa metin + 10 başlık -->
+      <div id="mf-lsv-t1" style="display:none;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">5 Kısa Metin (Sorular 1–5) — önce metin, altında başlık seç</div>
+        <div id="mf-texts-container"></div>
+        <button class="btn-ghost btn-sm" onclick="addLSVT1Text()" style="margin-top:.4rem;">+ Metin Ekle</button>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">10 Başlık (Überschriften) — a'dan j'ye</div>
+        <div class="form-grid" id="mf-headings-grid"></div>
+      </div>
+
+      <!-- LSV T2: 1 uzun metin + 5 MC (Sorular 6–10) -->
+      <div id="mf-lsv-t2" style="display:none;">
+        <div class="form-field">
+          <label>Uzun Metin (Sorular 6–10 için)</label>
+          <textarea id="mf-t2-text" style="min-height:140px;" placeholder="Metnin tamamını buraya yapıştırın..."></textarea>
+        </div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">5 Soru (Soru 6–10) — her soru için 3 şık</div>
+        <div id="mf-t2-questions"></div>
+        <button class="btn-ghost btn-sm" onclick="addT2Question()" style="margin-top:.4rem;">+ Soru Ekle (maks. 5)</button>
+      </div>
+
+      <!-- LSV T3: 10 Situation + 12 Anzeige (Sorular 11–20) -->
+      <div id="mf-lsv-t3" style="display:none;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">10 Durum / Situation (Sorular 11–20)</div>
+        <div id="mf-situations-container"></div>
+        <button class="btn-ghost btn-sm" onclick="addSituation()" style="margin-top:.4rem;">+ Durum Ekle (maks. 10)</button>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">12 İlan (Anzeigen) — a'dan l'ye</div>
+        <div id="mf-ads-grid"></div>
+      </div>
+
+      <!-- SPB T1: Lückentext 10 boşluk, her biri 3 şık (Sorular 21–30) -->
+      <div id="mf-spb-t1" style="display:none;">
+        <div class="form-field">
+          <label>Metin — boşlukları (21) (22)... şeklinde işaretle (21–30 arası)</label>
+          <textarea id="mf-spb-text" style="min-height:120px;" placeholder="Liebe Maria, ich schreibe dir, (21)___ich ein Problem habe..."></textarea>
+        </div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Her Boşluk için 3 Şık (a / b / c)</div>
+        <div id="mf-spb-gaps"></div>
+        <button class="btn-ghost btn-sm" onclick="addSPBGap()" style="margin-top:.4rem;">+ Boşluk Ekle (maks. 10)</button>
+      </div>
+
+      <!-- SPB T2: 10 soru (31–40), 15 cevap seçeneği (a–o) -->
+      <div id="mf-spb-t2" style="display:none;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">15 Cevap Seçeneği (a – o)</div>
+        <div class="form-grid" id="mf-spb2-options-grid"></div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">10 Soru (31–40) — her soru için doğru şık seç</div>
+        <div id="mf-spb2-questions"></div>
+      </div>
+
+      <div class="form-actions" style="margin-top:1rem;">
+        <button class="btn-primary" onclick="saveModulSet()">💾 Seti Kaydet</button>
+        <button class="btn-ghost" onclick="closeModulForm()">İptal</button>
+      </div>
+    </div>
+
+    <!-- Set listesi -->
+    <div id="modul-list"></div>
+  </div>
+
+  <!-- ── SCHREIBEN TAB ── -->
+  <div class="tab-panel" id="tab-schreiben">
+    <div class="sh">
+      <h2>Schreiben Soru Havuzu</h2>
+      <button class="btn-primary" onclick="openSchreibenForm()">+ Yeni Soru Ekle</button>
+    </div>
+
+    <div class="form-card" id="sch-form">
+      <h3 style="font-size:.92rem;font-weight:800;margin-bottom:1rem;" id="sch-form-title">Yeni Yazma Sorusu</h3>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Tür</label>
+          <select id="sf-type">
+            <option value="brief">Brief (Mektup)</option>
+            <option value="email">E-Mail</option>
+            <option value="notiz">Notiz/Mitteilung</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Seviye</label>
+          <select id="sf-level">
+            <option value="B1">B1</option>
+            <option value="A1">A1</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Set Numarası (1-15)</label>
+          <input type="number" id="sf-set" min="1" max="15" placeholder="3"/>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Görev / Aufgabe</label>
+        <textarea id="sf-task" style="min-height:80px;" placeholder="Sie haben eine Einladung von Ihrer Freundin bekommen. Schreiben Sie eine Antwort..."></textarea>
+      </div>
+      <div class="form-field">
+        <label>Yazılacak Madde Noktaları (her satır ayrı madde)</label>
+        <textarea id="sf-points" style="min-height:80px;" placeholder="Sagen Sie warum Sie kommen können&#10;Schreiben Sie, was Sie mitbringen&#10;Fragen Sie, wie Sie hinkommen"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Örnek Yanıt (opsiyonel — çalışma modunda gösterilir)</label>
+        <textarea id="sf-example" style="min-height:100px;" placeholder="Liebe Maria, vielen Dank für deine Einladung..."></textarea>
+      </div>
+      <div class="form-field">
+        <label>Değerlendirme Kriterleri (opsiyonel)</label>
+        <textarea id="sf-criteria" placeholder="Anrede (1P), Inhalt (4P), Ausdruck (2P)..."></textarea>
+      </div>
+      <input type="hidden" id="sf-edit-id"/>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveSchreibenQ()">💾 Kaydet</button>
+        <button class="btn-ghost" onclick="closeSchreibenForm()">İptal</button>
+      </div>
+    </div>
+
+    <div id="sch-list"></div>
+  </div>
+
+  <!-- ── İSTATİSTİKLER TAB ── -->
+  <div class="tab-panel" id="tab-stats">
+    <div class="sh"><h2>Kullanıcı İstatistikleri</h2><button class="btn-ghost btn-sm" onclick="loadStats()">↻ Yenile</button></div>
+    <div id="stats-content"><div class="empty">Yükleniyor...</div></div>
+  </div>
+
+  <!-- ── AYARLAR TAB ── -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="sh"><h2>Ayarlar</h2></div>
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:500px;">
+      <div class="stat-card" style="text-align:left;padding:1.2rem;">
+        <div style="font-weight:700;margin-bottom:.5rem;">Admin Şifresini Değiştir</div>
+        <div class="form-field"><label>Yeni Şifre</label><input type="password" id="new-pw" placeholder="Yeni şifre"/></div>
+        <div class="form-field"><label>Tekrar</label><input type="password" id="new-pw2" placeholder="Tekrar girin"/></div>
+        <button class="btn-primary btn-sm" onclick="changePw()">Kaydet</button>
+      </div>
+      <div class="stat-card" style="text-align:left;padding:1.2rem;">
+        <div style="font-weight:700;margin-bottom:.3rem;">Tehlikeli Bölge</div>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:.7rem;">Tüm Hörverstehen sorularını ve ses dosyalarını sıfırla.</p>
+        <button class="btn-danger btn-sm" onclick="confirmNuke()">🗑 Tüm Hörverstehen Verilerini Sil</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-admin -->
+
+<div class="notif" id="notif"><strong id="n-title"></strong><span id="n-msg"></span></div>
+
+<script>
+/* ─────────────────────────────────────────────
+   AUTH
+───────────────────────────────────────────── */
+const ADMIN_PW_KEY  = 'examready_admin_pw_v1';
+const ADMIN_SESS_KEY = 'examready_admin_sess_v1';
+const DEFAULT_PW    = 'admin2026';
+
+function getAdminPw() { return localStorage.getItem(ADMIN_PW_KEY) || DEFAULT_PW; }
+
+function adminLogin() {
+  const pw = document.getElementById('admin-pw').value;
+  if (pw !== getAdminPw()) {
+    document.getElementById('admin-err').style.display = 'block'; return;
+  }
+  sessionStorage.setItem(ADMIN_SESS_KEY, '1');
+  showAdmin();
+}
+function adminLogout() {
+  sessionStorage.removeItem(ADMIN_SESS_KEY);
+  document.getElementById('page-admin').style.display = 'none';
+  document.getElementById('page-login').style.display = 'flex';
+  document.getElementById('logout-btn').style.display = 'none';
+  document.getElementById('admin-pw').value = '';
+}
+function showAdmin() {
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('page-admin').style.display = 'block';
+  document.getElementById('logout-btn').style.display = 'block';
+  initSectionSel();
+  renderQuestionList();
+}
+function changePw() {
+  const a = document.getElementById('new-pw').value;
+  const b = document.getElementById('new-pw2').value;
+  if (!a) { showNotif('Hata','Şifre boş olamaz.',true); return; }
+  if (a !== b) { showNotif('Hata','Şifreler eşleşmiyor.',true); return; }
+  localStorage.setItem(ADMIN_PW_KEY, a);
+  document.getElementById('new-pw').value = '';
+  document.getElementById('new-pw2').value = '';
+  showNotif('Kaydedildi ✓','Admin şifresi güncellendi.');
+}
+
+/* ─────────────────────────────────────────────
+   INDEXEDDB — ses dosyaları
+───────────────────────────────────────────── */
+const DB_NAME    = 'examready_audio_db';
+const DB_STORE   = 'audio';
+let db = null;
+
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore(DB_STORE);
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = e => rej(e);
+  });
+}
+function saveAudio(key, buffer) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).put(buffer, key);
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+function getAudio(key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(DB_STORE, 'readonly');
+    const req = tx.objectStore(DB_STORE).get(key);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = rej;
+  });
+}
+function deleteAudio(key) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).delete(key);
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+function clearAllAudio() {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(DB_STORE, 'readwrite');
+    tx.objectStore(DB_STORE).clear();
+    tx.oncomplete = res;
+    tx.onerror = rej;
+  });
+}
+
+/* ─────────────────────────────────────────────
+   SORU VERİSİ — localStorage
+   Yapı: { B1_T1: { title, type, questions:[…] }, … }
+───────────────────────────────────────────── */
+const Q_KEY = 'examready_hsv_questions_v1';
+
+const SECTION_META = {
+  B1_T1: { title:'B1 – Hörverstehen Teil 1', type:'tf',  level:'B1', teil:1 },
+  B1_T2: { title:'B1 – Hörverstehen Teil 2', type:'mc',  level:'B1', teil:2 },
+  B1_T3: { title:'B1 – Hörverstehen Teil 3', type:'mc',  level:'B1', teil:3 },
+  A1_T1: { title:'A1 – Hörverstehen Teil 1', type:'tf',  level:'A1', teil:1 },
+};
+
+function loadQuestions() {
+  try { return JSON.parse(localStorage.getItem(Q_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveQuestions(data) { localStorage.setItem(Q_KEY, JSON.stringify(data)); }
+
+let currentSection = 'B1_T1';
+let pendingAudioBuffer = null;
+let pendingAudioName   = null;
+let editingId          = null;
+
+/* ─────────────────────────────────────────────
+   TAB NAVIGATION
+───────────────────────────────────────────── */
+function switchTab(name) {
+  const names=['hoer','modul','schreiben','stats','settings'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='stats')     loadStats();
+  if (name==='modul')     { initModulSel(); renderModulList(); }
+  if (name==='schreiben') renderSchreibenList();
+}
+
+/* ─────────────────────────────────────────────
+   SECTION SELECTOR
+───────────────────────────────────────────── */
+function initSectionSel() {
+  const sel = document.getElementById('section-sel');
+  sel.innerHTML = Object.entries(SECTION_META).map(([k,v])=>
+    `<button class="ssel${k===currentSection?' active':''}" onclick="setSection('${k}')">${v.title}</button>`
+  ).join('');
+}
+function setSection(key) {
+  currentSection = key;
+  document.querySelectorAll('.ssel').forEach((b,i)=>{
+    b.classList.toggle('active', Object.keys(SECTION_META)[i]===key);
+  });
+  renderQuestionList();
+  closeAddForm();
+}
+
+/* ─────────────────────────────────────────────
+   SORU LİSTESİ
+───────────────────────────────────────────── */
+function renderQuestionList() {
+  const data = loadQuestions();
+  const sec  = data[currentSection] || { questions: [] };
+  const qs   = sec.questions || [];
+  const list = document.getElementById('q-list');
+  const empty = document.getElementById('q-empty');
+
+  if (qs.length === 0) {
+    empty.style.display = 'block';
+    list.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const isTF = SECTION_META[currentSection].type === 'tf';
+
+  list.innerHTML = qs.map((q, i) => `
+    <div class="q-card">
+      <div class="q-card-top">
+        <div class="q-num">${i+1}</div>
+        <div class="q-body">
+          <div class="q-aussage">${isTF ? q.aussage : q.question}</div>
+          <div class="q-meta">
+            ${q.audioKey ? `<span class="audio-chip">🎵 ${q.audioName||q.audioKey}</span>` : '<span style="color:var(--red);font-size:.72rem;">⚠ Ses yok</span>'}
+            ${isTF
+              ? `<span>Cevap: <strong style="color:${q.correctAnswer==='R'?'var(--green)':'var(--red)'};">${q.correctAnswer==='R'?'Richtig':'Falsch'}</strong></span>`
+              : `<span>Doğru: <strong style="color:var(--green);">${q.correctAnswer.toUpperCase()}</strong></span>`
+            }
+          </div>
+          ${q.feedback ? `<div style="font-size:.76rem;color:var(--muted);margin-top:.3rem;">${q.feedback}</div>` : ''}
+        </div>
+        <div class="q-actions">
+          <button class="btn-ghost btn-sm" onclick="editQuestion('${q.id}')">✏️ Düzenle</button>
+          <button class="btn-danger btn-sm" onclick="deleteQuestion('${q.id}')">🗑</button>
+          ${i>0 ? `<button class="btn-ghost btn-sm" onclick="moveQuestion('${q.id}',-1)">↑</button>` : ''}
+          ${i<qs.length-1 ? `<button class="btn-ghost btn-sm" onclick="moveQuestion('${q.id}',1)">↓</button>` : ''}
+        </div>
+      </div>
+      ${q.audioKey ? `<div style="margin-top:.7rem;"><audio controls id="player-${q.id}" style="width:100%;height:34px;"></audio></div>` : ''}
+    </div>`).join('');
+
+  // Audio oynatıcıları doldur
+  qs.filter(q=>q.audioKey).forEach(q => {
+    getAudio(q.audioKey).then(buf => {
+      if (!buf) return;
+      const blob = new Blob([buf], {type:'audio/mpeg'});
+      const url  = URL.createObjectURL(blob);
+      const el   = document.getElementById('player-'+q.id);
+      if (el) el.src = url;
+    });
+  });
+}
+
+/* ─────────────────────────────────────────────
+   FORM
+───────────────────────────────────────────── */
+function openAddForm(prefillId) {
+  editingId = prefillId || null;
+  pendingAudioBuffer = null;
+  pendingAudioName   = null;
+
+  const isTF = SECTION_META[currentSection].type === 'tf';
+  document.getElementById('f-mc-wrap').style.display   = isTF ? 'none' : 'block';
+  document.getElementById('f-aussage-wrap').style.display = isTF ? 'block' : 'none';
+  document.getElementById('f-answer-wrap').style.display  = isTF ? 'block' : 'none';
+
+  if (editingId) {
+    document.getElementById('form-title').textContent = 'Soruyu Düzenle';
+    const data = loadQuestions();
+    const q = (data[currentSection]?.questions||[]).find(x=>x.id===editingId);
+    if (q) {
+      document.getElementById('f-section').value  = currentSection;
+      document.getElementById('f-feedback').value = q.feedback || '';
+      if (isTF) {
+        document.getElementById('f-aussage').value = q.aussage || '';
+        document.getElementById('f-answer').value  = q.correctAnswer || 'R';
+      } else {
+        document.getElementById('f-mc-q').value       = q.question || '';
+        document.getElementById('f-mc-a').value       = q.options?.a || '';
+        document.getElementById('f-mc-b').value       = q.options?.b || '';
+        document.getElementById('f-mc-c').value       = q.options?.c || '';
+        document.getElementById('f-mc-correct').value = q.correctAnswer || 'a';
+      }
+      if (q.audioKey) {
+        getAudio(q.audioKey).then(buf => {
+          if (!buf) return;
+          const blob = new Blob([buf],{type:'audio/mpeg'});
+          showAudioPreview(URL.createObjectURL(blob), q.audioName||q.audioKey);
+        });
+      }
+    }
+  } else {
+    document.getElementById('form-title').textContent = 'Yeni Soru Ekle';
+    document.getElementById('f-aussage').value = '';
+    document.getElementById('f-answer').value  = 'R';
+    document.getElementById('f-feedback').value = '';
+    document.getElementById('f-mc-q').value = '';
+    document.getElementById('f-mc-a').value = '';
+    document.getElementById('f-mc-b').value = '';
+    document.getElementById('f-mc-c').value = '';
+    document.getElementById('audio-preview').style.display = 'none';
+  }
+
+  const form = document.getElementById('add-form');
+  form.classList.add('open');
+  form.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function closeAddForm() {
+  document.getElementById('add-form').classList.remove('open');
+  editingId = null;
+  pendingAudioBuffer = null;
+  pendingAudioName   = null;
+  document.getElementById('audio-preview').style.display = 'none';
+}
+
+async function saveQuestion() {
+  const sec = document.getElementById('f-section').value;
+  const isTF = SECTION_META[sec].type === 'tf';
+  const feedback = document.getElementById('f-feedback').value.trim();
+
+  let aussage, question, options, correctAnswer;
+  if (isTF) {
+    aussage = document.getElementById('f-aussage').value.trim();
+    correctAnswer = document.getElementById('f-answer').value;
+    if (!aussage) { showNotif('Eksik','Aussage boş olamaz.',true); return; }
+  } else {
+    question = document.getElementById('f-mc-q').value.trim();
+    options  = {
+      a: document.getElementById('f-mc-a').value.trim(),
+      b: document.getElementById('f-mc-b').value.trim(),
+      c: document.getElementById('f-mc-c').value.trim(),
+    };
+    correctAnswer = document.getElementById('f-mc-correct').value;
+    if (!question || !options.a || !options.b || !options.c) {
+      showNotif('Eksik','Soru ve tüm seçenekler gerekli.',true); return;
+    }
+  }
+
+  const data = loadQuestions();
+  if (!data[sec]) data[sec] = { ...SECTION_META[sec], questions: [] };
+
+  let q;
+  if (editingId && data[sec].questions.find(x=>x.id===editingId)) {
+    q = data[sec].questions.find(x=>x.id===editingId);
+    if (isTF) { q.aussage = aussage; } else { q.question = question; q.options = options; }
+    q.correctAnswer = correctAnswer;
+    q.feedback = feedback;
+  } else {
+    const id = 'q' + Date.now();
+    q = isTF
+      ? { id, aussage, correctAnswer, feedback }
+      : { id, question, options, correctAnswer, feedback };
+    data[sec].questions.push(q);
+    editingId = id;
+  }
+
+  // Ses dosyası varsa kaydet
+  if (pendingAudioBuffer) {
+    const audioKey = sec + '_' + q.id;
+    await saveAudio(audioKey, pendingAudioBuffer);
+    q.audioKey  = audioKey;
+    q.audioName = pendingAudioName;
+  }
+
+  saveQuestions(data);
+  currentSection = sec;
+  initSectionSel();
+  renderQuestionList();
+  closeAddForm();
+  showNotif('Kaydedildi ✓', 'Soru başarıyla kaydedildi.');
+}
+
+function editQuestion(id) { openAddForm(id); }
+
+function deleteQuestion(id) {
+  if (!confirm('Bu soruyu silmek istediğine emin misin?')) return;
+  const data = loadQuestions();
+  const sec  = data[currentSection];
+  if (!sec) return;
+  const q = sec.questions.find(x=>x.id===id);
+  if (q?.audioKey) deleteAudio(q.audioKey);
+  sec.questions = sec.questions.filter(x=>x.id!==id);
+  saveQuestions(data);
+  renderQuestionList();
+  showNotif('Silindi','Soru kaldırıldı.');
+}
+
+function moveQuestion(id, dir) {
+  const data = loadQuestions();
+  const qs = data[currentSection]?.questions;
+  if (!qs) return;
+  const i = qs.findIndex(x=>x.id===id);
+  const j = i + dir;
+  if (j < 0 || j >= qs.length) return;
+  [qs[i], qs[j]] = [qs[j], qs[i]];
+  saveQuestions(data);
+  renderQuestionList();
+}
+
+/* ─────────────────────────────────────────────
+   AUDIO UPLOAD
+───────────────────────────────────────────── */
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processAudioFile(file);
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('audio/')) processAudioFile(file);
+}
+function processAudioFile(file) {
+  pendingAudioName = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingAudioBuffer = ev.target.result;
+    const blob = new Blob([pendingAudioBuffer],{type:'audio/mpeg'});
+    showAudioPreview(URL.createObjectURL(blob), file.name);
+    showNotif('Ses Yüklendi ✓', file.name + ' hazır. Kaydet\'e tıklayın.');
+  };
+  reader.readAsArrayBuffer(file);
+}
+function showAudioPreview(url, name) {
+  document.getElementById('audio-filename').textContent = '🎵 ' + name;
+  document.getElementById('audio-preview-player').src = url;
+  document.getElementById('audio-preview').style.display = 'block';
+}
+
+/* ─────────────────────────────────────────────
+   MODÜL ALIŞTIRMALARI (LSV / SPB)
+───────────────────────────────────────────── */
+const MODUL_KEY  = 'examready_module_sets_v1';
+const MODUL_TYPES = {
+  B1_LSV_T1: { label:'B1 Leseverstehen T1 (Sorular 1–5)',  structure:'lsv-t1'  },
+  B1_LSV_T2: { label:'B1 Leseverstehen T2 (Sorular 6–10)', structure:'lsv-t2'  },
+  B1_LSV_T3: { label:'B1 Leseverstehen T3 (Sorular 11–20)',structure:'lsv-t3'  },
+  B1_SPB_T1: { label:'B1 Sprachbausteine T1 (Sor. 21–30)', structure:'spb-t1' },
+  B1_SPB_T2: { label:'B1 Sprachbausteine T2 (Sor. 31–40)', structure:'spb-t2' },
+};
+
+function loadModulSets() {
+  try { return JSON.parse(localStorage.getItem(MODUL_KEY)||'{}'); } catch(e){ return {}; }
+}
+function saveModulSets(d){ localStorage.setItem(MODUL_KEY, JSON.stringify(d)); }
+
+let currentModulType = 'B1_LSV_T1';
+
+function initModulSel() {
+  const sel = document.getElementById('modul-section-sel');
+  sel.innerHTML = Object.entries(MODUL_TYPES).map(([k,v])=>
+    `<button class="ssel${k===currentModulType?' active':''}" onclick="setModulType('${k}')">${v.label}</button>`
+  ).join('');
+}
+function setModulType(key) {
+  currentModulType = key;
+  document.querySelectorAll('#modul-section-sel .ssel').forEach((b,i)=>{
+    b.classList.toggle('active', Object.keys(MODUL_TYPES)[i]===key);
+  });
+  renderModulList();
+  closeModulForm();
+}
+
+function updateModulTypeUI() {
+  const type = MODUL_TYPES[document.getElementById('mf-module').value]?.structure || 'lsv-t1';
+  ['lsv-t1','lsv-t2','lsv-t3','spb-t1','spb-t2'].forEach(id=>{
+    const el = document.getElementById('mf-'+id);
+    if(el) el.style.display = id===type?'block':'none';
+  });
+  if (type==='lsv-t1') initLSVT1Fields();
+  if (type==='lsv-t2') initT2Fields();
+  if (type==='lsv-t3') initLSVT3Fields();
+  if (type==='spb-t1') initSPBT1Fields();
+  if (type==='spb-t2') initSPBT2Fields();
+}
+
+// ── LSV T1: 5 metin + 10 başlık ──
+function initLSVT1Fields() {
+  document.getElementById('mf-texts-container').innerHTML='';
+  const hg = document.getElementById('mf-headings-grid');
+  if (hg) hg.innerHTML = 'abcdefghij'.split('').map(l=>
+    `<div class="form-field"><label>Başlık ${l.toUpperCase()}</label><input id="mf-h-${l}" type="text" placeholder="Überschrift ${l.toUpperCase()}"/></div>`
+  ).join('');
+}
+function addLSVT1Text() {
+  const c = document.getElementById('mf-texts-container');
+  if (c.children.length >= 5) { showNotif('Limit','Maks. 5 metin eklenebilir.',true); return; }
+  const i = c.children.length + 1;
+  const div = document.createElement('div');
+  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
+  div.innerHTML=`
+    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${i} (Metin ${i})</div>
+    <div class="form-field"><textarea id="mf-text-${i}" style="min-height:70px;" placeholder="Kısa metin ${i}..."></textarea></div>
+    <div class="form-field"><label>Doğru Başlık</label><select id="mf-ans-${i}">${'abcdefghij'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('')}</select></div>`;
+  c.appendChild(div);
+}
+
+// ── LSV T2: metin + 5 soru (6–10) ──
+function initT2Fields() {
+  document.getElementById('mf-t2-questions').innerHTML='';
+}
+function addT2Question() {
+  const c = document.getElementById('mf-t2-questions');
+  if (c.children.length >= 5) { showNotif('Limit','Maks. 5 soru eklenebilir.',true); return; }
+  const i = c.children.length + 1;
+  const qNum = 5 + i; // 6, 7, 8, 9, 10
+  const div = document.createElement('div');
+  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
+  div.innerHTML=`
+    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum}</div>
+    <div class="form-field"><input id="mf-q${i}-text" type="text" placeholder="Soru metni..."/></div>
+    <div class="form-grid">
+      <div class="form-field"><label>a)</label><input id="mf-q${i}-a" type="text"/></div>
+      <div class="form-field"><label>b)</label><input id="mf-q${i}-b" type="text"/></div>
+      <div class="form-field"><label>c)</label><input id="mf-q${i}-c" type="text"/></div>
+      <div class="form-field"><label>Doğru</label><select id="mf-q${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+    </div>`;
+  c.appendChild(div);
+}
+
+// ── LSV T3: 10 durum (11–20) + 12 ilan ──
+function initLSVT3Fields() {
+  document.getElementById('mf-situations-container').innerHTML='';
+  const ag = document.getElementById('mf-ads-grid');
+  if (ag) ag.innerHTML = 'abcdefghijkl'.split('').map(l=>
+    `<div class="form-field"><label>İlan ${l.toUpperCase()}</label><textarea id="mf-ad-${l}" style="min-height:55px;" placeholder="İlan ${l.toUpperCase()}"></textarea></div>`
+  ).join('');
+}
+function addSituation() {
+  const c = document.getElementById('mf-situations-container');
+  if (c.children.length >= 10) { showNotif('Limit','Maks. 10 durum eklenebilir.',true); return; }
+  const i = c.children.length + 1;
+  const qNum = 10 + i; // 11–20
+  const div = document.createElement('div');
+  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
+  div.innerHTML=`
+    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum} – Durum ${i}</div>
+    <div style="display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;">
+      <textarea id="mf-sit-${i}" style="flex:1;min-height:55px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.5rem;color:var(--text);font-family:inherit;" placeholder="Durum ${i}..."></textarea>
+      <select id="mf-sit-ans-${i}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem;color:var(--text);">
+        ${'abcdefghijkl'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('')}
+        <option value="x">X – Keine passende</option>
+      </select>
+    </div>`;
+  c.appendChild(div);
+}
+
+// ── SPB T1: lückentext 10 boşluk, 3 şık (21–30) ──
+function initSPBT1Fields() {
+  document.getElementById('mf-spb-gaps').innerHTML='';
+}
+function addSPBGap() {
+  const c = document.getElementById('mf-spb-gaps');
+  if (c.children.length >= 10) { showNotif('Limit','Maks. 10 boşluk eklenebilir.',true); return; }
+  const i = c.children.length + 1;
+  const qNum = 20 + i; // 21–30
+  const div = document.createElement('div');
+  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
+  div.innerHTML=`
+    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Boşluk (${qNum})</div>
+    <div class="form-grid">
+      <div class="form-field"><label>a)</label><input id="mf-gap${i}-a" type="text"/></div>
+      <div class="form-field"><label>b)</label><input id="mf-gap${i}-b" type="text"/></div>
+      <div class="form-field"><label>c)</label><input id="mf-gap${i}-c" type="text"/></div>
+      <div class="form-field"><label>Doğru</label><select id="mf-gap${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+    </div>`;
+  c.appendChild(div);
+}
+
+// ── SPB T2: 10 soru (31–40), 15 seçenek (a–o) ──
+function initSPBT2Fields() {
+  // 15 seçenek alanları
+  const og = document.getElementById('mf-spb2-options-grid');
+  if (og) og.innerHTML = 'abcdefghijklmno'.split('').map(l=>
+    `<div class="form-field"><label>Seçenek ${l.toUpperCase()}</label><input id="mf-o-${l}" type="text" placeholder="${l.toUpperCase()})"/></div>`
+  ).join('');
+
+  // 10 soru alanları
+  const opts15 = 'abcdefghijklmno'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('');
+  const qc = document.getElementById('mf-spb2-questions');
+  if (!qc) return;
+  qc.innerHTML = Array.from({length:10},(_,i)=>{
+    const qNum = 31 + i;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.8rem;">
+      <div style="font-size:.8rem;font-weight:700;color:var(--accent);min-width:50px;">Soru ${qNum}</div>
+      <input id="mf-sq${i+1}" type="text" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem .6rem;color:var(--text);font-size:.83rem;" placeholder="Soru metni (opsiyonel — genellikle metin içinde)"/>
+      <select id="mf-sq${i+1}-ans" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.35rem .5rem;color:var(--text);">
+        <option value="">Doğru şık</option>${opts15}
+      </select>
+    </div>`;
+  }).join('');
+}
+
+function openModulForm() {
+  updateModulTypeUI();
+  document.getElementById('modul-form').classList.add('open');
+  document.getElementById('modul-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeModulForm() {
+  document.getElementById('modul-form').classList.remove('open');
+}
+
+function saveModulSet() {
+  const moduleKey = document.getElementById('mf-module').value;
+  const setNum    = parseInt(document.getElementById('mf-set').value);
+  const structure = MODUL_TYPES[moduleKey]?.structure;
+  if (!setNum || setNum < 1 || setNum > 15) { showNotif('Hata','Set numarası 1-15 arası olmalı.',true); return; }
+
+  let content = {};
+  if (structure === 'lsv-t1') {
+    const texts = [];
+    let i=1; while(document.getElementById(`mf-text-${i}`)) {
+      texts.push({ text: document.getElementById(`mf-text-${i}`).value.trim(), answer: document.getElementById(`mf-ans-${i}`).value });
+      i++;
+    }
+    const headings = {};
+    'abcdefghij'.split('').forEach(l => { headings[l] = document.getElementById('mf-h-'+l)?.value.trim()||''; });
+    if (!texts.length) { showNotif('Hata','En az 1 metin ekleyin.',true); return; }
+    content = { texts, headings };
+
+  } else if (structure === 'lsv-t2') {
+    const text = document.getElementById('mf-t2-text')?.value.trim()||'';
+    const questions = [];
+    let i=1; while(document.getElementById(`mf-q${i}-text`)) {
+      questions.push({ q: document.getElementById(`mf-q${i}-text`).value.trim(), a: document.getElementById(`mf-q${i}-a`).value.trim(), b: document.getElementById(`mf-q${i}-b`).value.trim(), c: document.getElementById(`mf-q${i}-c`).value.trim(), answer: document.getElementById(`mf-q${i}-ans`).value });
+      i++;
+    }
+    if (!text || !questions.length) { showNotif('Hata','Metin ve en az 1 soru gerekli.',true); return; }
+    content = { text, questions };
+
+  } else if (structure === 'lsv-t3') {
+    const situations = [];
+    let i=1; while(document.getElementById(`mf-sit-${i}`)) {
+      situations.push({ text: document.getElementById(`mf-sit-${i}`).value.trim(), answer: document.getElementById(`mf-sit-ans-${i}`).value });
+      i++;
+    }
+    const ads = {};
+    'abcdefghijkl'.split('').forEach(l => { ads[l] = document.getElementById('mf-ad-'+l)?.value.trim()||''; });
+    if (!situations.length) { showNotif('Hata','En az 1 durum ekleyin.',true); return; }
+    content = { situations, ads };
+
+  } else if (structure === 'spb-t1') {
+    const text = document.getElementById('mf-spb-text')?.value.trim()||'';
+    const gaps = [];
+    let i=1; while(document.getElementById(`mf-gap${i}-a`)) {
+      gaps.push({ a: document.getElementById(`mf-gap${i}-a`).value.trim(), b: document.getElementById(`mf-gap${i}-b`).value.trim(), c: document.getElementById(`mf-gap${i}-c`).value.trim(), answer: document.getElementById(`mf-gap${i}-ans`).value });
+      i++;
+    }
+    if (!text || !gaps.length) { showNotif('Hata','Metin ve en az 1 boşluk gerekli.',true); return; }
+    content = { text, gaps };
+
+  } else if (structure === 'spb-t2') {
+    const options = {};
+    'abcdefghijklmno'.split('').forEach(l => { options[l] = document.getElementById('mf-o-'+l)?.value.trim()||''; });
+    const questions = [];
+    for (let i=1; i<=10; i++) {
+      questions.push({ q: document.getElementById(`mf-sq${i}`)?.value.trim()||'', answer: document.getElementById(`mf-sq${i}-ans`)?.value||'' });
+    }
+    if (!Object.values(options).some(v=>v)) { showNotif('Hata','En az 1 seçenek girin.',true); return; }
+    content = { options, questions };
+  }
+
+  const sets = loadModulSets();
+  if (!sets[moduleKey]) sets[moduleKey] = {};
+  sets[moduleKey][setNum] = { hasContent: true, structure, content, updatedAt: new Date().toISOString() };
+  saveModulSets(sets);
+  closeModulForm();
+  renderModulList();
+  showNotif('Kaydedildi ✓', `${MODUL_TYPES[moduleKey]?.label} – Set ${setNum} kaydedildi.`);
+}
+
+function renderModulList() {
+  const sets   = loadModulSets();
+  const allSets = sets[currentModulType] || {};
+  const container = document.getElementById('modul-list');
+  const entries = Object.entries(allSets).sort((a,b)=>parseInt(a[0])-parseInt(b[0]));
+  if (!entries.length) { container.innerHTML = '<div class="empty">Bu modül için henüz set eklenmedi.</div>'; return; }
+  container.innerHTML = entries.map(([n, s])=>`
+    <div class="q-card" style="margin-bottom:.5rem;">
+      <div class="q-card-top">
+        <div class="q-num">${n}</div>
+        <div class="q-body">
+          <div class="q-aussage">${MODUL_TYPES[currentModulType]?.label} – Set ${n}</div>
+          <div class="q-meta"><span style="font-size:.72rem;color:var(--muted);">${s.structure} · ${new Date(s.updatedAt).toLocaleDateString('tr-TR')}</span></div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-ghost btn-sm" onclick="editModulSet('${currentModulType}',${n})">✏️ Düzenle</button>
+          <a href="exam_Telc_B1_dyn.html?module=${currentModulType}&set=${n}" target="_blank" class="btn-ghost btn-sm">👁 Önizle</a>
+          <button class="btn-danger btn-sm" onclick="deleteModulSet('${currentModulType}',${n})">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editModulSet(key, n) {
+  // Modül tipini seç
+  currentModulType = key;
+  initModulSel();
+
+  // Formu aç ve mevcut verileri doldur
+  document.getElementById('mf-module').value = key;
+  document.getElementById('mf-set').value    = n;
+  updateModulTypeUI();
+
+  const sets = loadModulSets();
+  const data = sets[key]?.[n];
+  if (!data) return;
+  const c = data.content;
+  const structure = data.structure;
+
+  setTimeout(()=>{
+    if (structure === 'lsv-t1') {
+      // Metinleri doldur
+      if (c.texts) c.texts.forEach((t,i)=>{
+        if (!document.getElementById(`mf-text-${i+1}`)) addLSVT1Text();
+        document.getElementById(`mf-text-${i+1}`).value  = t.text||'';
+        document.getElementById(`mf-ans-${i+1}`).value   = t.answer||'a';
+      });
+      // Başlıkları doldur
+      if (c.headings) Object.entries(c.headings).forEach(([l,v])=>{
+        const el = document.getElementById('mf-h-'+l); if(el) el.value = v;
+      });
+    } else if (structure === 'lsv-t2') {
+      if (c.text) document.getElementById('mf-t2-text').value = c.text;
+      if (c.questions) c.questions.forEach((q,i)=>{
+        if (!document.getElementById(`mf-q${i+1}-text`)) addT2Question();
+        document.getElementById(`mf-q${i+1}-text`).value = q.q||'';
+        document.getElementById(`mf-q${i+1}-a`).value    = q.a||'';
+        document.getElementById(`mf-q${i+1}-b`).value    = q.b||'';
+        document.getElementById(`mf-q${i+1}-c`).value    = q.c||'';
+        document.getElementById(`mf-q${i+1}-ans`).value  = q.answer||'a';
+      });
+    } else if (structure === 'lsv-t3') {
+      if (c.situations) c.situations.forEach((s,i)=>{
+        if (!document.getElementById(`mf-sit-${i+1}`)) addSituation();
+        document.getElementById(`mf-sit-${i+1}`).value     = s.text||'';
+        document.getElementById(`mf-sit-ans-${i+1}`).value = s.answer||'x';
+      });
+      if (c.ads) Object.entries(c.ads).forEach(([l,v])=>{
+        const el = document.getElementById('mf-ad-'+l); if(el) el.value = v;
+      });
+    } else if (structure === 'spb-t1') {
+      if (c.text) document.getElementById('mf-spb-text').value = c.text;
+      if (c.gaps) c.gaps.forEach((g,i)=>{
+        if (!document.getElementById(`mf-gap${i+1}-a`)) addSPBGap();
+        document.getElementById(`mf-gap${i+1}-a`).value   = g.a||'';
+        document.getElementById(`mf-gap${i+1}-b`).value   = g.b||'';
+        document.getElementById(`mf-gap${i+1}-c`).value   = g.c||'';
+        document.getElementById(`mf-gap${i+1}-ans`).value = g.answer||'a';
+      });
+    } else if (structure === 'spb-t2') {
+      if (c.options) Object.entries(c.options).forEach(([l,v])=>{
+        const el = document.getElementById('mf-o-'+l); if(el) el.value = v;
+      });
+      if (c.questions) c.questions.forEach((q,i)=>{
+        const elQ   = document.getElementById(`mf-sq${i+1}`);
+        const elAns = document.getElementById(`mf-sq${i+1}-ans`);
+        if(elQ)   elQ.value   = q.q||'';
+        if(elAns) elAns.value = q.answer||'';
+      });
+    }
+    document.getElementById('modul-form-title').textContent = `Set ${n} Düzenle`;
+    document.getElementById('modul-form').classList.add('open');
+    document.getElementById('modul-form').scrollIntoView({behavior:'smooth',block:'start'});
+  }, 100);
+}
+
+function deleteModulSet(key, n) {
+  if (!confirm(`Set ${n} silinsin mi?`)) return;
+  const sets = loadModulSets();
+  if (sets[key]) delete sets[key][n];
+  saveModulSets(sets);
+  renderModulList();
+  showNotif('Silindi', `Set ${n} kaldırıldı.`);
+}
+
+/* ─────────────────────────────────────────────
+   SCHREIBEN HAVUZU
+───────────────────────────────────────────── */
+const SCH_KEY = 'examready_schreiben_v1';
+function loadSchreiben() { try { return JSON.parse(localStorage.getItem(SCH_KEY)||'[]'); } catch(e){ return []; } }
+function saveSchreiben(d) { localStorage.setItem(SCH_KEY, JSON.stringify(d)); }
+
+function openSchreibenForm(editId) {
+  document.getElementById('sch-form-title').textContent = editId ? 'Soruyu Düzenle' : 'Yeni Yazma Sorusu';
+  document.getElementById('sf-edit-id').value = editId || '';
+  if (editId) {
+    const q = loadSchreiben().find(x=>x.id===editId);
+    if (q) {
+      document.getElementById('sf-type').value     = q.type||'brief';
+      document.getElementById('sf-level').value    = q.level||'B1';
+      document.getElementById('sf-set').value      = q.setNo||'';
+      document.getElementById('sf-task').value     = q.task||'';
+      document.getElementById('sf-points').value   = (q.points||[]).join('\n');
+      document.getElementById('sf-example').value  = q.example||'';
+      document.getElementById('sf-criteria').value = q.criteria||'';
+    }
+  } else {
+    ['sf-task','sf-points','sf-example','sf-criteria'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('sf-set').value = '';
+  }
+  document.getElementById('sch-form').classList.add('open');
+  document.getElementById('sch-form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeSchreibenForm() { document.getElementById('sch-form').classList.remove('open'); }
+
+function saveSchreibenQ() {
+  const task = document.getElementById('sf-task').value.trim();
+  if (!task) { showNotif('Hata','Görev metni gerekli.',true); return; }
+  const list   = loadSchreiben();
+  const editId = document.getElementById('sf-edit-id').value;
+  const setNoRaw = parseInt(document.getElementById('sf-set').value);
+  const q = {
+    id       : editId || 'sch_' + Date.now(),
+    type     : document.getElementById('sf-type').value,
+    level    : document.getElementById('sf-level').value,
+    setNo    : (!isNaN(setNoRaw) && setNoRaw >= 1 && setNoRaw <= 15) ? setNoRaw : null,
+    task     : task,
+    points   : document.getElementById('sf-points').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    example  : document.getElementById('sf-example').value.trim(),
+    criteria : document.getElementById('sf-criteria').value.trim(),
+  };
+  if (editId) {
+    const idx = list.findIndex(x=>x.id===editId);
+    if (idx>=0) list[idx]=q; else list.push(q);
+  } else {
+    list.push(q);
+  }
+  saveSchreiben(list);
+  closeSchreibenForm();
+  renderSchreibenList();
+  showNotif('Kaydedildi ✓', `Schreiben sorusu (${q.type}) eklendi. Toplam: ${list.length}`);
+}
+
+function renderSchreibenList() {
+  const list = loadSchreiben();
+  const container = document.getElementById('sch-list');
+  if (!list.length) { container.innerHTML='<div class="empty">Henüz soru eklenmedi.</div>'; return; }
+  container.innerHTML = list.map((q,i)=>`
+    <div class="q-card" style="margin-bottom:.5rem;">
+      <div class="q-card-top">
+        <div class="q-num">${i+1}</div>
+        <div class="q-body">
+          <div class="q-aussage" style="font-size:.85rem;">${q.task.substring(0,100)}${q.task.length>100?'…':''}</div>
+          <div class="q-meta"><span class="audio-chip">${q.type}</span><span>${q.level}</span>${q.setNo?`<span style="color:var(--accent);font-weight:700;">Set ${q.setNo}</span>`:''}<span>${q.points?.length||0} madde</span></div>
+        </div>
+        <div class="q-actions">
+          <button class="btn-ghost btn-sm" onclick="openSchreibenForm('${q.id}')">✏️ Düzenle</button>
+          <button class="btn-danger btn-sm" onclick="deleteSchreibenQ('${q.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function deleteSchreibenQ(id) {
+  if (!confirm('Bu soru silinsin mi?')) return;
+  saveSchreiben(loadSchreiben().filter(x=>x.id!==id));
+  renderSchreibenList();
+  showNotif('Silindi','Schreiben sorusu kaldırıldı.');
+}
+
+/* ─────────────────────────────────────────────
+   İSTATİSTİKLER
+───────────────────────────────────────────── */
+function loadStats() {
+  const STATS_KEY = 'examready_student_stats_v1';
+  const all = JSON.parse(localStorage.getItem(STATS_KEY)||'{}');
+  const REG_KEY = 'examready_registered_users_v1';
+  const reg = JSON.parse(localStorage.getItem(REG_KEY)||'{}');
+
+  const entries = Object.entries(all);
+  if (!entries.length) {
+    document.getElementById('stats-content').innerHTML = '<div class="empty">Henüz istatistik verisi yok.</div>';
+    return;
+  }
+
+  let html = `<div class="stats-row">
+    <div class="stat-card"><div class="stat-num">${entries.length}</div><div class="stat-lbl">Aktif Öğrenci</div></div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+    <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted);">
+      <th style="padding:.5rem .6rem;text-align:left;">Öğrenci</th>
+      <th style="padding:.5rem .6rem;text-align:right;">Sınav</th>
+      <th style="padding:.5rem .6rem;text-align:right;">Soru</th>
+      <th style="padding:.5rem .6rem;text-align:right;">Doğruluk</th>
+      <th style="padding:.5rem .6rem;text-align:left;">Seviye</th>
+    </tr></thead>
+    <tbody>`;
+
+  entries.forEach(([email, levels]) => {
+    Object.entries(levels).forEach(([lvl, s]) => {
+      const acc = s.questionsAnswered > 0 ? Math.round(s.questionsCorrect/s.questionsAnswered*100) : 0;
+      const color = acc >= 60 ? 'var(--green)' : acc >= 40 ? 'var(--yellow)' : 'var(--red)';
+      html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+        <td style="padding:.45rem .6rem;">${email}</td>
+        <td style="padding:.45rem .6rem;text-align:right;">${s.examsCompleted||0}</td>
+        <td style="padding:.45rem .6rem;text-align:right;">${s.questionsAnswered||0}</td>
+        <td style="padding:.45rem .6rem;text-align:right;font-weight:700;color:${color};">${acc}%</td>
+        <td style="padding:.45rem .6rem;">${lvl}</td>
+      </tr>`;
+    });
+  });
+  html += '</tbody></table>';
+  document.getElementById('stats-content').innerHTML = html;
+}
+
+/* ─────────────────────────────────────────────
+   AYARLAR
+───────────────────────────────────────────── */
+async function confirmNuke() {
+  if (!confirm('Tüm Hörverstehen soruları ve ses dosyaları silinecek. Emin misin?')) return;
+  localStorage.removeItem(Q_KEY);
+  await clearAllAudio();
+  renderQuestionList();
+  showNotif('Silindi','Tüm Hörverstehen verisi temizlendi.');
+}
+
+/* ─────────────────────────────────────────────
+   NOTIF
+───────────────────────────────────────────── */
+function showNotif(title, msg, isErr) {
+  const n = document.getElementById('notif');
+  document.getElementById('n-title').textContent = title;
+  document.getElementById('n-msg').textContent   = msg;
+  n.className = 'notif show' + (isErr ? ' err' : ' ok');
+  clearTimeout(n._t);
+  n._t = setTimeout(() => n.classList.remove('show'), 4000);
+}
+
+/* ─────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────── */
+openDB().then(() => {
+  if (sessionStorage.getItem(ADMIN_SESS_KEY) === '1') showAdmin();
+});
+</script>
+</body>
+</html>

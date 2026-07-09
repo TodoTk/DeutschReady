@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp \"/Users/tugrulkaraesme/Desktop/ElevenLabs_2026-07-08T12_52_10__s50_v3.mp3\" \"/Users/tugrulkaraesme/Desktop/5/audio_Telc_B1_hsv_t1_a1.mp3\" && echo \"OK\")",
+      "Bash(node -e ' *)",
+      "WebFetch(domain:6a5008b137b799c0bd515293--deutschready.netlify.app)",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__add_repo"
+    ]
+  }
+}

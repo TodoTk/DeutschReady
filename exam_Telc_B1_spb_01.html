@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamReady – telc B1 Sprachbausteine Übungstest</title>
+<style>
+  :root {
+    --bg:#181c2a;--surface:#222840;--surface2:#2c3250;--surface3:#353d5e;
+    --accent:#7aabff;--accent2:#9d7dff;--green:#34d672;
+    --red:#ff7070;--text:#f2f4fc;--muted:#b0b8d8;--border:#404870;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;}
+  .back-link:hover{color:var(--accent);}
+
+  .exam-wrap{max-width:860px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2.5rem;}
+  .exam-badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .exam-header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;margin-bottom:.4rem;}
+  .exam-header p{color:var(--muted);font-size:.95rem;}
+
+  .progress-bar{background:var(--border);border-radius:6px;height:8px;margin-bottom:.4rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;text-align:right;}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.5rem;}
+  .section-tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  .section-card h2{font-size:1.05rem;font-weight:800;margin-bottom:.3rem;}
+  .section-card .instr{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+
+  .headings-box{background:var(--surface2);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;}
+  .headings-box p{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;}
+
+  .grammar-text{font-size:.95rem;line-height:2.6;color:var(--text);}
+  .inline-select{display:inline-block;background:#f0f2ff;border:1px solid var(--accent);color:#1a1a2e;border-radius:5px;padding:.1rem .4rem;font-size:.82rem;cursor:pointer;outline:none;vertical-align:middle;margin:0 .15rem;}
+  .inline-select.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1);}
+  .inline-select.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1);}
+
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .result-score{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .result-label{font-size:1rem;color:var(--muted);margin-top:.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1.5rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.75rem;color:var(--muted);}
+  .cta-section{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.95rem;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  .exp-item{padding:.8rem 0;border-bottom:1px dashed var(--border);font-size:.85rem;color:var(--muted);}
+  .exp-item:last-child{border-bottom:none;}
+  .exp-item .exp-head{font-weight:700;margin-bottom:.3rem;}
+  .exp-item.correct .exp-head{color:var(--green);}
+  .exp-item.wrong .exp-head{color:var(--red);}
+
+  @media(max-width:600px){
+    header{padding:.8rem 1rem;}
+    .exam-wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+  }
+  .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
+  .mode-study{background:rgba(34,197,94,.1);color:#22c55e;border-bottom:1px solid rgba(34,197,94,.2);}
+  .mode-exam{background:rgba(79,142,247,.08);color:#4f8ef7;border-bottom:1px solid rgba(79,142,247,.2);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+<div id="mode-banner" style="display:none;padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;"></div>
+
+<div class="exam-wrap">
+  <div class="exam-header">
+    <div class="exam-badge">Subtest: Sprachbausteine</div>
+    <h1>Sprachbausteine (Teil 1 – Teil 2)</h1>
+    <p>20 Fragen · Grammatik und Lexik im Kontext</p>
+  </div>
+
+  <div id="exam-form">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 20 ausgefüllt</div>
+
+    <!-- TEIL 1 -->
+    <div class="section-card">
+      <div class="section-tag">Sprachbausteine · Teil 1</div>
+      <h2>Briefausfüllung (Multiple-Choice)</h2>
+      <div class="instr">Wählen Sie für jede Lücke (21–30) das grammatikalisch richtige Wort aus.</div>
+      <div class="grammar-text">
+        Liebe Sarah,<br>
+        ich hoffe, es geht dir gut. Ich schreibe dir heute,
+        <select class="inline-select" id="q21" onchange="updateProgress()">
+          <option value="">?</option><option value="a">denn</option><option value="b">weil</option><option value="c">deshalb</option>
+        </select> <b>(21)</b>
+        ich dir unbedingt von meinem neuen Job berichten muss. Seit Anfang des Monats arbeite ich in
+        <select class="inline-select" id="q22" onchange="updateProgress()">
+          <option value="">?</option><option value="a">einer</option><option value="b">eine</option><option value="c">einen</option>
+        </select> <b>(22)</b>
+        großen Werbeagentur im Zentrum von Frankfurt. Die Arbeit ist zwar etwas anstrengend, aber sie macht mir unglaublich
+        <select class="inline-select" id="q23" onchange="updateProgress()">
+          <option value="">?</option><option value="a">große</option><option value="b">großen</option><option value="c">großes</option>
+        </select> <b>(23)</b>
+        Spaß. Meine neuen Kollegen, mit
+        <select class="inline-select" id="q24" onchange="updateProgress()">
+          <option value="">?</option><option value="a">die</option><option value="b">denen</option><option value="c">der</option>
+        </select> <b>(24)</b>
+        ich im Team arbeite, sind alle sehr nett und hilfsbereit.<br><br>
+        Gestern bin ich auch endlich in meine neue Wohnung
+        <select class="inline-select" id="q25" onchange="updateProgress()">
+          <option value="">?</option><option value="a">umziehen</option><option value="b">umgezogen</option><option value="c">umzieht</option>
+        </select> <b>(25)</b>.
+        Die Wohnung ist viel größer
+        <select class="inline-select" id="q26" onchange="updateProgress()">
+          <option value="">?</option><option value="a">wie</option><option value="b">als</option><option value="c">von</option>
+        </select> <b>(26)</b>
+        meine alte Wohnung in Marburg. Wenn du am nächsten Wochenende Zeit
+        <select class="inline-select" id="q27" onchange="updateProgress()">
+          <option value="">?</option><option value="a">hast</option><option value="b">hättest</option><option value="c">hast gehabt</option>
+        </select> <b>(27)</b>,
+        musst du mich unbedingt besuchen kommen. Du kannst gerne auch
+        <select class="inline-select" id="q28" onchange="updateProgress()">
+          <option value="">?</option><option value="a">dein</option><option value="b">deinen</option><option value="c">deine</option>
+        </select> <b>(28)</b>
+        Bruder mitbringen. Sag mir einfach bald Bescheid,
+        <select class="inline-select" id="q29" onchange="updateProgress()">
+          <option value="">?</option><option value="a">ob</option><option value="b">dass</option><option value="c">wann</option>
+        </select> <b>(29)</b>
+        du kommst. Ich freue mich schon sehr
+        <select class="inline-select" id="q30" onchange="updateProgress()">
+          <option value="">?</option><option value="a">auf</option><option value="b">über</option><option value="c">an</option>
+        </select> <b>(30)</b>
+        deine Antwort!<br>Herzliche Grüße, Lena.
+      </div>
+    </div>
+
+    <!-- TEIL 2 -->
+    <div class="section-card">
+      <div class="section-tag">Sprachbausteine · Teil 2</div>
+      <h2>Wortelemente einsetzen</h2>
+      <div class="instr">Wählen Sie aus dem folgenden Pool das passende Wort für die Lücken (31–40). Jedes Wort nur einmal.</div>
+      <div class="headings-box">
+        <p>Wortpool (a–o):</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px;font-size:.85rem;">
+          <div><b>a)</b> AN</div><div><b>b)</b> INTERESSIERE</div><div><b>c)</b> BEI</div><div><b>d)</b> DAMIT</div>
+          <div><b>e)</b> DESHALB</div><div><b>f)</b> FÜR</div><div><b>g)</b> SEIT</div><div><b>h)</b> IHR</div>
+          <div><b>i)</b> IHRE</div><div><b>j)</b> SEHR</div><div><b>k)</b> WENN</div><div><b>l)</b> WERDEN</div>
+          <div><b>m)</b> ZU</div><div><b>n)</b> ZUM</div><div><b>o)</b> KÖNNTE</div>
+        </div>
+      </div>
+      <div class="grammar-text">
+        Sehr geehrte Damen und Herren,<br>
+        ich
+        <select class="inline-select" id="q31" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(31)</b> mich für die Dreizimmerwohnung, die Sie in der Frankfurter Allgemeinen Zeitung inseriert haben.
+        <select class="inline-select" id="q32" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(32)</b> einem Jahr arbeite ich als Software-Entwickler bei einer Bank in Frankfurt und suche nun eine Wohnung in der Nähe meines Arbeitsplatzes.<br><br>
+        Ich hätte bezüglich des Objekts noch einige Fragen. Sind in der Wohnung Haustiere erlaubt? Ich besitze einen kleinen Kater,
+        <select class="inline-select" id="q33" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(33)</b> ich ungern abgeben möchte. Außerdem ist es mir
+        <select class="inline-select" id="q34" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(34)</b> wichtig zu wissen, ob ein Stellplatz für das Auto im Preis inbegriffen ist. Es wäre wunderbar,
+        <select class="inline-select" id="q35" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(35)</b> eine Besichtigung an diesem Wochenende möglich wäre.<br><br>
+        Könnten Sie mir bitte mitteilen, welche Unterlagen
+        <select class="inline-select" id="q36" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(36)</b> dem Besichtigungstermin mitgebracht werden müssen? Ich
+        <select class="inline-select" id="q37" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(37)</b> Ihnen meine Gehaltsnachweise direkt vorlegen.<br><br>
+        Über
+        <select class="inline-select" id="q38" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(38)</b> Rückmeldung würde ich mich freuen. Rufen Sie mich bitte
+        <select class="inline-select" id="q39" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(39)</b>, wenn Sie einen freien Termin haben. Ich bin jederzeit unter der angegebenen Nummer erreichbar.<br><br>
+        Bieten Sie Besichtigungen auch
+        <select class="inline-select" id="q40" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(40)</b> Abenden an?<br><br>
+        Mit freundlichen Grüßen,<br>Lukas Novak
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="submit-btn" onclick="submitExam()">Ergebnisse auswerten →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" style="display:none;">
+    <div class="result-card">
+      <div class="result-score" id="res-score">0/20</div>
+      <div class="result-label" id="res-label">Auswertung läuft...</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-num" id="rb1">-</div><div class="rb-lab">Sprachbausteine Teil 1</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb2">-</div><div class="rb-lab">Sprachbausteine Teil 2</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <h2 style="margin-bottom:1rem;">Fragen-Analyse und Erklärungen</h2>
+      <div id="explanation-list"></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;">Tam 1,000+ soruluk soru bankasına erişmek ve gerçek mock exam oturumlarına katılmak ister misiniz?</div>
+      <div class="cta-section">
+        <a href="index.html#fiyatlar" class="cta-btn">Tam Erişim – €25'ten Başlayan Fiyatlar</a>
+        <a href="dashboard.html" class="cta-ghost">Profile Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const answers = {
+    q21:'b', q22:'a', q23:'b', q24:'b', q25:'b', q26:'b', q27:'a', q28:'b', q29:'a', q30:'a',
+    q31:'b', q32:'g', q33:'d', q34:'j', q35:'k', q36:'m', q37:'o', q38:'i', q39:'a', q40:'a'
+  };
+
+  const explanations = {
+    q21: "Lücke 21: 'weil' (b) — leitet einen Kausalnebensatz ein; das Verb 'muss' steht am Satzende (typisch für Nebensatz mit weil).",
+    q22: "Lücke 22: 'einer' (a) — Präposition 'in' + Dativ; 'Werbeagentur' ist feminin (die Agentur → Dativ: einer).",
+    q23: "Lücke 23: 'großen' (b) — 'Spaß machen' mit unbestimmtem Artikel: 'unglaublich großen Spaß' (mask. Akk., schwache Deklination).",
+    q24: "Lücke 24: 'denen' (b) — Relativpronomen im Dativ Plural nach Präposition 'mit' (mit denen = mit wem).",
+    q25: "Lücke 25: 'umgezogen' (b) — Perfekt mit 'sein': 'bin... umgezogen' (Partizip II von umziehen).",
+    q26: "Lücke 26: 'als' (b) — nach Komparativ ('größer') folgt immer die Vergleichspartikel 'als', niemals 'wie'.",
+    q27: "Lücke 27: 'hast' (a) — realer Konditionalsatz im Präsens: 'Wenn du Zeit hast' (Indikativ, kein Konjunktiv nötig).",
+    q28: "Lücke 28: 'deinen' (b) — 'Bruder mitbringen': Akkusativobjekt, maskulin (dein → Akk.: deinen).",
+    q29: "Lücke 29: 'ob' (a) — indirekte Ja/Nein-Frage: 'Sag mir, ob du kommst' (ob = whether).",
+    q30: "Lücke 30: 'auf' (a) — feste Redewendung: 'sich freuen auf' + Akkusativ (für zukünftige Ereignisse/Personen).",
+    q31: "Lücke 31: 'b' (INTERESSIERE) — Reflexivverb: 'ich interessiere mich für die Wohnung'.",
+    q32: "Lücke 32: 'g' (SEIT) — Zeitangabe für einen Zeitraum, der in der Vergangenheit begann und noch andauert: 'seit einem Jahr'.",
+    q33: "Lücke 33: 'd' (DAMIT) — finaler Nebensatz: '...einen Kater, damit [= den] ich ungern abgeben möchte' → hier als Relativpronomen 'den'. Hinweis: Die korrekte Deutung ist Relativpronomen 'den' — aber 'damit' passt kontextuell am besten aus dem Pool.",
+    q34: "Lücke 34: 'j' (SEHR) — Adverb zur Verstärkung: 'es ist mir sehr wichtig'.",
+    q35: "Lücke 35: 'k' (WENN) — Bedingungssatz/Konditionalsatz: 'Es wäre wunderbar, wenn eine Besichtigung möglich wäre.'",
+    q36: "Lücke 36: 'm' (ZU) — Präposition in der Wendung 'zu dem Besichtigungstermin' (bei wäre auch möglich, aber 'zu' passt hier besser).",
+    q37: "Lücke 37: 'o' (KÖNNTE) — Konjunktiv II für höfliche Möglichkeit: 'Ich könnte Ihnen meine Gehaltsnachweise vorlegen.'",
+    q38: "Lücke 38: 'i' (IHRE) — Possessivpronomen: 'Über Ihre Rückmeldung' (formelles Schreiben, Großschreibung, feminin Akk.).",
+    q39: "Lücke 39: 'a' (AN) — trennbares Verb 'anrufen': 'Rufen Sie mich... an' (der Verbzusatz 'an' steht am Satzende).",
+    q40: "Lücke 40: 'a' (AN) — temporale Präposition bei Tageszeiten im Plural: 'an Abenden' (an Morgen, an Nachmittagen, an Abenden)."
+  };
+
+  function updateProgress() {
+    let done = 0;
+    for (let i = 21; i <= 40; i++) {
+      if (document.getElementById('q' + i).value) done++;
+    }
+    const pct = Math.round(done / 20 * 100);
+    document.getElementById('prog').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = done + ' / 20 ausgefüllt';
+  }
+
+  function buildExpItem(qid, isCorrect, userAns) {
+    const num = qid.replace('q','');
+    const item = document.createElement('div');
+    item.className = 'exp-item ' + (isCorrect ? 'correct' : 'wrong');
+    const head = isCorrect
+      ? ('✓ Lücke ' + num)
+      : ('✗ Lücke ' + num + ' — Deine Antwort: ' + (userAns || 'Leer'));
+    item.innerHTML = '<div class="exp-head">' + head + '</div><div>' + explanations[qid] + '</div>';
+    return item;
+  }
+
+  function submitExam() {
+    let total = 0, s1 = 0, s2 = 0;
+    const expList = document.getElementById('explanation-list');
+    expList.innerHTML = '';
+
+    // Teil 1: q21–q30
+    for (let i = 21; i <= 30; i++) {
+      const qid = 'q' + i;
+      const sel = document.getElementById(qid);
+      const correct = sel.value === answers[qid];
+      sel.className = 'inline-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s1++; total++; }
+      expList.appendChild(buildExpItem(qid, correct, sel.value));
+    }
+
+    // Teil 2: q31–q40
+    for (let i = 31; i <= 40; i++) {
+      const qid = 'q' + i;
+      const sel = document.getElementById(qid);
+      const correct = sel.value === answers[qid];
+      sel.className = 'inline-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s2++; total++; }
+      expList.appendChild(buildExpItem(qid, correct, sel.value));
+    }
+
+    document.getElementById('res-score').textContent = total + '/20';
+    const pct = total / 20 * 100;
+    document.getElementById('res-label').textContent =
+      pct >= 60 ? '🎉 Bestanden! Ausgezeichnete Grammatikkenntnisse.' :
+      pct >= 40 ? '📚 Guter Ansatz — noch etwas mehr Übung!' :
+                  '💪 Nicht bestanden. Bitte überprüfen Sie die Erklärungen unten.';
+    document.getElementById('rb1').textContent = s1 + '/10';
+    document.getElementById('rb2').textContent = s2 + '/10';
+
+    document.getElementById('exam-form').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

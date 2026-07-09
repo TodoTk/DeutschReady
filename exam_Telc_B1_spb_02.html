@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ücretsiz telc B1 Sprachbausteine Deneme Sınavı – ExamReady</title>
+<style>
+  :root {
+    --bg:#181c2a;--surface:#222840;--surface2:#2c3250;--surface3:#353d5e;
+    --accent:#7aabff;--accent2:#9d7dff;--green:#34d672;
+    --red:#ff7070;--text:#f2f4fc;--muted:#b0b8d8;--border:#404870;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;}
+  .back-link:hover{color:var(--accent);}
+
+  .exam-wrap{max-width:860px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2.5rem;}
+  .exam-badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .exam-header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;margin-bottom:.4rem;}
+  .exam-header p{color:var(--muted);font-size:.95rem;}
+
+  .progress-bar{background:var(--border);border-radius:6px;height:8px;margin-bottom:.4rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;text-align:right;}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.5rem;}
+  .section-tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  .section-card h2{font-size:1.05rem;font-weight:800;margin-bottom:.3rem;}
+  .section-card .instr{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+
+  .grammar-text{font-size:.95rem;line-height:2.4;color:var(--text);}
+  .inline-select{display:inline-block;background:#f0f2ff;border:1px solid var(--accent);color:#1a1a2e;border-radius:5px;padding:.1rem .4rem;font-size:.82rem;cursor:pointer;outline:none;vertical-align:middle;margin:0 .15rem;}
+  .inline-select.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1);}
+  .inline-select.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1);}
+
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .result-score{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .result-label{font-size:1rem;color:var(--muted);margin-top:.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1.5rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.75rem;color:var(--muted);}
+  .cta-section{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.95rem;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  .exp-item{padding:.8rem 0;border-bottom:1px dashed var(--border);font-size:.85rem;color:var(--muted);}
+  .exp-item:last-child{border-bottom:none;}
+  .exp-item .exp-head{font-weight:700;margin-bottom:.3rem;}
+  .exp-item.correct .exp-head{color:var(--green);}
+  .exp-item.wrong .exp-head{color:var(--red);}
+
+  @media(max-width:600px){
+    header{padding:.8rem 1rem;}
+    .exam-wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+  }
+  .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
+  .mode-study{background:rgba(34,197,94,.1);color:#22c55e;border-bottom:1px solid rgba(34,197,94,.2);}
+  .mode-exam{background:rgba(79,142,247,.08);color:#4f8ef7;border-bottom:1px solid rgba(79,142,247,.2);}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+<div id="mode-banner" style="display:none;padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;"></div>
+
+<div id="login-banner" style="display:none;max-width:860px;margin:1rem auto 0;padding:0 2rem;">
+  <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:.7rem 1.1rem;font-size:.83rem;color:var(--green);display:flex;align-items:center;gap:.5rem;">
+    <span>✓</span><span id="login-banner-text"></span>
+  </div>
+</div>
+
+<div id="gate-wrap" style="display:none;max-width:600px;margin:3rem auto;padding:0 2rem;text-align:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem 2rem;">
+    <div id="gate-icon" style="font-size:2.5rem;margin-bottom:1rem;"></div>
+    <h2 id="gate-title" style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;"></h2>
+    <p id="gate-text" style="color:var(--muted);font-size:.9rem;margin-bottom:1.6rem;"></p>
+    <a id="gate-cta" href="register.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;"></a>
+  </div>
+</div>
+
+<div class="exam-wrap" id="exam-wrap-outer" style="display:none;">
+  <div class="exam-header">
+    <div class="exam-badge">Ücretsiz Hesabınla Erişilebilir</div>
+    <h1>telc Deutsch (B1)<br>Sprachbausteine</h1>
+    <p>20 soru · 2 bölüm · Gramer ve Kelime Bilgisi Seçimi</p>
+  </div>
+
+  <div id="exam-form">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 20 tamamlandı</div>
+
+    <div class="section-card">
+      <div class="section-tag">Sprachbausteine · Teil 1</div>
+      <h2>Mektup Boşluk Doldurma (Multiple-Choice)</h2>
+      <div class="instr">Wählen Sie für die Lücken 21–30 das grammatikalisch richtige Wort (a, b oder c) aus.</div>
+      <div class="grammar-text">
+        Liebe Sarah,<br>
+        ich hoffe, es geht dir gut. Ich schreibe dir heute, 
+        <select class="inline-select" id="q21" onchange="updateProgress()">
+          <option value="">?</option><option value="a">denn</option><option value="b">weil</option><option value="c">deshalb</option>
+        </select> <b>(21)</b>
+        ich dir unbedingt von meinem neuen Job berichten muss. Seit Anfang des Monats arbeite ich in 
+        <select class="inline-select" id="q22" onchange="updateProgress()">
+          <option value="">?</option><option value="a">einer</option><option value="b">eine</option><option value="c">einen</option>
+        </select> <b>(22)</b>
+        großen Werbeagentur in Frankfurt. Die Arbeit ist zwar anstrengend, aber sie macht mir wirklich großen 
+        <select class="inline-select" id="q23" onchange="updateProgress()">
+          <option value="">?</option><option value="a">Spaß</option><option value="b">Freude</option><option value="c">Glück</option>
+        </select> <b>(23)</b>.
+        Meine neuen Kollegen, mit 
+        <select class="inline-select" id="q24" onchange="updateProgress()">
+          <option value="">?</option><option value="a">die</option><option value="b">denen</option><option value="c">der</option>
+        </select> <b>(24)</b>
+        ich im Team arbeite, sind alle sehr nett und hilfsbereit. <br><br>
+        Gestern bin ich auch endlich in meine neue Wohnung 
+        <select class="inline-select" id="q25" onchange="updateProgress()">
+          <option value="">?</option><option value="a">umziehen</option><option value="b">umgezogen</option><option value="c">umzieht</option>
+        </select> <b>(25)</b>.
+        Die Wohnung ist viel größer 
+        <select class="inline-select" id="q26" onchange="updateProgress()">
+          <option value="">?</option><option value="a">wie</option><option value="b">als</option><option value="c">von</option>
+        </select> <b>(26)</b>
+        meine alte Wohnung. Wenn du am nächsten Wochenende Zeit 
+        <select class="inline-select" id="q27" onchange="updateProgress()">
+          <option value="">?</option><option value="a">hast</option><option value="b">hättest</option><option value="c">habe</option>
+        </select> <b>(27)</b>,
+        musst du mich unbedingt besuchen kommen. Du kannst gerne auch 
+        <select class="inline-select" id="q28" onchange="updateProgress()">
+          <option value="">?</option><option value="a">dein</option><option value="b">deinen</option><option value="c">deine</option>
+        </select> <b>(28)</b>
+        Bruder mitbringen. Sag mir einfach bald Bescheid, 
+        <select class="inline-select" id="q29" onchange="updateProgress()">
+          <option value="">?</option><option value="a">ob</option><option value="b">dass</option><option value="c">wann</option>
+        </select> <b>(29)</b>
+        du kommst. Ich freue mich schon sehr 
+        <select class="inline-select" id="q30" onchange="updateProgress()">
+          <option value="">?</option><option value="a">auf</option><option value="b">über</option><option value="c">an</option>
+        </select> <b>(30)</b>
+        deine Antwort! Viele Grüße, Lena.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-tag">Sprachbausteine · Teil 2</div>
+      <h2>Kelime Listesinden Seçme</h2>
+      <div class="instr">Setzen Sie das passende Wort aus dem Pool (a–o) in die Lücken 31–40 ein. Jedes Wort passt nur einmal.</div>
+      <div class="headings-box">
+        <p>Havuzdaki Kelimeler (Pool):</p>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; font-size: 0.85rem;">
+          <div><b>a)</b> AN</div><div><b>b)</b> INTERESSIERE</div><div><b>c)</b> BEI</div><div><b>d)</b> DAMIT</div>
+          <div><b>e)</b> DESHALB</div><div><b>f)</b> FÜR</div><div><b>g)</b> SEIT</div><div><b>h)</b> IHR</div>
+          <div><b>i)</b> IHRE</div><div><b>j)</b> SEHR</div><div><b>k)</b> WENN</div><div><b>l)</b> WERDEN</div>
+          <div><b>m)</b> ZU</div><div><b>n)</b> ZUM</div><div><b>o)</b> KÖNNTE</div>
+        </div>
+      </div>
+      <div class="grammar-text">
+        Sehr geehrte Damen und Herren,<br>
+        ich 
+        <select class="inline-select" id="q31" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(31)</b> mich für die Dreizimmerwohnung, die Sie inseriert haben. 
+        <select class="inline-select" id="q32" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(32)</b> einem Jahr arbeite ich als Software-Entwickler in Frankfurt ve suche nun eine Wohnung in der Nähe meines Arbeitsplatzes. <br><br>
+        Ich hätte bezüglich des Objekts noch einige Fragen. Sind in der Wohnung Haustiere erlaubt? Ich besitze einen kleinen Kater, den ich ungern abgeben möchte, 
+        <select class="inline-select" id="q33" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(33)</b> frage ich nach. Außerdem ist es mir 
+        <select class="inline-select" id="q34" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(34)</b> wichtig zu wissen, ob ein Stellplatz vorhanden ist. Es wäre wunderbar, 
+        <select class="inline-select" id="q35" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(35)</b> eine Besichtigung am Wochenende möglich wäre.<br><br>
+        Könnten Sie mir bitte mitteilen, welche Unterlagen 
+        <select class="inline-select" id="q36" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(36)</b> dem Termin mitgebracht werden müssen? Ich 
+        <select class="inline-select" id="q37" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(37)</b> Ihnen meine Gehaltsnachweise direkt vorlegen. <br><br>
+        Über 
+        <select class="inline-select" id="q38" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(38)</b> Rückmeldung würde ich mich freuen. Rufen Sie mich bitte 
+        <select class="inline-select" id="q39" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(39)</b>, wenn Sie einen freien Termin haben.<br><br>
+        Bieten Sie Termine auch 
+        <select class="inline-select" id="q40" onchange="updateProgress()">
+          <option value="">?</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option><option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="g">g</option><option value="h">h</option><option value="i">i</option><option value="j">j</option><option value="k">k</option><option value="l">l</option><option value="m">m</option><option value="n">n</option><option value="o">o</option>
+        </select> <b>(40)</b> Abenden an?<br><br>
+        Mit freundlichen Grüßen,<br>Lukas Novak
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="submit-btn" onclick="submitExam()">Sonuçları Göster →</button>
+    </div>
+  </div>
+
+  <div id="results" style="display:none;">
+    <div class="result-card">
+      <div class="result-score" id="res-score">0/20</div>
+      <div class="result-label" id="res-label">Hesaplanıyor...</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-num" id="rb1">-</div><div class="rb-lab">Sprachbausteine Teil 1</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb2">-</div><div class="rb-lab">Sprachbausteine Teil 2</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <h2 style="margin-bottom:1rem;">Gramer Analizleri ve Açıklamalar (Feedback)</h2>
+      <div id="explanation-list"></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;">Tam 1,000+ soruluk soru bankasına erişmek ve gerçek mock exam oturumlarına katılmak ister misiniz?</div>
+      <div class="cta-section">
+        <a href="index.html#fiyatlar" class="cta-btn">Tam Erişim – €25'ten Başlayan Fiyatlar</a>
+        <a href="dashboard.html" class="cta-ghost">Profile Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const answers = {
+    q21:'b', q22:'a', q23:'a', q24:'b', q25:'b', q26:'b', q27:'a', q28:'b', q29:'a', q30:'a',
+    q31:'b', q32:'g', q33:'e', q34:'j', q35:'k', q36:'n', q37:'o', q38:'i', q39:'a', q40:'a'
+  };
+
+  const explanations = {
+    q21: "Richtig ist b (weil). Dies leitet einen Nebensatz ein; das konjugierte Verb ('möchte') steht am Satzende. 'denn' würde die Hauptsatzstruktur (Position 2) verlangen.",
+    q22: "Richtig ist a (einer). Die lokale Präposition 'in' verlangt bei der Frage 'Wo?' den Dativ. 'Werbeagentur' ist feminin (die Werbeagentur), somit wird im Dativ 'einer' verwendet.",
+    q23: "Richtig ist a (Spaß). Der feste Ausdruck im Deutschen lautet 'jemandem Spaß machen' (großen Spaß, Akkusativ maskulin).",
+    q24: "Richtig ist b (denen). Nach der Präposition 'mit' folgt der Dativ. Im Plural lautet das Relativpronomen für Personen im Dativ 'denen'.",
+    q25: "Richtig ist b (umgezogen). Das Perfekt von 'umziehen' (den Wohnort wechseln) bildet man mit dem Hilfsverb 'sein' und dem Partizip II 'umgezogen'.",
+    q26: "Richtig ist b (als). Bei ungleichen Vergleichen (Komparativ wie 'größer', 'schneller') wird im Deutschen immer die Vergleichspartikel 'als' genutzt.",
+    q27: "Richtig ist a (hast). Ein realer Bedingungssatz mit 'wenn' verlangt den normalen Indikativ Präsens in der zweiten Person Singular ('du hast').",
+    q28: "Richtig ist b (deinen). Das Verb 'mitbringen' fordert ein Akkusativobjekt. Das Substantiv 'Bruder' ist maskulin (der Bruder), weshalb es zu 'deinen' wird.",
+    q29: "Richtig ist a (ob). 'Bescheid sagen, ob...' leitet einen indirekten Fragesatz (Ja/Nein-Frage) ein, um eine Ungewissheit zu klären.",
+    q30: "Richtig ist a (auf). Das reflexive Verb 'sich freuen auf' bezeichnet die Freude auf ein zukünftiges Ereignis (hier: die zukünftige Antwort).",
+    q31: "Richtig ist b (interessiere). Das Reflexivverb lautet 'sich interessieren für'. 'ich interessiere mich für...'",
+    q32: "Richtig ist g (seit). Temporale Angabe für einen Zeitraum, der in der Vergangenheit begann und bis jetzt noch andauert (verlangt Dativ).",
+    q33: "Richtig ist e (deshalb). Konjunktionaladverb für eine logische Konsequenz / Folge (Deshalb frage ich nach).",
+    q34: "Richtig ist j (sehr). Adverb zur Verstärkung des folgenden Adjektivs 'wichtig' (sehr wichtig).",
+    q35: "Richtig ist k (wenn). Konditionaler Nebensatz (Bedingungssatz) eingeleitet durch die Konjunktion 'wenn'.",
+    q36: "Richtig ist n (zum). 'zu' + dem maskulinen Nomen 'Termin' verschmilzt im Dativ zu 'zum'.",
+    q37: "Richtig ist o (könnte). Höfliche Form oder Möglichkeit ausgedrückt durch den Konjunktiv II von können (ich könnte).",
+    q38: "Richtig ist i (Ihre). Höfliche Anrede als Possessivpronomen im Akkusativ vor dem femininen Nomen 'Rückmeldung'.",
+    q39: "Richtig ist a (an). Fester Bestandteil des trennbaren Verbs 'anrufen' am Ende des Satzgefüges (Rufen Sie mich... an).",
+    q40: "Richtig ist a (an). Temporale Präposition, die fest mit Tageszeiten im Plural gebraucht wird (an Abenden)."
+  };
+
+  const SECT1_IDS = ['q21','q22','q23','q24','q25','q26','q27','q28','q29','q30'];
+  const SECT2_IDS = ['q31','q32','q33','q34','q35','q36','q37','q38','q39','q40'];
+  const ALL_IDS = [...SECT1_IDS, ...SECT2_IDS];
+
+  function updateProgress() {
+    let done = 0;
+    ALL_IDS.forEach(q => { if (document.getElementById(q).value) done++; });
+    const pct = Math.round(done / 20 * 100);
+    document.getElementById('prog').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = done + ' / 20 tamamlandı';
+  }
+
+  function buildExpItem(qid, isCorrect, userAns) {
+    const num = qid.replace('q','');
+    const item = document.createElement('div');
+    item.className = 'exp-item ' + (isCorrect ? 'correct' : 'wrong');
+    const head = isCorrect ? ('✓ Lücke ' + num) : ('✗ Lücke ' + num + ' — Ihre Antwort: ' + (userAns || 'Leer'));
+    item.innerHTML = '<div class="exp-head">' + head + '</div><div>' + explanations[qid] + '</div>';
+    return item;
+  }
+
+  function submitExam() {
+    let total = 0, s1 = 0, s2 = 0;
+    const expList = document.getElementById('explanation-list');
+    expList.innerHTML = '';
+    const wrongTopics = [];
+
+    SECT1_IDS.forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'inline-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s1++; total++; } else wrongTopics.push('Sprachbausteine Teil 1');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    SECT2_IDS.forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'inline-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s2++; total++; } else wrongTopics.push('Sprachbausteine Teil 2');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    document.getElementById('res-score').textContent = total + '/20';
+    const pct = total / 20 * 100;
+    document.getElementById('res-label').textContent = pct >= 60 ? '🎉 Bestanden! Solide Grammatik- und Lexikkenntnisse.' : '📚 Nicht bestanden. Prüfen Sie die Regeln der verfehlten Lücken im Feedback unten.';
+    document.getElementById('rb1').textContent = s1 + '/10';
+    document.getElementById('rb2').textContent = s2 + '/10';
+
+    document.getElementById('exam-form').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+
+    recordExamResult(total, 20, wrongTopics);
+  }
+
+  const SESSION_KEY = 'examready_session_v1';
+  const STATS_KEY = 'examready_student_stats_v1';
+  const EXAM_LEVEL = 'B1';
+
+  function getSession() {
+    try { const s = JSON.parse(localStorage.getItem(SESSION_KEY)); return (s && s.role === 'student') ? s : null; } catch(e) { return null; }
+  }
+  function loadStats() { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { return {}; } }
+  function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+  function recordExamResult(correct, totalQ, wrongTopics) {
+    const sess = getSession();
+    if (!sess) return;
+    const email = sess.email;
+    const stats = loadStats();
+    if (!stats[email]) stats[email] = {};
+    if (!stats[email][EXAM_LEVEL]) stats[email][EXAM_LEVEL] = {examsCompleted:0, questionsAnswered:0, questionsCorrect:0, weaknessCounts:{}, history:[]};
+    const u = stats[email][EXAM_LEVEL];
+    u.examsCompleted++;
+    u.questionsAnswered += totalQ;
+    u.questionsCorrect += correct;
+    wrongTopics.forEach(t => { u.weaknessCounts[t] = (u.weaknessCounts[t] || 0) + 1; });
+    u.history.push({date: new Date().toISOString(), score: correct, total: totalQ});
+    saveStats(stats);
+  }
+
+  (function initGate() {
+    const sess = getSession();
+    const examWrap = document.getElementById('exam-wrap-outer');
+    const gateWrap = document.getElementById('gate-wrap');
+
+    if (!sess) {
+      document.getElementById('gate-icon').textContent = '🔒';
+      document.getElementById('gate-title').textContent = 'Bu sınava erişmek için ücretsiz hesap gerekiyor';
+      document.getElementById('gate-text').textContent = 'Sorulara bakabilmen için önce 1 dakikada ücretsiz hesabını oluşturman ve seviyeni (A1 oder B1) seçmen gerekiyor.';
+      document.getElementById('gate-cta').textContent = 'Ücretsiz Hesap Oluştur →';
+      document.getElementById('gate-cta').href = 'register.html';
+      gateWrap.style.display = 'block';
+      return;
+    }
+    examWrap.style.display = 'block';
+    document.getElementById('login-banner-text').textContent = sess.name + ' olarak giriş yapıldı — sonuçların profiline kaydedilecek.';
+    document.getElementById('login-banner').style.display = 'block';
+  })();
+</script>
+</body>
+</html>

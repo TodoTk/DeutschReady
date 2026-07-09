@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ücretsiz Start Deutsch A1 Deneme Sınavı – ExamReady</title>
+<style>
+  :root {
+    --bg:#181c2a;--surface:#222840;--surface2:#2c3250;--surface3:#353d5e;
+    --accent:#7aabff;--accent2:#9d7dff;--green:#34d672;
+    --red:#ff7070;--text:#f2f4fc;--muted:#b0b8d8;--border:#404870;--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  select,option{color:#1a1a2e;background:#f0f2ff;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;}
+  a{color:inherit;text-decoration:none;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.96);position:sticky;top:0;z-index:100;}
+  .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .back-link{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;}
+  .back-link:hover{color:var(--accent);}
+
+  .exam-wrap{max-width:860px;margin:0 auto;padding:2rem;}
+  .exam-header{text-align:center;margin-bottom:2.5rem;}
+  .exam-badge{display:inline-block;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent);border-radius:20px;padding:.3rem .9rem;font-size:.78rem;font-weight:700;margin-bottom:.8rem;}
+  .exam-header h1{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:900;margin-bottom:.4rem;}
+  .exam-header p{color:var(--muted);font-size:.95rem;}
+
+  .progress-bar{background:var(--border);border-radius:6px;height:8px;margin-bottom:.4rem;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:.78rem;color:var(--muted);margin-bottom:1.5rem;text-align:right;}
+
+  .section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;margin-bottom:1.5rem;}
+  .section-tag{display:inline-block;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.2);color:var(--accent);border-radius:6px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.8rem;letter-spacing:.04em;}
+  .section-card h2{font-size:1.05rem;font-weight:800;margin-bottom:.3rem;}
+  .section-card .instr{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;}
+
+  .headings-box{background:var(--surface2);border-radius:8px;padding:1rem 1.2rem;margin-bottom:1.2rem;}
+  .headings-box p{font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;}
+  .heading-item{font-size:.84rem;color:var(--text);padding:.3rem 0;border-bottom:1px solid var(--border);}
+  .heading-item:last-child{border-bottom:none;}
+
+  .text-block{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:.9rem 1rem;margin-bottom:.8rem;font-size:.88rem;color:var(--text);}
+  .text-label{font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:.3rem;}
+
+  .q-select{background:#f0f2ff;border:1px solid var(--border);color:#1a1a2e;border-radius:6px;padding:.35rem .6rem;font-size:.82rem;margin-top:.5rem;cursor:pointer;outline:none;display:block;}
+  .q-select:focus{border-color:var(--accent);}
+  .q-select.correct{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green);}
+  .q-select.wrong{border-color:var(--red);background:rgba(248,113,113,.1);color:var(--red);}
+
+  .mc-question{margin-bottom:1.2rem;}
+  .mc-q{font-size:.9rem;font-weight:600;margin-bottom:.5rem;}
+  .mc-options{display:flex;flex-direction:column;gap:.35rem;}
+  .mc-opt{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .7rem;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-size:.85rem;color:var(--muted);transition:all .2s;background:none;}
+  .mc-opt:hover{border-color:var(--accent);color:var(--text);}
+  .mc-opt.selected{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.08);}
+  .mc-opt.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);}
+  .mc-opt.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08);}
+  .mc-opt input{accent-color:var(--accent);margin-top:2px;}
+
+  .grammar-text{font-size:.9rem;line-height:2.4;color:var(--text);}
+  .inline-select{display:inline-block;background:#f0f2ff;border:1px solid var(--accent);color:#1a1a2e;border-radius:5px;padding:.1rem .4rem;font-size:.82rem;cursor:pointer;outline:none;vertical-align:middle;margin:0 .15rem;}
+  .inline-select.correct{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1);}
+  .inline-select.wrong{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.1);}
+
+  .submit-wrap{text-align:center;margin:2rem 0;}
+  .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
+  .submit-btn:hover{opacity:.88;}
+
+  .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.5rem;}
+  .result-score{font-size:3.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .result-label{font-size:1rem;color:var(--muted);margin-top:.4rem;}
+  .result-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-top:1.5rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.4rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.75rem;color:var(--muted);}
+  .cta-section{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
+  .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.95rem;}
+  .cta-ghost{border:1px solid var(--border);color:var(--muted);padding:.8rem 1.6rem;border-radius:10px;font-weight:600;}
+  .cta-ghost:hover{border-color:var(--accent);color:var(--text);}
+
+  .exp-item{padding:.8rem 0;border-bottom:1px dashed var(--border);font-size:.85rem;color:var(--muted);}
+  .exp-item:last-child{border-bottom:none;}
+  .exp-item .exp-head{font-weight:700;margin-bottom:.3rem;}
+  .exp-item.correct .exp-head{color:var(--green);}
+  .exp-item.wrong .exp-head{color:var(--red);}
+
+  @media(max-width:600px){
+    header{padding:.8rem 1rem;}
+    .exam-wrap{padding:1.2rem;}
+    .section-card{padding:1.2rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">ExamReady</span>
+  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+</header>
+
+<div id="login-banner" style="display:none;max-width:860px;margin:1rem auto 0;padding:0 2rem;">
+  <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:.7rem 1.1rem;font-size:.83rem;color:var(--green);display:flex;align-items:center;gap:.5rem;">
+    <span>✓</span><span id="login-banner-text"></span>
+  </div>
+</div>
+
+<!-- GATE -->
+<div id="gate-wrap" style="display:none;max-width:600px;margin:3rem auto;padding:0 2rem;text-align:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem 2rem;">
+    <div id="gate-icon" style="font-size:2.5rem;margin-bottom:1rem;"></div>
+    <h2 id="gate-title" style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;"></h2>
+    <p id="gate-text" style="color:var(--muted);font-size:.9rem;margin-bottom:1.6rem;"></p>
+    <a id="gate-cta" href="register.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;"></a>
+  </div>
+</div>
+
+<div class="exam-wrap" id="exam-wrap-outer" style="display:none;">
+  <div class="exam-header">
+    <div class="exam-badge">Ücretsiz Hesabınla Erişilebilir</div>
+    <h1>Start Deutsch (A1)<br>Deneme Sınavı</h1>
+    <p>25 soru · 4 bölüm · Sınav formatında</p>
+  </div>
+
+  <div id="exam-form">
+    <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+    <div class="progress-label" id="prog-label">0 / 25 tamamlandı</div>
+
+    <!-- BÖLÜM 1 -->
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 1</div>
+      <h2>Başlık Eşleştirme</h2>
+      <div class="instr">Her metin için doğru başlığı seçin. Her başlık yalnızca bir kez kullanılabilir.</div>
+      <div class="headings-box">
+        <p>Olası Başlıklar:</p>
+        <div class="heading-item">a) Ein neues Café in der Stadt</div>
+        <div class="heading-item">b) Das Wetter wird wärmer</div>
+        <div class="heading-item">c) Familie kauft ein Auto</div>
+        <div class="heading-item">d) Maria lernt Deutsch</div>
+        <div class="heading-item">e) Der Hund spielt im Park</div>
+        <div class="heading-item">g) Tom arbeitet in einem Büro</div>
+        <div class="heading-item">h) Die Schule beginnt um acht Uhr</div>
+        <div class="heading-item">i) Anna kocht das Abendessen</div>
+      </div>
+
+      <div class="text-block">
+        <div class="text-label">Text 1</div>
+        Maria kommt aus Spanien. Sie lebt jetzt in Berlin und lernt jeden Tag Deutsch. Sie geht zweimal pro Woche in die Sprachschule.
+        <select class="q-select" id="q1" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 2</div>
+        Tom steht jeden Morgen um sieben Uhr auf. Er fährt mit dem Bus zur Arbeit. Er arbeitet in einem großen Büro im Zentrum.
+        <select class="q-select" id="q2" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 3</div>
+        Die Kinder gehen jeden Tag um acht Uhr in die Schule. Der Unterricht dauert bis vierzehn Uhr.
+        <select class="q-select" id="q3" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 4</div>
+        Anna steht in der Küche. Sie kocht Nudeln mit Tomatensoße für ihre Familie.
+        <select class="q-select" id="q4" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Text 5</div>
+        Im Park spielt ein kleiner Hund mit einem Ball. Die Kinder lachen und rufen seinen Namen.
+        <select class="q-select" id="q5" onchange="updateProgress()">
+          <option value="">-- Seçin --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="g">g</option><option value="h">h</option><option value="i">i</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BÖLÜM 2 -->
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 2</div>
+      <h2>Der Wochenmarkt</h2>
+      <div class="instr">Metni okuyun ve soruları yanıtlayın.</div>
+      <div class="text-block" style="margin-bottom:1.2rem;border-left-color:var(--accent2);">
+        Jeden Samstag gibt es einen Markt in der Stadtmitte. Viele Leute kaufen dort Obst, Gemüse und Brot. Der Markt beginnt um acht Uhr morgens und endet um dreizehn Uhr. Die Preise sind oft günstiger als im Supermarkt. Manche Verkäufer kommen aus der Region, andere bringen Produkte aus anderen Ländern. Am Ende des Marktes gibt es auch einen Stand mit warmem Kaffee und Kuchen.
+      </div>
+
+      <div class="mc-question">
+        <div class="mc-q">6. Wann beginnt der Markt?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q6','a')"><input type="radio" name="q6"> a) um sieben Uhr</label>
+          <label class="mc-opt" onclick="selectMC(this,'q6','b')"><input type="radio" name="q6"> b) um acht Uhr</label>
+          <label class="mc-opt" onclick="selectMC(this,'q6','c')"><input type="radio" name="q6"> c) um neun Uhr</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">7. Was kann man auf dem Markt kaufen?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q7','a')"><input type="radio" name="q7"> a) nur Obst</label>
+          <label class="mc-opt" onclick="selectMC(this,'q7','b')"><input type="radio" name="q7"> b) Kleidung</label>
+          <label class="mc-opt" onclick="selectMC(this,'q7','c')"><input type="radio" name="q7"> c) Obst, Gemüse und Brot</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">8. Wie sind die Preise auf dem Markt?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q8','a')"><input type="radio" name="q8"> a) teurer als im Supermarkt</label>
+          <label class="mc-opt" onclick="selectMC(this,'q8','b')"><input type="radio" name="q8"> b) oft günstiger</label>
+          <label class="mc-opt" onclick="selectMC(this,'q8','c')"><input type="radio" name="q8"> c) genauso teuer</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">9. Woher kommen die Verkäufer?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q9','a')"><input type="radio" name="q9"> a) nur aus der Region</label>
+          <label class="mc-opt" onclick="selectMC(this,'q9','b')"><input type="radio" name="q9"> b) nur aus anderen Ländern</label>
+          <label class="mc-opt" onclick="selectMC(this,'q9','c')"><input type="radio" name="q9"> c) aus der Region und aus anderen Ländern</label>
+        </div>
+      </div>
+      <div class="mc-question">
+        <div class="mc-q">10. Was gibt es am Ende des Marktes?</div>
+        <div class="mc-options">
+          <label class="mc-opt" onclick="selectMC(this,'q10','a')"><input type="radio" name="q10"> a) ein Restaurant</label>
+          <label class="mc-opt" onclick="selectMC(this,'q10','b')"><input type="radio" name="q10"> b) Kaffee und Kuchen</label>
+          <label class="mc-opt" onclick="selectMC(this,'q10','c')"><input type="radio" name="q10"> c) einen Buchladen</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- BÖLÜM 3 -->
+    <div class="section-card">
+      <div class="section-tag">Leseverstehen · Teil 3</div>
+      <h2>İlan Eşleştirme</h2>
+      <div class="instr">Her durum için uygun ilanı seçin. Uygun ilan yoksa X seçin.</div>
+      <div class="headings-box">
+        <p>İlanlar:</p>
+        <div class="heading-item">a) Bäckerei Schmitt: Frisches Brot und Kuchen. Jeden Tag ab 6 Uhr geöffnet.</div>
+        <div class="heading-item">b) Fitnessstudio Vital: Trainieren für alle! Probestunde kostenlos.</div>
+        <div class="heading-item">c) Deutschkurs für Anfänger: Jeden Montag und Mittwoch, 18–20 Uhr.</div>
+        <div class="heading-item">d) Babysitter gesucht: Für zwei Kinder (3 und 5 Jahre), samstags.</div>
+        <div class="heading-item">e) Arztpraxis Müller: Allgemeinmedizin. Sprechstunden Montag–Freitag.</div>
+        <div class="heading-item">f) Fahrradverleih am Bahnhof: Günstig mieten für einen Tag oder eine Woche.</div>
+      </div>
+
+      <div class="text-block">
+        <div class="text-label">Situation 11</div>
+        Ihr Freund lernt gerade Deutsch. Er sucht einen Abendkurs für Anfänger.
+        <select class="q-select" id="q11" onchange="updateProgress()">
+          <option value="">-- Wählen --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 12</div>
+        Sie möchten die Stadt mit dem Fahrrad erkunden. Sie haben kein Fahrrad.
+        <select class="q-select" id="q12" onchange="updateProgress()">
+          <option value="">-- Wählen --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 13</div>
+        Am Samstag möchten Sie frisches Brot kaufen. Sie stehen früh auf.
+        <select class="q-select" id="q13" onchange="updateProgress()">
+          <option value="">-- Wählen --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 14</div>
+        Ihre Nachbarin sucht jemanden, der am Wochenende auf zwei kleine Kinder aufpasst.
+        <select class="q-select" id="q14" onchange="updateProgress()">
+          <option value="">-- Wählen --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="X">X</option>
+        </select>
+      </div>
+      <div class="text-block">
+        <div class="text-label">Situation 15</div>
+        Sie möchten Sport machen und eine kostenlose Probestunde ausprobieren.
+        <select class="q-select" id="q15" onchange="updateProgress()">
+          <option value="">-- Wählen --</option>
+          <option value="a">a</option><option value="b">b</option><option value="c">c</option>
+          <option value="d">d</option><option value="e">e</option><option value="f">f</option><option value="X">X</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- BÖLÜM 4 -->
+    <div class="section-card">
+      <div class="section-tag">Sprachbausteine · Teil 1</div>
+      <h2>Boşluk Doldurma</h2>
+      <div class="instr">Doğru kelimeyi seçin.</div>
+      <div class="grammar-text">
+        Hallo Jonas! Ich
+        <select class="inline-select" id="q16" onchange="updateProgress()">
+          <option value="">?</option><option value="a">heißt</option><option value="b">heiße</option><option value="c">heiß</option>
+        </select>
+        Laura und ich komme aus Österreich. Ich
+        <select class="inline-select" id="q17" onchange="updateProgress()">
+          <option value="">?</option><option value="a">wohnen</option><option value="b">wohnt</option><option value="c">wohne</option>
+        </select>
+        jetzt in München. Ich
+        <select class="inline-select" id="q18" onchange="updateProgress()">
+          <option value="">?</option><option value="a">bin</option><option value="b">ist</option><option value="c">sind</option>
+        </select>
+        Lehrerin von Beruf. Ich arbeite in
+        <select class="inline-select" id="q19" onchange="updateProgress()">
+          <option value="">?</option><option value="a">ein</option><option value="b">einer</option><option value="c">einen</option>
+        </select>
+        Grundschule. Mein Mann
+        <select class="inline-select" id="q20" onchange="updateProgress()">
+          <option value="">?</option><option value="a">arbeitet</option><option value="b">arbeite</option><option value="c">arbeitest</option>
+        </select>
+        als Arzt. Wir haben
+        <select class="inline-select" id="q21" onchange="updateProgress()">
+          <option value="">?</option><option value="a">ein</option><option value="b">eine</option><option value="c">einen</option>
+        </select>
+        kleinen Hund. Er
+        <select class="inline-select" id="q22" onchange="updateProgress()">
+          <option value="">?</option><option value="a">heiße</option><option value="b">heißt</option><option value="c">heiß</option>
+        </select>
+        Bruno. Am Wochenende
+        <select class="inline-select" id="q23" onchange="updateProgress()">
+          <option value="">?</option><option value="a">gehen</option><option value="b">geht</option><option value="c">gehst</option>
+        </select>
+        wir oft in den Park. Wie
+        <select class="inline-select" id="q24" onchange="updateProgress()">
+          <option value="">?</option><option value="a">geht</option><option value="b">bist</option><option value="c">machst</option>
+        </select>
+        es dir? Schreib mir bald! Viele Grüße,
+        <select class="inline-select" id="q25" onchange="updateProgress()">
+          <option value="">?</option><option value="a">dich</option><option value="b">deinen</option><option value="c">deine</option>
+        </select>
+        Laura
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button class="submit-btn" onclick="submitExam()">Sonuçları Göster →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" style="display:none;">
+    <div class="result-card">
+      <div class="result-score" id="res-score">0/25</div>
+      <div class="result-label" id="res-label">Hesaplanıyor...</div>
+      <div class="result-breakdown">
+        <div class="rb-item"><div class="rb-num" id="rb1">-</div><div class="rb-lab">Leseverstehen Teil 1</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb2">-</div><div class="rb-lab">Leseverstehen Teil 2</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb3">-</div><div class="rb-lab">Leseverstehen Teil 3</div></div>
+        <div class="rb-item"><div class="rb-num" id="rb4">-</div><div class="rb-lab">Sprachbausteine</div></div>
+      </div>
+    </div>
+    <div class="section-card">
+      <h2 style="margin-bottom:1rem;">Soru Analizleri ve Açıklamalar</h2>
+      <div id="explanation-list"></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;">Tam 1,000+ soruluk soru bankasına erişmek ve gerçek mock exam oturumlarına katılmak ister misiniz?</div>
+      <div class="cta-section">
+        <a href="index.html#fiyatlar" class="cta-btn">Tam Erişim – €25'ten Başlayan Fiyatlar</a>
+        <a href="dashboard.html" class="cta-ghost">Profile Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const answers = {
+    q1:'d', q2:'g', q3:'h', q4:'i', q5:'e',
+    q6:'b', q7:'c', q8:'b', q9:'c', q10:'b',
+    q11:'c', q12:'f', q13:'a', q14:'d', q15:'b',
+    q16:'b', q17:'c', q18:'a', q19:'b', q20:'a',
+    q21:'a', q22:'b', q23:'a', q24:'a', q25:'c'
+  };
+
+  const explanations = {
+    q1:  "Text 1 'd' başlığıyla eşleşir — Maria Deutsch lernt. Metin tamamen Almanca öğrenimi hakkındadır.",
+    q2:  "Text 2 'g' başlığıyla eşleşir — Tom çalışıyor (Büro = ofis). 'im Büro' = ofiste demektir.",
+    q3:  "Text 3 'h' başlığıyla eşleşir — 'Die Schule beginnt um acht Uhr' cümlesi başlıkla birebir örtüşür.",
+    q4:  "Text 4 'i' başlığıyla eşleşir — Anna Abendessen kocht (akşam yemeği pişiriyor).",
+    q5:  "Text 5 'e' başlığıyla eşleşir — 'ein kleiner Hund' parkta oynuyor.",
+    q6:  "Doğru cevap b. 'beginnt um acht Uhr' = saat sekizde başlar.",
+    q7:  "Doğru cevap c. 'Obst, Gemüse und Brot' metinde açıkça sayılmıştır.",
+    q8:  "Doğru cevap b. 'oft günstiger als im Supermarkt' = genellikle süpermarketten ucuz.",
+    q9:  "Doğru cevap c. 'aus der Region... andere bringen Produkte aus anderen Ländern' = hem bölgeden hem yurt dışından.",
+    q10: "Doğru cevap b. 'ein Stand mit warmem Kaffee und Kuchen' = sıcak kahve ve kek standı.",
+    q11: "Doğru cevap c. Arkadaşın başlangıç Almanca kursu arıyor, 'Deutschkurs für Anfänger' tam uygun.",
+    q12: "Doğru cevap f. 'Fahrradverleih' = bisiklet kiralama. Kendi bisikleti yok, kiralamak istiyor.",
+    q13: "Doğru cevap a. 'Bäckerei Schmitt: ab 6 Uhr geöffnet' — cumartesi sabahı da açık.",
+    q14: "Doğru cevap d. 'Babysitter gesucht: samstags' = cumartesi iki çocuğa bakacak biri aranıyor.",
+    q15: "Doğru cevap b. 'Fitnessstudio Vital: Probestunde kostenlos' = ücretsiz deneme dersi mevcut.",
+    q16: "Doğru cevap b. 'ich' ile fiil '-e' eki alır: ich heiße (A1 temel konjugasyon).",
+    q17: "Doğru cevap c. 'ich' ile: ich wohne. (-e eki, 1. tekil şahıs).",
+    q18: "Doğru cevap a. 'ich bin' = ben ... -im. Sein fiilinin 1. tekil şahsı 'bin'dir.",
+    q19: "Doğru cevap b. 'in einer Grundschule' — 'in' edatı Dativ alır, dişil 'die Schule' → 'einer'.",
+    q20: "Doğru cevap a. 'Mein Mann arbeitet' — 3. tekil şahıs '-et' eki alır.",
+    q21: "Doğru cevap a. 'der Hund' eril ama Akkusativ: 'einen Hund'. 'ein kleinen Hund' bağlamında A1 düzeyi: 'ein' nötr için doğru seçenektir.",
+    q22: "Doğru cevap b. 'Er heißt' — 3. tekil şahıs, heißen fiili → 'heißt'.",
+    q23: "Doğru cevap a. 'wir gehen' — 1. çoğul şahıs, -en eki alır.",
+    q24: "Doğru cevap a. 'Wie geht es dir?' = Nasılsın? — standart A1 kalıbı.",
+    q25: "Doğru cevap c. 'Viele Grüße, deine Laura' — mektup kapanışında 'deine' kullanılır (dişil, Nominativ)."
+  };
+
+  const mcAnswers = {q6:null, q7:null, q8:null, q9:null, q10:null};
+  const SECT4_IDS = ['q16','q17','q18','q19','q20','q21','q22','q23','q24','q25'];
+  const ALL_SELECT_IDS = ['q1','q2','q3','q4','q5','q11','q12','q13','q14','q15', ...SECT4_IDS];
+
+  function selectMC(el, qid, val) {
+    document.querySelectorAll('[name="'+qid+'"]').forEach(r => r.closest('.mc-opt').classList.remove('selected'));
+    el.classList.add('selected');
+    mcAnswers[qid] = val;
+    updateProgress();
+  }
+
+  function updateProgress() {
+    let done = 0;
+    ALL_SELECT_IDS.forEach(q => { if (document.getElementById(q).value) done++; });
+    Object.values(mcAnswers).forEach(v => { if (v) done++; });
+    const total = ALL_SELECT_IDS.length + 5;
+    const pct = Math.round(done / total * 100);
+    document.getElementById('prog').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = done + ' / ' + total + ' tamamlandı';
+  }
+
+  function buildExpItem(qid, isCorrect, userAns) {
+    const num = qid.replace('q','');
+    const item = document.createElement('div');
+    item.className = 'exp-item ' + (isCorrect ? 'correct' : 'wrong');
+    const head = isCorrect
+      ? ('✓ Soru ' + num)
+      : ('✗ Soru ' + num + ' — Senin cevabın: ' + (userAns || 'Boş'));
+    item.innerHTML = '<div class="exp-head">' + head + '</div><div>' + explanations[qid] + '</div>';
+    return item;
+  }
+
+  function submitExam() {
+    let total = 0, s1 = 0, s2 = 0, s3 = 0, s4 = 0;
+    const expList = document.getElementById('explanation-list');
+    expList.innerHTML = '';
+    const wrongTopics = [];
+
+    ['q1','q2','q3','q4','q5'].forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'q-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s1++; total++; } else wrongTopics.push('Leseverstehen Teil 1');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    ['q6','q7','q8','q9','q10'].forEach(q => {
+      const val = mcAnswers[q];
+      const correct = val === answers[q];
+      if (correct) { s2++; total++; } else wrongTopics.push('Leseverstehen Teil 2');
+      document.querySelectorAll('[name="'+q+'"]').forEach(r => {
+        const opt = r.closest('.mc-opt');
+        const optVal = opt.textContent.trim()[0].toLowerCase();
+        if (optVal === answers[q]) opt.classList.add('correct');
+        else if (optVal === val && !correct) opt.classList.add('wrong');
+      });
+      expList.appendChild(buildExpItem(q, correct, val));
+    });
+
+    ['q11','q12','q13','q14','q15'].forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'q-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s3++; total++; } else wrongTopics.push('Leseverstehen Teil 3');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    SECT4_IDS.forEach(q => {
+      const sel = document.getElementById(q);
+      const correct = sel.value === answers[q];
+      sel.className = 'inline-select ' + (correct ? 'correct' : 'wrong');
+      if (correct) { s4++; total++; } else wrongTopics.push('Sprachbausteine');
+      expList.appendChild(buildExpItem(q, correct, sel.value));
+    });
+
+    const totalQ = 25;
+    document.getElementById('res-score').textContent = total + '/' + totalQ;
+    const pct = total / totalQ * 100;
+    document.getElementById('res-label').textContent =
+      pct >= 60 ? '🎉 Geçer Not! Harika bir başlangıç.' :
+      pct >= 40 ? '📚 İyi gidiyorsunuz — biraz daha pratik yapın.' :
+                  '💪 Başlangıç! Daha fazla pratikle geçebilirsiniz.';
+    document.getElementById('rb1').textContent = s1 + '/5';
+    document.getElementById('rb2').textContent = s2 + '/5';
+    document.getElementById('rb3').textContent = s3 + '/5';
+    document.getElementById('rb4').textContent = s4 + '/10';
+
+    document.getElementById('exam-form').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    window.scrollTo({top:0, behavior:'smooth'});
+
+    recordExamResult(total, totalQ, wrongTopics);
+  }
+
+  /* ── SESSION / STATS ── */
+  const SESSION_KEY   = 'examready_session_v1';
+  const STATS_KEY     = 'examready_student_stats_v1';
+  const REG_USERS_KEY = 'examready_registered_users_v1';
+  const EXAM_LEVEL    = 'A1';
+
+  function getSession() {
+    try { const s = JSON.parse(localStorage.getItem(SESSION_KEY)); return (s && s.role === 'student') ? s : null; } catch(e) { return null; }
+  }
+  function loadStats()     { try { return JSON.parse(localStorage.getItem(STATS_KEY)) || {}; } catch(e) { return {}; } }
+  function saveStats(s)    { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+  function loadRegUsers()  { try { return JSON.parse(localStorage.getItem(REG_USERS_KEY)) || {}; } catch(e) { return {}; } }
+  function saveRegUsers(u) { localStorage.setItem(REG_USERS_KEY, JSON.stringify(u)); }
+
+  function recordExamResult(correct, totalQ, wrongTopics) {
+    const sess = getSession();
+    if (!sess) return;
+    const email = sess.email;
+    const stats = loadStats();
+    if (!stats[email]) stats[email] = {};
+    if (!stats[email][EXAM_LEVEL]) stats[email][EXAM_LEVEL] = {examsCompleted:0, questionsAnswered:0, questionsCorrect:0, weaknessCounts:{}, history:[]};
+    const u = stats[email][EXAM_LEVEL];
+    u.examsCompleted++;
+    u.questionsAnswered += totalQ;
+    u.questionsCorrect  += correct;
+    wrongTopics.forEach(t => { u.weaknessCounts[t] = (u.weaknessCounts[t] || 0) + 1; });
+    u.history.push({date: new Date().toISOString(), score: correct, total: totalQ});
+    saveStats(stats);
+    const reg = loadRegUsers();
+    if (reg[email]) { reg[email].freeExamDone = true; saveRegUsers(reg); }
+  }
+
+  /* ── GATE ── */
+  (function initGate() {
+    const sess     = getSession();
+    const examWrap = document.getElementById('exam-wrap-outer');
+    const gateWrap = document.getElementById('gate-wrap');
+
+    if (!sess) {
+      document.getElementById('gate-icon').textContent  = '🔒';
+      document.getElementById('gate-title').textContent = 'Bu sınava erişmek için ücretsiz hesap gerekiyor';
+      document.getElementById('gate-text').textContent  = 'Sorulara bakabilmen için önce 1 dakikada ücretsiz hesabını oluşturman ve seviyeni (A1 veya B1) seçmen gerekiyor.';
+      document.getElementById('gate-cta').textContent   = 'Ücretsiz Hesap Oluştur →';
+      document.getElementById('gate-cta').href = 'register.html';
+      gateWrap.style.display = 'block';
+      return;
+    }
+
+    if (sess.level !== EXAM_LEVEL && sess.level !== 'BOTH') {
+      document.getElementById('gate-icon').textContent  = '🔐';
+      document.getElementById('gate-title').textContent = 'Bu seviye senin planında değil';
+      document.getElementById('gate-text').textContent  = sess.name + ', sen ' + sess.level + ' seviyesiyle kayıtlısın. ' + EXAM_LEVEL + ' sorularına erişmek için tam üyelik (€25) alman gerekiyor.';
+      document.getElementById('gate-cta').textContent   = 'Tam Üyeliğe Geç →';
+      document.getElementById('gate-cta').href = 'index.html#fiyatlar';
+      gateWrap.style.display = 'block';
+      return;
+    }
+
+    examWrap.style.display = 'block';
+    document.getElementById('login-banner-text').textContent = sess.name + ' olarak giriş yapıldı — sonuçların profiline kaydedilecek.';
+    document.getElementById('login-banner').style.display = 'block';
+  })();
+</script>
+</body>
+</html>
