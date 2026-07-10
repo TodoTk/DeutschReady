@@ -5,7 +5,8 @@
       "Bash(node -e ' *)",
       "WebFetch(domain:6a5008b137b799c0bd515293--deutschready.netlify.app)",
       "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__add_repo",
-      "Bash(awk -F: '$1>394 && $1<470')"
+      "Bash(awk -F: '$1>394 && $1<470')",
+      "Bash(python3 -c ' *)"
     ]
   }
 }
