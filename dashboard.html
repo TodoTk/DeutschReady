@@ -455,7 +455,7 @@ async function restoreSession() {
 
     localStorage.removeItem(SESSION_KEY);
     return false;
-  } catch(e) { return false; }
+  } catch(e) { console.error('[restoreSession] hata:', e); return false; }
 }
 
 function showDashUI() {

@@ -49,14 +49,18 @@ async function sbGetUser() {
 async function sbGetProfile(userId) {
   const { data } = await sb.from('profiles').select('*').eq('id', userId).single();
   if (!data) return null;
-  // snake_case → camelCase (dashboard'un beklediği alanlar)
+  // snake_case → camelCase + dashboard'un beklediği tüm alanların varsayılanları
   return {
     ...data,
     referralCount : data.referral_count || 0,
     referralCode  : data.referral_code || null,
     unlockedFull  : !!data.unlocked_full,
+    credits       : data.credits || 0,
+    module        : data.module || data.level || 'B1',
     initials      : (data.name||'?').split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(),
-    color         : '#4f8ef7'
+    color         : '#4f8ef7',
+    sessions      : [],   // Supabase profilinde yok — boş dizi (render güvenliği)
+    skills        : { Leseverstehen:0, Hörverständnis:0, Schreiben:0, Sprechen:0 }
   };
 }
 
