@@ -23,12 +23,18 @@
   a { color: inherit; text-decoration: none; }
 
   /* NAV */
-  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15,17,23,0.95); backdrop-filter: blur(8px); z-index: 100; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: .6rem 2rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15,17,23,0.92); backdrop-filter: blur(10px); z-index: 100; }
+  .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+  .nav-right { display: flex; align-items: center; gap: 1.4rem; }
   .nav-logo { font-weight: 800; font-size: 1.3rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
-  .nav-links a { color: var(--muted); font-size: 0.9rem; transition: color .2s; }
+  .nav-links { display: flex; gap: 1.8rem; list-style: none; }
+  .nav-links a { color: var(--muted); font-size: 0.92rem; font-weight: 500; transition: color .2s; }
   .nav-links a:hover { color: var(--text); }
-  .nav-cta { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; padding: .5rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: .9rem; }
+  #nav-auth-link { font-size: .9rem; color: var(--muted); font-weight: 500; transition: color .2s; }
+  #nav-auth-link:hover { color: var(--text); }
+  .nav-cta { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; font-size: .9rem; transition: opacity .2s; }
+  .nav-cta:hover { opacity: .9; }
+  @media(max-width:720px){ .nav-links { display:none; } .nav-left { gap:0; } nav { padding:.6rem 1rem; } }
 
   /* HERO */
   .hero { text-align: center; padding: 3rem 2rem 1rem; max-width: 860px; margin: 0 auto; }
@@ -215,14 +221,18 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="PrufReady" style="height:60px;display:block;"/></a>
-  <ul class="nav-links">
-    <li><a href="#demo-test">Ücretsiz Deneme</a></li>
-    <li><a href="#nasil-calisir">Neden PrufReady</a></li>
-    <li><a href="#beceriler">Sınav Bölümleri</a></li>
-  </ul>
-  <a href="dashboard.html" id="nav-auth-link" style="font-size:.85rem;color:var(--muted);margin-right:.5rem;">Giriş Yap</a>
-  <a href="register.html" class="nav-cta" id="nav-register-btn">Ücretsiz Kayıt Ol</a>
+  <div class="nav-left">
+    <a href="index.html" style="text-decoration:none;display:flex;"><img src="logo.png" alt="PrufReady" style="height:52px;display:block;"/></a>
+    <ul class="nav-links">
+      <li><a href="#demo-test">Ücretsiz Deneme</a></li>
+      <li><a href="#nasil-calisir">Neden PrufReady</a></li>
+      <li><a href="#beceriler">Sınav Bölümleri</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <a href="dashboard.html" id="nav-auth-link">Giriş Yap</a>
+    <a href="register.html" class="nav-cta" id="nav-register-btn">Ücretsiz Kayıt Ol</a>
+  </div>
 </nav>
 
 <!-- HERO -->
