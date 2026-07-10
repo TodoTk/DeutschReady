@@ -516,11 +516,16 @@
   function startFreeExam() {
     try {
       const raw = localStorage.getItem('examready_session_v1');
-      if (!raw) { window.location.href = 'register.html'; return; }
-      const sess = JSON.parse(raw);
-      if (!sess || sess.role !== 'student') { window.location.href = 'register.html'; return; }
-      const level = sess.level || 'B1';
-      window.location.href = (level === 'A1') ? 'full_exam_Telc_A1_01.html' : 'full_exam_Telc_B1_01.html';
+      // Giriş yapmış öğrenci → profiline git
+      if (raw) {
+        const sess = JSON.parse(raw);
+        if (sess && sess.role === 'student' && sess.name) {
+          window.location.href = 'dashboard.html';
+          return;
+        }
+      }
+      // Giriş yok → kayıt
+      window.location.href = 'register.html';
     } catch (e) {
       window.location.href = 'register.html';
     }
@@ -534,13 +539,14 @@
       if (raw) {
         const sess = JSON.parse(raw);
         if (sess && sess.name) {
-          // Giriş yapılmış: ücretsiz kayıt butonlarını gizle, yerine dashboard linki koy
+          // Giriş yapılmış: butonları "Profilime Git" yap ve dashboard'a yönlendir
           freeBtnIds.forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
             el.textContent = '📊 Profilime Git →';
-            el.onclick = null;
-            el.href = 'dashboard.html';
+            el.removeAttribute('onclick');
+            el.setAttribute('href', 'dashboard.html');
+            el.onclick = function(){ window.location.href = 'dashboard.html'; };
           });
 
           // demo-test bölümünü de güncelle
