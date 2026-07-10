@@ -6,7 +6,11 @@
       "WebFetch(domain:6a5008b137b799c0bd515293--deutschready.netlify.app)",
       "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__add_repo",
       "Bash(awk -F: '$1>394 && $1<470')",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(awk '{ print length, NR }' index.html)",
+      "Bash(awk 'NR==251 {print substr\\($0,1,200\\)}' index.html)",
+      "Bash(python3 _i18n_apply.py)",
+      "Bash(python3 _i18n_apply2.py)"
     ]
   }
 }

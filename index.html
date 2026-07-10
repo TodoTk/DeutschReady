@@ -34,6 +34,9 @@
   #nav-auth-link:hover { color: var(--text); }
   .nav-cta { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; font-size: .9rem; transition: opacity .2s; }
   .nav-cta:hover { opacity: .9; }
+  .lang-switch { display:flex; gap:2px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:2px; }
+  .lang-switch button { background:none; border:none; color:var(--muted); font-size:.78rem; font-weight:700; padding:.3rem .5rem; border-radius:6px; cursor:pointer; transition:all .15s; }
+  .lang-switch button.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; }
   @media(max-width:720px){ .nav-links { display:none; } .nav-left { gap:0; } nav { padding:.6rem 1rem; } }
 
   /* HERO */
@@ -224,25 +227,30 @@
   <div class="nav-left">
     <a href="index.html" style="text-decoration:none;display:flex;"><img src="logo.png" alt="PrufReady" style="height:52px;display:block;"/></a>
     <ul class="nav-links">
-      <li><a href="#demo-test">Ücretsiz Deneme</a></li>
-      <li><a href="#nasil-calisir">Neden PrufReady</a></li>
-      <li><a href="#beceriler">Sınav Bölümleri</a></li>
+      <li><a href="#demo-test" data-i18n="nav_demo">Ücretsiz Deneme</a></li>
+      <li><a href="#nasil-calisir" data-i18n="nav_why">Neden PrufReady</a></li>
+      <li><a href="#beceriler" data-i18n="nav_sections">Sınav Bölümleri</a></li>
     </ul>
   </div>
   <div class="nav-right">
-    <a href="dashboard.html" id="nav-auth-link">Giriş Yap</a>
-    <a href="register.html" class="nav-cta" id="nav-register-btn">Ücretsiz Kayıt Ol</a>
+    <div class="lang-switch" id="lang-switch">
+      <button data-lang="tr" onclick="setLang('tr')">TR</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="de" onclick="setLang('de')">DE</button>
+    </div>
+    <a href="dashboard.html" id="nav-auth-link" data-i18n="nav_login">Giriş Yap</a>
+    <a href="register.html" class="nav-cta" id="nav-register-btn" data-i18n="nav_register">Ücretsiz Kayıt Ol</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">telc & DTZ Sınav Hazırlığı</div>
-  <h1>Sınav Senin Evinde<br><span>Provasını Yapmadan Girme.</span></h1>
-  <p>telc ve DTZ'nin gerçek formatıyla birebir aynı simülasyon. Vatandaşlık, oturma izni ya da kariyer fark etmez — sınava girmeden önce gerçek sınav deneyimini yaşa.</p>
+  <div class="hero-badge" data-i18n="hero_badge">telc & DTZ Sınav Hazırlığı</div>
+  <h1 data-i18n="hero_title">Sınav Senin Evinde<br><span>Provasını Yapmadan Girme.</span></h1>
+  <p data-i18n="hero_desc">telc ve DTZ'nin gerçek formatıyla birebir aynı simülasyon. Vatandaşlık, oturma izni ya da kariyer fark etmez — sınava girmeden önce gerçek sınav deneyimini yaşa.</p>
   <div class="hero-btns">
-    <a href="javascript:void(0)" onclick="startFreeExam()" class="btn-primary" id="hero-free-btn">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
-    <a href="#nasil-calisir" class="btn-ghost">Nasıl Çalışır?</a>
+    <a href="javascript:void(0)" onclick="startFreeExam()" class="btn-primary" id="hero-free-btn" data-i18n="hero_cta">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
+    <a href="#nasil-calisir" class="btn-ghost" data-i18n="hero_how">Nasıl Çalışır?</a>
   </div>
 </div>
 
@@ -256,103 +264,103 @@
 <section id="demo-test" style="padding-top:1rem;">
   <div class="demo-card">
     <div class="demo-icon">📝</div>
-    <h2>Ücretsiz Deneme Sınavı</h2>
-    <p>A1 veya B1 — hangi seviyedeysen, ücretsiz hesabını oluştururken seç. Seçtiğin seviyenin deneme sınavı sana özel açılır.</p>
-    <a href="javascript:void(0)" onclick="startFreeExam()" class="demo-link-btn" id="demo-free-btn">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
+    <h2 data-i18n="demo_title">Ücretsiz Deneme Sınavı</h2>
+    <p data-i18n="demo_desc">A1 veya B1 — hangi seviyedeysen, ücretsiz hesabını oluştururken seç. Seçtiğin seviyenin deneme sınavı sana özel açılır.</p>
+    <a href="javascript:void(0)" onclick="startFreeExam()" class="demo-link-btn" id="demo-free-btn" data-i18n="demo_cta">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
     <div class="demo-meta">
-      <span><strong>✓</strong> A1 & B1 seçenekli</span>
-      <span><strong>✓</strong> Gerçek sınav formatı</span>
-      <span><strong>✓</strong> Anında sonuç</span>
-      <span><strong>✓</strong> 1 dakikada ücretsiz hesap</span>
+      <span data-i18n="demo_m1"><strong>✓</strong> A1 & B1 seçenekli</span>
+      <span data-i18n="demo_m2"><strong>✓</strong> Gerçek sınav formatı</span>
+      <span data-i18n="demo_m3"><strong>✓</strong> Anında sonuç</span>
+      <span data-i18n="demo_m4"><strong>✓</strong> 1 dakikada ücretsiz hesap</span>
     </div>
   </div>
 </section>
 
 <!-- NEDEN FARKLI -->
 <section id="nasil-calisir">
-  <div class="section-label">Neden PrufReady</div>
-  <div class="section-title">Sadece Almanca Öğrenmeyin. Sınavı Geçmeye Hazırlanın.</div>
-  <div class="section-sub">Birçok uygulama size Almanca öğretir. Ancak gerçek sınavda ihtiyacınız olan şey farklıdır: doğru formatta pratik, kişisel geri bildirim ve sınav deneyimi.</div>
+  <div class="section-label" data-i18n="why_label">Neden PrufReady</div>
+  <div class="section-title" data-i18n="why_title">Sadece Almanca Öğrenmeyin. Sınavı Geçmeye Hazırlanın.</div>
+  <div class="section-sub" data-i18n="why_sub">Birçok uygulama size Almanca öğretir. Ancak gerçek sınavda ihtiyacınız olan şey farklıdır: doğru formatta pratik, kişisel geri bildirim ve sınav deneyimi.</div>
   <div class="cards">
     <div class="card">
       <div class="card-icon">📱</div>
-      <h3>Genel Dil Uygulamaları</h3>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;">Dil öğrenmek için iyi, sınava hazırlanmak için yeterli değil.</p>
+      <h3 data-i18n="why_c1_t">Genel Dil Uygulamaları</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;" data-i18n="why_c1_s">Dil öğrenmek için iyi, sınava hazırlanmak için yeterli değil.</p>
       <ul>
-        <li>Sınav formatına göre hazırlanmaz</li>
-        <li>Gerçek sınav görevlerini deneyimletmez</li>
-        <li>Konuşma pratiği ve kişisel geri bildirim sınırlıdır</li>
-        <li>Yazılarınızın neden puan kaybettiğini göstermez</li>
+        <li data-i18n="why_c1_1">Sınav formatına göre hazırlanmaz</li>
+        <li data-i18n="why_c1_2">Gerçek sınav görevlerini deneyimletmez</li>
+        <li data-i18n="why_c1_3">Konuşma pratiği ve kişisel geri bildirim sınırlıdır</li>
+        <li data-i18n="why_c1_4">Yazılarınızın neden puan kaybettiğini göstermez</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon">🏫</div>
-      <h3>Dil Kursları</h3>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;">Etkili olabilir, ancak herkes için uygun değildir.</p>
+      <h3 data-i18n="why_c2_t">Dil Kursları</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;" data-i18n="why_c2_s">Etkili olabilir, ancak herkes için uygun değildir.</p>
       <ul>
-        <li>Yüksek maliyetli olabilir</li>
-        <li>Sabit ders saatleri çalışanlar için zorlayıcıdır</li>
-        <li>Kişisel seviyenize göre ilerlemek her zaman mümkün değildir</li>
-        <li>Daha fazla pratik için ekstra zaman ve bütçe gerekir</li>
+        <li data-i18n="why_c2_1">Yüksek maliyetli olabilir</li>
+        <li data-i18n="why_c2_2">Sabit ders saatleri çalışanlar için zorlayıcıdır</li>
+        <li data-i18n="why_c2_3">Kişisel seviyenize göre ilerlemek her zaman mümkün değildir</li>
+        <li data-i18n="why_c2_4">Daha fazla pratik için ekstra zaman ve bütçe gerekir</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon">😰</div>
-      <h3>Sınava Hazırlananların En Büyük Soruları</h3>
+      <h3 data-i18n="why_c3_t">Sınava Hazırlananların En Büyük Soruları</h3>
       <ul>
-        <li>"Acaba sınava hazır mıyım?"</li>
-        <li>"Schreiben'im yeterince iyi mi?"</li>
-        <li>"Konuşma bölümünde ne yapacağım?"</li>
-        <li>"Bir hata yaptığımda bunu kim gösterecek?"</li>
+        <li data-i18n="why_c3_1">"Acaba sınava hazır mıyım?"</li>
+        <li data-i18n="why_c3_2">"Schreiben'im yeterince iyi mi?"</li>
+        <li data-i18n="why_c3_3">"Konuşma bölümünde ne yapacağım?"</li>
+        <li data-i18n="why_c3_4">"Bir hata yaptığımda bunu kim gösterecek?"</li>
       </ul>
     </div>
   </div>
   <div style="max-width:760px;margin:2rem auto 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;">
     <div style="font-size:2rem;margin-bottom:.6rem;">🎯</div>
-    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;">Sınav Deneyimini Gerçekten Yaşayın</h3>
-    <p style="color:var(--muted);font-size:.95rem;max-width:560px;margin:0 auto;">Gerçek sınav formatı, yapay zeka destekli schreiben geri bildirimi ve gerçek insanlarla speaking simülasyonu tek bir platformda.</p>
+    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;" data-i18n="why_box_t">Sınav Deneyimini Gerçekten Yaşayın</h3>
+    <p style="color:var(--muted);font-size:.95rem;max-width:560px;margin:0 auto;" data-i18n="why_box_d">Gerçek sınav formatı, yapay zeka destekli schreiben geri bildirimi ve gerçek insanlarla speaking simülasyonu tek bir platformda.</p>
   </div>
 </section>
 
 <!-- SINAV BÖLÜMLERİ -->
 <section id="beceriler">
-  <div class="section-label">Sınav Bölümleri</div>
-  <div class="section-title">Sınav Bölümleri</div>
-  <div class="section-sub">Okuma'dan Konuşma'ya, telc ve DTZ formatlarında gerçek sınav yapısıyla pratik. Her seviye kendi bölümleriyle.</div>
+  <div class="section-label" data-i18n="sec_label">Sınav Bölümleri</div>
+  <div class="section-title" data-i18n="sec_title">Sınav Bölümleri</div>
+  <div class="section-sub" data-i18n="sec_sub">Okuma'dan Konuşma'ya, telc ve DTZ formatlarında gerçek sınav yapısıyla pratik. Her seviye kendi bölümleriyle.</div>
 
   <!-- LESEN — A1 / B1 ayrı -->
   <div style="max-width:900px;margin:0 auto 1.2rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.8rem;">
     <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1.4rem;">
       <span style="font-size:1.8rem;">📖</span>
-      <h3 style="font-size:1.2rem;font-weight:800;">Lesen – Okuma</h3>
+      <h3 style="font-size:1.2rem;font-weight:800;" data-i18n="lesen_t">Lesen – Okuma</h3>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;">
       <!-- A1 -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;">
         <div style="display:inline-block;background:rgba(52,214,114,.15);border:1px solid rgba(52,214,114,.35);color:var(--green);border-radius:6px;padding:.15rem .7rem;font-size:.72rem;font-weight:800;margin-bottom:.8rem;">A1</div>
-        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.7rem;">Lesen</h4>
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.7rem;" data-i18n="a1_lesen">Lesen</h4>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:.45rem;">
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span>Kısa metinleri anlama</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span>Bilgi bulma</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span>Çoktan seçmeli sorular</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span>Eşleştirme</li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span><span data-i18n="a1_l1">Kısa metinleri anlama</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span><span data-i18n="a1_l2">Bilgi bulma</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span><span data-i18n="a1_l3">Çoktan seçmeli sorular</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span><span data-i18n="a1_l4">Eşleştirme</span></li>
         </ul>
       </div>
       <!-- B1 -->
       <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.2rem;">
         <div style="display:inline-block;background:rgba(122,171,255,.15);border:1px solid rgba(122,171,255,.35);color:var(--accent);border-radius:6px;padding:.15rem .7rem;font-size:.72rem;font-weight:800;margin-bottom:.8rem;">B1</div>
-        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.6rem;">Leseverstehen</h4>
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.6rem;" data-i18n="b1_lese">Leseverstehen</h4>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;">
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Farklı metin türlerini anlama</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Detaylı bilgi bulma</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Çoktan seçmeli sorular</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Eşleştirme</li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="b1_l1">Farklı metin türlerini anlama</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="b1_l2">Detaylı bilgi bulma</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="b1_l3">Çoktan seçmeli sorular</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="b1_l4">Eşleştirme</span></li>
         </ul>
-        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.6rem;padding-top:.8rem;border-top:1px solid var(--border);">Sprachbausteine</h4>
+        <h4 style="font-size:.95rem;font-weight:700;margin-bottom:.6rem;padding-top:.8rem;border-top:1px solid var(--border);" data-i18n="spb_t">Sprachbausteine</h4>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;">
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Kelime ve dil bilgisi kullanımı</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Boşluk doldurma</li>
-          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Bağlam içinde doğru ifadeyi seçme</li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="spb_1">Kelime ve dil bilgisi kullanımı</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="spb_2">Boşluk doldurma</span></li>
+          <li style="font-size:.85rem;color:var(--muted);padding-left:1.2rem;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span><span data-i18n="spb_3">Bağlam içinde doğru ifadeyi seçme</span></li>
         </ul>
       </div>
     </div>
@@ -362,124 +370,326 @@
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;max-width:900px;margin:0 auto;">
     <div class="card">
       <div class="card-icon">🎧</div>
-      <h3>Hören – Dinleme</h3>
-      <p>Gerçekçi ses kayıtlarıyla sınav koşullarında dinleme anlama pratiği.</p>
-      <ul><li>Ses tabanlı alıştırmalar</li><li>Anlama soruları</li><li>Gerçek sınav koşulları</li></ul>
+      <h3 data-i18n="hoeren_t">Hören – Dinleme</h3>
+      <p data-i18n="hoeren_d">Gerçekçi ses kayıtlarıyla sınav koşullarında dinleme anlama pratiği.</p>
+      <ul><li data-i18n="hoeren_1">Ses tabanlı alıştırmalar</li><li data-i18n="hoeren_2">Anlama soruları</li><li data-i18n="hoeren_3">Gerçek sınav koşulları</li></ul>
     </div>
     <div class="card">
       <div class="card-icon">✍️</div>
-      <h3>Schreiben – Yazma</h3>
-      <p>Yapay zeka destekli yazma değerlendirmesi. Gramer, yapı ve sınav kriterlerine göre geri bildirim.</p>
-      <ul><li>E-posta / mektup görevi</li><li>Yapay zeka incelemesi</li><li>Kişisel geri bildirim</li></ul>
+      <h3 data-i18n="schr_t">Schreiben – Yazma</h3>
+      <p data-i18n="schr_d">Yapay zeka destekli yazma değerlendirmesi. Gramer, yapı ve sınav kriterlerine göre geri bildirim.</p>
+      <ul><li data-i18n="schr_1">E-posta / mektup görevi</li><li data-i18n="schr_2">Yapay zeka incelemesi</li><li data-i18n="schr_3">Kişisel geri bildirim</li></ul>
     </div>
     <div class="card" style="opacity:.7;">
       <div class="card-icon">🎤</div>
-      <h3>Sprechen – Konuşma</h3>
-      <p>Sertifikalı eğitmenle canlı konuşma sınavı provası. Gerçek sınav ortamında pratik.</p>
-      <ul><li>Gerçek sınav formatı</li><li>Anlık geri bildirim</li><li>Uzman değerlendirme</li></ul>
-      <span style="display:inline-block;margin-top:.8rem;font-size:.78rem;font-weight:700;color:var(--muted);background:var(--surface2);padding:.25rem .6rem;border-radius:6px;">Yakında</span>
+      <h3 data-i18n="spr_t">Sprechen – Konuşma</h3>
+      <p data-i18n="spr_d">Sertifikalı eğitmenle canlı konuşma sınavı provası. Gerçek sınav ortamında pratik.</p>
+      <ul><li data-i18n="spr_1">Gerçek sınav formatı</li><li data-i18n="spr_2">Anlık geri bildirim</li><li data-i18n="spr_3">Uzman değerlendirme</li></ul>
+      <span style="display:inline-block;margin-top:.8rem;font-size:.78rem;font-weight:700;color:var(--muted);background:var(--surface2);padding:.25rem .6rem;border-radius:6px;" data-i18n="soon">Yakında</span>
     </div>
   </div>
 </section>
 
 <!-- SÜREÇ -->
 <section>
-  <div class="section-label">Süreç</div>
-  <div class="section-title">Sınavı Geçmek İçin İhtiyacınız Olan Her Şey</div>
-  <div class="section-sub">Ücretsiz başlangıçtan sınav gününe kadar adım adım.</div>
+  <div class="section-label" data-i18n="proc_label">Süreç</div>
+  <div class="section-title" data-i18n="proc_title">Sınavı Geçmek İçin İhtiyacınız Olan Her Şey</div>
+  <div class="section-sub" data-i18n="proc_sub">Ücretsiz başlangıçtan sınav gününe kadar adım adım.</div>
   <div class="steps">
-    <div class="step"><div class="step-num">🚀</div><div><h4>1. Ücretsiz Başlayın</h4><p>Dakikalar içinde hesabınızı oluşturun, seviyenizi seçin (A1 veya B1) ve ilk deneme sınavınızı ücretsiz çözerek nerede olduğunuzu görün.</p></div></div>
-    <div class="step"><div class="step-num">📚</div><div><h4>2. Gerçek Sınava Göre Hazırlanın</h4><p>Tüm sınav bölümlerine, örnek sorulara ve gerçek sınav formatındaki denemelere tek seferlik ödeme ile sınırsız erişin. Abonelik yok. Gizli ücret yok.</p></div></div>
-    <div class="step"><div class="step-num">🤖</div><div><h4>3. Yapay Zeka ile Hatalarınızı Avantaja Çevirin</h4><p>Her yazma çalışmanız saniyeler içinde analiz edilir. Dilbilgisi, kelime seçimi, yapı ve sınav kriterlerine göre kişiselleştirilmiş geri bildirim alın ve her denemede daha iyi sonuç elde edin.</p></div></div>
-    <div class="step"><div class="step-num">🎤</div><div><h4>4. Gerçek Eğitmenlerle Kendinizi Test Edin</h4><p>Konuşma sınavı provası yapın veya yazınızı uzman eğitmenlere değerlendirin. Gerçek sınavdan önce gerçek deneyim kazanın.</p></div></div>
-    <div class="step"><div class="step-num">🎓</div><div><h4>5. Sınava Güvenle Girin</h4><p>Artık neyle karşılaşacağınızı biliyorsunuz. Soruları, süreyi ve sınav formatını önceden deneyimlediğiniz için sınav gününe hazır ve özgüvenli girin.</p></div></div>
+    <div class="step"><div class="step-num">🚀</div><div><h4 data-i18n="step1_t">1. Ücretsiz Başlayın</h4><p data-i18n="step1_d">Dakikalar içinde hesabınızı oluşturun, seviyenizi seçin (A1 veya B1) ve ilk deneme sınavınızı ücretsiz çözerek nerede olduğunuzu görün.</p></div></div>
+    <div class="step"><div class="step-num">📚</div><div><h4 data-i18n="step2_t">2. Gerçek Sınava Göre Hazırlanın</h4><p data-i18n="step2_d">Tüm sınav bölümlerine, örnek sorulara ve gerçek sınav formatındaki denemelere tek seferlik ödeme ile sınırsız erişin. Abonelik yok. Gizli ücret yok.</p></div></div>
+    <div class="step"><div class="step-num">🤖</div><div><h4 data-i18n="step3_t">3. Yapay Zeka ile Hatalarınızı Avantaja Çevirin</h4><p data-i18n="step3_d">Her yazma çalışmanız saniyeler içinde analiz edilir. Dilbilgisi, kelime seçimi, yapı ve sınav kriterlerine göre kişiselleştirilmiş geri bildirim alın ve her denemede daha iyi sonuç elde edin.</p></div></div>
+    <div class="step"><div class="step-num">🎤</div><div><h4 data-i18n="step4_t">4. Gerçek Eğitmenlerle Kendinizi Test Edin</h4><p data-i18n="step4_d">Konuşma sınavı provası yapın veya yazınızı uzman eğitmenlere değerlendirin. Gerçek sınavdan önce gerçek deneyim kazanın.</p></div></div>
+    <div class="step"><div class="step-num">🎓</div><div><h4 data-i18n="step5_t">5. Sınava Güvenle Girin</h4><p data-i18n="step5_d">Artık neyle karşılaşacağınızı biliyorsunuz. Soruları, süreyi ve sınav formatını önceden deneyimlediğiniz için sınav gününe hazır ve özgüvenli girin.</p></div></div>
   </div>
 </section>
 
 <!-- REFERRAL -->
 <section>
-  <div class="section-label">🎁 Arkadaşını Davet Et</div>
-  <div class="section-title">Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan</div>
-  <div class="section-sub">Birlikte hazırlanmak daha kolay. Arkadaşlarını davet ederek hesabındaki soru setlerinin kilidini ücretsiz aç.</div>
+  <div class="section-label" data-i18n="ref_label">🎁 Arkadaşını Davet Et</div>
+  <div class="section-title" data-i18n="ref_title">Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan</div>
+  <div class="section-sub" data-i18n="ref_sub">Birlikte hazırlanmak daha kolay. Arkadaşlarını davet ederek hesabındaki soru setlerinin kilidini ücretsiz aç.</div>
   <div style="max-width:820px;margin:0 auto;">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;">
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;">
         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:1rem;">1</div>
-        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Kişisel bağlantını paylaş</h4>
-        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;">Ücretsiz kayıt olduktan sonra sana özel davet bağlantını panelinden al ve arkadaşlarınla paylaş.</p>
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;" data-i18n="ref_1t">Kişisel bağlantını paylaş</h4>
+        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;" data-i18n="ref_1d">Ücretsiz kayıt olduktan sonra sana özel davet bağlantını panelinden al ve arkadaşlarınla paylaş.</p>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;">
         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:1rem;">2</div>
-        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Arkadaşların pratik yapsın</h4>
-        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;">Davet ettiğin arkadaşların bağlantın üzerinden kayıt olur ve en az bir soru setini tamamlar.</p>
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;" data-i18n="ref_2t">Arkadaşların pratik yapsın</h4>
+        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;" data-i18n="ref_2d">Davet ettiğin arkadaşların bağlantın üzerinden kayıt olur ve en az bir soru setini tamamlar.</p>
       </div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.6rem;">
         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin-bottom:1rem;">3</div>
-        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">Yeni setlerin kilidini aç</h4>
-        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;">Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır.</p>
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;" data-i18n="ref_3t">Yeni setlerin kilidini aç</h4>
+        <p style="font-size:.87rem;color:var(--muted);line-height:1.6;" data-i18n="ref_3d">Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır.</p>
       </div>
     </div>
 
     <div style="text-align:center;margin-top:1.5rem;background:linear-gradient(135deg,rgba(122,171,255,.12),rgba(157,125,255,.12));border:1px solid rgba(122,171,255,.3);border-radius:var(--radius);padding:1.4rem;">
-      <div style="font-size:1.15rem;font-weight:800;margin-bottom:.3rem;">3 Arkadaş = 1 Yeni Soru Seti 🎯</div>
-      <div style="font-size:.88rem;color:var(--muted);">Davet sınırı yok — ne kadar çok arkadaşın hazırlanırsa, o kadar fazla soru seti senin olur.</div>
+      <div style="font-size:1.15rem;font-weight:800;margin-bottom:.3rem;" data-i18n="ref_box_t">3 Arkadaş = 1 Yeni Soru Seti 🎯</div>
+      <div style="font-size:.88rem;color:var(--muted);" data-i18n="ref_box_d">Davet sınırı yok — ne kadar çok arkadaşın hazırlanırsa, o kadar fazla soru seti senin olur.</div>
     </div>
   </div>
   <div style="text-align:center;margin-top:1.5rem;">
-    <a href="register.html" class="btn-primary">Hemen Kayıt Ol &amp; Davet Bağlantını Al →</a>
+    <a href="register.html" class="btn-primary" data-i18n="ref_cta">Hemen Kayıt Ol &amp; Davet Bağlantını Al →</a>
   </div>
 </section>
 
 <!-- FAQ -->
 <section>
-  <div class="section-label">Sıkça Sorulanlar</div>
-  <div class="section-title">Aklınızdaki sorular</div>
-  <div class="section-sub">Başlamadan önce bilmek isteyebilecekleriniz.</div>
+  <div class="section-label" data-i18n="faq_label">Sıkça Sorulanlar</div>
+  <div class="section-title" data-i18n="faq_title">Aklınızdaki sorular</div>
+  <div class="section-sub" data-i18n="faq_sub">Başlamadan önce bilmek isteyebilecekleriniz.</div>
   <div class="faq">
     <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Hangi sınavlar için hazırlanabilirim? <span class="faq-icon">+</span></button>
-      <div class="faq-a">PrufReady; telc A1, telc B1 ve DTZ (Deutsch-Test für Zuwanderer) sınavları için tasarlanmıştır. Sorular ve görevler bu sınavların resmi formatını esas alır.</div>
+      <button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq_q1">Hangi sınavlar için hazırlanabilirim?</span> <span class="faq-icon">+</span></button>
+      <div class="faq-a" data-i18n="faq_a1">PrufReady; telc A1, telc B1 ve DTZ (Deutsch-Test für Zuwanderer) sınavları için tasarlanmıştır. Sorular ve görevler bu sınavların resmi formatını esas alır.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Yapay zeka yazma değerlendirmesi nasıl çalışır? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Yazma görevinizi gönderdikten sonra yapay zeka gramer, kelime hazinesi, yapı ve sınav kriterlerine göre değerlendirme yapar ve ayrıntılı geri bildirim sunar. İstediğiniz kadar pratik yapabilirsiniz.</div>
+      <button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq_q2">Yapay zeka yazma değerlendirmesi nasıl çalışır?</span> <span class="faq-icon">+</span></button>
+      <div class="faq-a" data-i18n="faq_a2">Yazma görevinizi gönderdikten sonra yapay zeka gramer, kelime hazinesi, yapı ve sınav kriterlerine göre değerlendirme yapar ve ayrıntılı geri bildirim sunar. İstediğiniz kadar pratik yapabilirsiniz.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Aylık ücret var mı? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Hayır. PrufReady tamamen tek seferlik ödeme modeliyle çalışır. A1 veya B1 modülünü bir kez satın alırsınız, ömür boyu erişirsiniz. Abonelik, gizli ücret yoktur.</div>
+      <button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq_q3">Aylık ücret var mı?</span> <span class="faq-icon">+</span></button>
+      <div class="faq-a" data-i18n="faq_a3">Hayır. PrufReady tamamen tek seferlik ödeme modeliyle çalışır. A1 veya B1 modülünü bir kez satın alırsınız, ömür boyu erişirsiniz. Abonelik, gizli ücret yoktur.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Ücretsiz hesapla ne yapabilirim? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Ücretsiz hesap açarak seviyenizi seçebilir ve ilk deneme soru setinize erişebilirsiniz. Arkadaşlarınızı davet ederek daha fazla soru setinin kilidini ücretsiz açabilirsiniz.</div>
+      <button class="faq-q" onclick="toggleFaq(this)"><span data-i18n="faq_q4">Ücretsiz hesapla ne yapabilirim?</span> <span class="faq-icon">+</span></button>
+      <div class="faq-a" data-i18n="faq_a4">Ücretsiz hesap açarak seviyenizi seçebilir ve ilk deneme soru setinize erişebilirsiniz. Arkadaşlarınızı davet ederek daha fazla soru setinin kilidini ücretsiz açabilirsiniz.</div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
 <section style="text-align:center;padding:4rem 2rem;">
-  <div class="section-label">Hemen Başla</div>
-  <div class="section-title">Sınavınız bekliyor</div>
-  <p style="color:var(--muted);margin-bottom:2rem;">A1 veya B1, hangi seviyedeysen ücretsiz hesabını aç ve sınavını başlat. Kredi kartı gerekmez.</p>
+  <div class="section-label" data-i18n="cta_label">Hemen Başla</div>
+  <div class="section-title" data-i18n="cta_title">Sınavınız bekliyor</div>
+  <p style="color:var(--muted);margin-bottom:2rem;" data-i18n="cta_desc">A1 veya B1, hangi seviyedeysen ücretsiz hesabını aç ve sınavını başlat. Kredi kartı gerekmez.</p>
   <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-    <a href="javascript:void(0)" onclick="startFreeExam()" class="btn-primary" id="cta-free-btn">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
-    <a href="#beceriler" class="btn-ghost">Sınav Bölümleri</a>
+    <a href="javascript:void(0)" onclick="startFreeExam()" class="btn-primary" id="cta-free-btn" data-i18n="cta_btn">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
+    <a href="#beceriler" class="btn-ghost" data-i18n="cta_sec">Sınav Bölümleri</a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-links">
-    <a href="#">Hakkımızda</a>
-    <a href="#">Gizlilik</a>
-    <a href="#">İletişim</a>
+    <a href="#" data-i18n="foot_about">Hakkımızda</a>
+    <a href="#" data-i18n="foot_privacy">Gizlilik</a>
+    <a href="#" data-i18n="foot_contact">İletişim</a>
   </div>
-  <p>© 2026 PrufReady. Tüm hakları saklıdır.</p>
+  <p data-i18n="foot_copy">© 2026 PrufReady. Tüm hakları saklıdır.</p>
 </footer>
 
 <!-- NOTIFICATION -->
 <div class="notif" id="notif"><strong id="notif-title">Rezervasyon Onaylandı!</strong><span id="notif-msg">Mock exam oturumunuz kayıt edildi.</span></div>
 
 <script>
+  // ─────────────────────────────────────────────
+  //  ÇOK DİLLİ SİSTEM (TR / EN / DE)
+  // ─────────────────────────────────────────────
+  const I18N = {
+    tr: {
+      nav_demo:"Ücretsiz Deneme", nav_why:"Neden PrufReady", nav_sections:"Sınav Bölümleri",
+      nav_login:"Giriş Yap", nav_register:"Ücretsiz Kayıt Ol",
+      hero_badge:"telc & DTZ Sınav Hazırlığı",
+      hero_title:'Sınav Senin Evinde<br><span>Provasını Yapmadan Girme.</span>',
+      hero_desc:"telc ve DTZ'nin gerçek formatıyla birebir aynı simülasyon. Vatandaşlık, oturma izni ya da kariyer fark etmez — sınava girmeden önce gerçek sınav deneyimini yaşa.",
+      hero_cta:"Ücretsiz Deneme Sınavı İçin Kayıt Ol →", hero_how:"Nasıl Çalışır?",
+      demo_title:"Ücretsiz Deneme Sınavı",
+      demo_desc:"A1 veya B1 — hangi seviyedeysen, ücretsiz hesabını oluştururken seç. Seçtiğin seviyenin deneme sınavı sana özel açılır.",
+      demo_cta:"Ücretsiz Deneme Sınavı İçin Kayıt Ol →",
+      demo_m1:"<strong>✓</strong> A1 & B1 seçenekli", demo_m2:"<strong>✓</strong> Gerçek sınav formatı",
+      demo_m3:"<strong>✓</strong> Anında sonuç", demo_m4:"<strong>✓</strong> 1 dakikada ücretsiz hesap",
+      why_label:"Neden PrufReady", why_title:"Sadece Almanca Öğrenmeyin. Sınavı Geçmeye Hazırlanın.",
+      why_sub:"Birçok uygulama size Almanca öğretir. Ancak gerçek sınavda ihtiyacınız olan şey farklıdır: doğru formatta pratik, kişisel geri bildirim ve sınav deneyimi.",
+      why_c1_t:"Genel Dil Uygulamaları", why_c1_s:"Dil öğrenmek için iyi, sınava hazırlanmak için yeterli değil.",
+      why_c1_1:"Sınav formatına göre hazırlanmaz", why_c1_2:"Gerçek sınav görevlerini deneyimletmez",
+      why_c1_3:"Konuşma pratiği ve kişisel geri bildirim sınırlıdır", why_c1_4:"Yazılarınızın neden puan kaybettiğini göstermez",
+      why_c2_t:"Dil Kursları", why_c2_s:"Etkili olabilir, ancak herkes için uygun değildir.",
+      why_c2_1:"Yüksek maliyetli olabilir", why_c2_2:"Sabit ders saatleri çalışanlar için zorlayıcıdır",
+      why_c2_3:"Kişisel seviyenize göre ilerlemek her zaman mümkün değildir", why_c2_4:"Daha fazla pratik için ekstra zaman ve bütçe gerekir",
+      why_c3_t:"Sınava Hazırlananların En Büyük Soruları",
+      why_c3_1:'"Acaba sınava hazır mıyım?"', why_c3_2:'"Schreiben\'im yeterince iyi mi?"',
+      why_c3_3:'"Konuşma bölümünde ne yapacağım?"', why_c3_4:'"Bir hata yaptığımda bunu kim gösterecek?"',
+      why_box_t:"Sınav Deneyimini Gerçekten Yaşayın",
+      why_box_d:"Gerçek sınav formatı, yapay zeka destekli schreiben geri bildirimi ve gerçek insanlarla speaking simülasyonu tek bir platformda.",
+      sec_label:"Sınav Bölümleri", sec_title:"Sınav Bölümleri",
+      sec_sub:"Okuma'dan Konuşma'ya, telc ve DTZ formatlarında gerçek sınav yapısıyla pratik. Her seviye kendi bölümleriyle.",
+      lesen_t:"Lesen – Okuma", a1_lesen:"Lesen",
+      a1_l1:"Kısa metinleri anlama", a1_l2:"Bilgi bulma", a1_l3:"Çoktan seçmeli sorular", a1_l4:"Eşleştirme",
+      b1_lese:"Leseverstehen", b1_l1:"Farklı metin türlerini anlama", b1_l2:"Detaylı bilgi bulma", b1_l3:"Çoktan seçmeli sorular", b1_l4:"Eşleştirme",
+      spb_t:"Sprachbausteine", spb_1:"Kelime ve dil bilgisi kullanımı", spb_2:"Boşluk doldurma", spb_3:"Bağlam içinde doğru ifadeyi seçme",
+      hoeren_t:"Hören – Dinleme", hoeren_d:"Gerçekçi ses kayıtlarıyla sınav koşullarında dinleme anlama pratiği.",
+      hoeren_1:"Ses tabanlı alıştırmalar", hoeren_2:"Anlama soruları", hoeren_3:"Gerçek sınav koşulları",
+      schr_t:"Schreiben – Yazma", schr_d:"Yapay zeka destekli yazma değerlendirmesi. Gramer, yapı ve sınav kriterlerine göre geri bildirim.",
+      schr_1:"E-posta / mektup görevi", schr_2:"Yapay zeka incelemesi", schr_3:"Kişisel geri bildirim",
+      spr_t:"Sprechen – Konuşma", spr_d:"Sertifikalı eğitmenle canlı konuşma sınavı provası. Gerçek sınav ortamında pratik.",
+      spr_1:"Gerçek sınav formatı", spr_2:"Anlık geri bildirim", spr_3:"Uzman değerlendirme", soon:"Yakında",
+      proc_label:"Süreç", proc_title:"Sınavı Geçmek İçin İhtiyacınız Olan Her Şey", proc_sub:"Ücretsiz başlangıçtan sınav gününe kadar adım adım.",
+      step1_t:"1. Ücretsiz Başlayın", step1_d:"Dakikalar içinde hesabınızı oluşturun, seviyenizi seçin (A1 veya B1) ve ilk deneme sınavınızı ücretsiz çözerek nerede olduğunuzu görün.",
+      step2_t:"2. Gerçek Sınava Göre Hazırlanın", step2_d:"Tüm sınav bölümlerine, örnek sorulara ve gerçek sınav formatındaki denemelere tek seferlik ödeme ile sınırsız erişin. Abonelik yok. Gizli ücret yok.",
+      step3_t:"3. Yapay Zeka ile Hatalarınızı Avantaja Çevirin", step3_d:"Her yazma çalışmanız saniyeler içinde analiz edilir. Dilbilgisi, kelime seçimi, yapı ve sınav kriterlerine göre kişiselleştirilmiş geri bildirim alın ve her denemede daha iyi sonuç elde edin.",
+      step4_t:"4. Gerçek Eğitmenlerle Kendinizi Test Edin", step4_d:"Konuşma sınavı provası yapın veya yazınızı uzman eğitmenlere değerlendirin. Gerçek sınavdan önce gerçek deneyim kazanın.",
+      step5_t:"5. Sınava Güvenle Girin", step5_d:"Artık neyle karşılaşacağınızı biliyorsunuz. Soruları, süreyi ve sınav formatını önceden deneyimlediğiniz için sınav gününe hazır ve özgüvenli girin.",
+      ref_label:"🎁 Arkadaşını Davet Et", ref_title:"Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan",
+      ref_sub:"Birlikte hazırlanmak daha kolay. Arkadaşlarını davet ederek hesabındaki soru setlerinin kilidini ücretsiz aç.",
+      ref_1t:"Kişisel bağlantını paylaş", ref_1d:"Ücretsiz kayıt olduktan sonra sana özel davet bağlantını panelinden al ve arkadaşlarınla paylaş.",
+      ref_2t:"Arkadaşların pratik yapsın", ref_2d:"Davet ettiğin arkadaşların bağlantın üzerinden kayıt olur ve en az bir soru setini tamamlar.",
+      ref_3t:"Yeni setlerin kilidini aç", ref_3d:"Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır.",
+      ref_box_t:"3 Arkadaş = 1 Yeni Soru Seti 🎯", ref_box_d:"Davet sınırı yok — ne kadar çok arkadaşın hazırlanırsa, o kadar fazla soru seti senin olur.",
+      ref_cta:"Hemen Kayıt Ol &amp; Davet Bağlantını Al →",
+      faq_label:"Sıkça Sorulanlar", faq_title:"Aklınızdaki sorular", faq_sub:"Başlamadan önce bilmek isteyebilecekleriniz.",
+      faq_q1:"Hangi sınavlar için hazırlanabilirim?", faq_a1:"PrufReady; telc A1, telc B1 ve DTZ (Deutsch-Test für Zuwanderer) sınavları için tasarlanmıştır. Sorular ve görevler bu sınavların resmi formatını esas alır.",
+      faq_q2:"Yapay zeka yazma değerlendirmesi nasıl çalışır?", faq_a2:"Yazma görevinizi gönderdikten sonra yapay zeka gramer, kelime hazinesi, yapı ve sınav kriterlerine göre değerlendirme yapar ve ayrıntılı geri bildirim sunar. İstediğiniz kadar pratik yapabilirsiniz.",
+      faq_q3:"Aylık ücret var mı?", faq_a3:"Hayır. PrufReady tamamen tek seferlik ödeme modeliyle çalışır. A1 veya B1 modülünü bir kez satın alırsınız, ömür boyu erişirsiniz. Abonelik, gizli ücret yoktur.",
+      faq_q4:"Ücretsiz hesapla ne yapabilirim?", faq_a4:"Ücretsiz hesap açarak seviyenizi seçebilir ve ilk deneme soru setinize erişebilirsiniz. Arkadaşlarınızı davet ederek daha fazla soru setinin kilidini ücretsiz açabilirsiniz.",
+      cta_label:"Hemen Başla", cta_title:"Sınavınız bekliyor", cta_desc:"A1 veya B1, hangi seviyedeysen ücretsiz hesabını aç ve sınavını başlat. Kredi kartı gerekmez.",
+      cta_btn:"Ücretsiz Deneme Sınavı İçin Kayıt Ol →", cta_sec:"Sınav Bölümleri",
+      foot_about:"Hakkımızda", foot_privacy:"Gizlilik", foot_contact:"İletişim", foot_copy:"© 2026 PrufReady. Tüm hakları saklıdır."
+    },
+    en: {
+      nav_demo:"Free Trial", nav_why:"Why PrufReady", nav_sections:"Exam Sections",
+      nav_login:"Log In", nav_register:"Sign Up Free",
+      hero_badge:"telc & DTZ Exam Preparation",
+      hero_title:'Take the Exam at Home<br><span>Never Sit It Without a Rehearsal.</span>',
+      hero_desc:"A simulation identical to the real telc and DTZ format. Whether for citizenship, a residence permit, or your career — experience the real exam before you take it.",
+      hero_cta:"Sign Up for a Free Trial Exam →", hero_how:"How It Works?",
+      demo_title:"Free Trial Exam",
+      demo_desc:"A1 or B1 — whichever your level, choose it while creating your free account. The trial exam for your level opens just for you.",
+      demo_cta:"Sign Up for a Free Trial Exam →",
+      demo_m1:"<strong>✓</strong> A1 & B1 options", demo_m2:"<strong>✓</strong> Real exam format",
+      demo_m3:"<strong>✓</strong> Instant results", demo_m4:"<strong>✓</strong> Free account in 1 minute",
+      why_label:"Why PrufReady", why_title:"Don't Just Learn German. Get Ready to Pass the Exam.",
+      why_sub:"Many apps teach you German. But what you really need for the exam is different: practice in the right format, personal feedback, and real exam experience.",
+      why_c1_t:"General Language Apps", why_c1_s:"Good for learning a language, but not enough to prepare for the exam.",
+      why_c1_1:"Doesn't prepare you for the exam format", why_c1_2:"Doesn't let you experience real exam tasks",
+      why_c1_3:"Speaking practice and personal feedback are limited", why_c1_4:"Doesn't show why your writing lost points",
+      why_c2_t:"Language Courses", why_c2_s:"Can be effective, but not suitable for everyone.",
+      why_c2_1:"Can be expensive", why_c2_2:"Fixed class hours are hard for working people",
+      why_c2_3:"Progressing at your own level isn't always possible", why_c2_4:"Extra time and budget needed for more practice",
+      why_c3_t:"The Biggest Questions of Exam Candidates",
+      why_c3_1:'"Am I really ready for the exam?"', why_c3_2:'"Is my Schreiben good enough?"',
+      why_c3_3:'"What will I do in the speaking part?"', why_c3_4:'"Who will show me when I make a mistake?"',
+      why_box_t:"Truly Experience the Exam",
+      why_box_d:"Real exam format, AI-powered Schreiben feedback, and speaking simulation with real people — all on one platform.",
+      sec_label:"Exam Sections", sec_title:"Exam Sections",
+      sec_sub:"From reading to speaking, practice with the real exam structure in telc and DTZ formats. Each level with its own sections.",
+      lesen_t:"Lesen – Reading", a1_lesen:"Lesen",
+      a1_l1:"Understanding short texts", a1_l2:"Finding information", a1_l3:"Multiple-choice questions", a1_l4:"Matching",
+      b1_lese:"Leseverstehen", b1_l1:"Understanding different text types", b1_l2:"Finding detailed information", b1_l3:"Multiple-choice questions", b1_l4:"Matching",
+      spb_t:"Sprachbausteine", spb_1:"Vocabulary and grammar usage", spb_2:"Fill in the blanks", spb_3:"Choosing the right expression in context",
+      hoeren_t:"Hören – Listening", hoeren_d:"Listening comprehension practice under exam conditions with realistic audio recordings.",
+      hoeren_1:"Audio-based exercises", hoeren_2:"Comprehension questions", hoeren_3:"Real exam conditions",
+      schr_t:"Schreiben – Writing", schr_d:"AI-powered writing assessment. Feedback based on grammar, structure, and exam criteria.",
+      schr_1:"Email / letter task", schr_2:"AI review", schr_3:"Personal feedback",
+      spr_t:"Sprechen – Speaking", spr_d:"Live speaking exam rehearsal with a certified instructor. Practice in a real exam setting.",
+      spr_1:"Real exam format", spr_2:"Instant feedback", spr_3:"Expert evaluation", soon:"Coming Soon",
+      proc_label:"Process", proc_title:"Everything You Need to Pass the Exam", proc_sub:"Step by step, from a free start to exam day.",
+      step1_t:"1. Start Free", step1_d:"Create your account in minutes, choose your level (A1 or B1), and see where you stand by taking your first trial exam for free.",
+      step2_t:"2. Prepare for the Real Exam", step2_d:"Get unlimited access to all exam sections, sample questions, and real-format mock exams with a one-time payment. No subscription. No hidden fees.",
+      step3_t:"3. Turn Your Mistakes into an Advantage with AI", step3_d:"Every writing task is analyzed in seconds. Get personalized feedback on grammar, word choice, structure, and exam criteria — and improve with every attempt.",
+      step4_t:"4. Test Yourself with Real Instructors", step4_d:"Rehearse the speaking exam or have your writing evaluated by expert instructors. Gain real experience before the real exam.",
+      step5_t:"5. Enter the Exam with Confidence", step5_d:"Now you know what to expect. Having experienced the questions, timing, and format in advance, you walk in ready and confident.",
+      ref_label:"🎁 Invite Friends", ref_title:"Invite Your Friends, Earn Free Question Sets",
+      ref_sub:"Preparing together is easier. Unlock the question sets in your account for free by inviting friends.",
+      ref_1t:"Share your personal link", ref_1d:"After signing up for free, grab your personal invite link from your panel and share it with friends.",
+      ref_2t:"Let your friends practice", ref_2d:"Your invited friends sign up through your link and complete at least one question set.",
+      ref_3t:"Unlock new sets", ref_3d:"For every 3 friends who complete a question set, 1 new question set is automatically unlocked in your account for free.",
+      ref_box_t:"3 Friends = 1 New Question Set 🎯", ref_box_d:"No invite limit — the more friends who prepare, the more question sets you get.",
+      ref_cta:"Sign Up Now &amp; Get Your Invite Link →",
+      faq_label:"FAQ", faq_title:"Questions on Your Mind", faq_sub:"What you might want to know before you start.",
+      faq_q1:"Which exams can I prepare for?", faq_a1:"PrufReady is designed for telc A1, telc B1, and DTZ (Deutsch-Test für Zuwanderer) exams. Questions and tasks follow the official format of these exams.",
+      faq_q2:"How does the AI writing assessment work?", faq_a2:"After you submit your writing task, the AI evaluates it based on grammar, vocabulary, structure, and exam criteria, then provides detailed feedback. You can practice as much as you like.",
+      faq_q3:"Is there a monthly fee?", faq_a3:"No. PrufReady works entirely on a one-time payment model. You buy the A1 or B1 module once and have lifetime access. No subscription, no hidden fees.",
+      faq_q4:"What can I do with a free account?", faq_a4:"With a free account you can choose your level and access your first trial question set. By inviting friends, you can unlock more question sets for free.",
+      cta_label:"Get Started", cta_title:"Your Exam Awaits", cta_desc:"A1 or B1, whichever your level, open your free account and start your exam. No credit card required.",
+      cta_btn:"Sign Up for a Free Trial Exam →", cta_sec:"Exam Sections",
+      foot_about:"About Us", foot_privacy:"Privacy", foot_contact:"Contact", foot_copy:"© 2026 PrufReady. All rights reserved."
+    },
+    de: {
+      nav_demo:"Kostenlos testen", nav_why:"Warum PrufReady", nav_sections:"Prüfungsteile",
+      nav_login:"Anmelden", nav_register:"Kostenlos registrieren",
+      hero_badge:"telc & DTZ Prüfungsvorbereitung",
+      hero_title:'Die Prüfung bei dir zu Hause<br><span>Tritt nicht ohne Generalprobe an.</span>',
+      hero_desc:"Eine Simulation, die dem echten telc- und DTZ-Format exakt entspricht. Ob für Einbürgerung, Aufenthaltstitel oder Karriere — erlebe die echte Prüfung, bevor du antrittst.",
+      hero_cta:"Für die kostenlose Testprüfung registrieren →", hero_how:"Wie funktioniert es?",
+      demo_title:"Kostenlose Testprüfung",
+      demo_desc:"A1 oder B1 — je nach deinem Niveau, wähle es bei der kostenlosen Kontoerstellung. Die Testprüfung für dein Niveau wird speziell für dich freigeschaltet.",
+      demo_cta:"Für die kostenlose Testprüfung registrieren →",
+      demo_m1:"<strong>✓</strong> A1 & B1 wählbar", demo_m2:"<strong>✓</strong> Echtes Prüfungsformat",
+      demo_m3:"<strong>✓</strong> Sofortiges Ergebnis", demo_m4:"<strong>✓</strong> Kostenloses Konto in 1 Minute",
+      why_label:"Warum PrufReady", why_title:"Lerne nicht nur Deutsch. Bereite dich darauf vor, die Prüfung zu bestehen.",
+      why_sub:"Viele Apps bringen dir Deutsch bei. Doch was du für die Prüfung wirklich brauchst, ist anders: Übung im richtigen Format, persönliches Feedback und echte Prüfungserfahrung.",
+      why_c1_t:"Allgemeine Sprach-Apps", why_c1_s:"Gut zum Sprachenlernen, aber nicht genug zur Prüfungsvorbereitung.",
+      why_c1_1:"Bereitet nicht auf das Prüfungsformat vor", why_c1_2:"Lässt dich echte Prüfungsaufgaben nicht erleben",
+      why_c1_3:"Sprechübungen und persönliches Feedback sind begrenzt", why_c1_4:"Zeigt nicht, warum dein Text Punkte verliert",
+      why_c2_t:"Sprachkurse", why_c2_s:"Können wirksam sein, aber nicht für jeden geeignet.",
+      why_c2_1:"Können kostspielig sein", why_c2_2:"Feste Unterrichtszeiten sind für Berufstätige schwierig",
+      why_c2_3:"Im eigenen Tempo voranzukommen ist nicht immer möglich", why_c2_4:"Für mehr Übung sind zusätzliche Zeit und Budget nötig",
+      why_c3_t:"Die größten Fragen der Prüfungskandidaten",
+      why_c3_1:'"Bin ich wirklich bereit für die Prüfung?"', why_c3_2:'"Ist mein Schreiben gut genug?"',
+      why_c3_3:'"Was mache ich im Sprechteil?"', why_c3_4:'"Wer zeigt mir, wenn ich einen Fehler mache?"',
+      why_box_t:"Erlebe die Prüfung wirklich",
+      why_box_d:"Echtes Prüfungsformat, KI-gestütztes Schreiben-Feedback und Sprech-Simulation mit echten Menschen — alles auf einer Plattform.",
+      sec_label:"Prüfungsteile", sec_title:"Prüfungsteile",
+      sec_sub:"Vom Lesen bis zum Sprechen — übe mit der echten Prüfungsstruktur im telc- und DTZ-Format. Jedes Niveau mit eigenen Teilen.",
+      lesen_t:"Lesen", a1_lesen:"Lesen",
+      a1_l1:"Kurze Texte verstehen", a1_l2:"Informationen finden", a1_l3:"Multiple-Choice-Fragen", a1_l4:"Zuordnung",
+      b1_lese:"Leseverstehen", b1_l1:"Verschiedene Textsorten verstehen", b1_l2:"Detaillierte Informationen finden", b1_l3:"Multiple-Choice-Fragen", b1_l4:"Zuordnung",
+      spb_t:"Sprachbausteine", spb_1:"Wortschatz und Grammatik anwenden", spb_2:"Lückentext ausfüllen", spb_3:"Den richtigen Ausdruck im Kontext wählen",
+      hoeren_t:"Hören", hoeren_d:"Hörverstehen-Übung unter Prüfungsbedingungen mit realistischen Tonaufnahmen.",
+      hoeren_1:"Audiobasierte Übungen", hoeren_2:"Verständnisfragen", hoeren_3:"Echte Prüfungsbedingungen",
+      schr_t:"Schreiben", schr_d:"KI-gestützte Schreibbewertung. Feedback zu Grammatik, Struktur und Prüfungskriterien.",
+      schr_1:"E-Mail- / Briefaufgabe", schr_2:"KI-Überprüfung", schr_3:"Persönliches Feedback",
+      spr_t:"Sprechen", spr_d:"Live-Sprechprüfung als Generalprobe mit einem zertifizierten Trainer. Übung in echter Prüfungsumgebung.",
+      spr_1:"Echtes Prüfungsformat", spr_2:"Sofortiges Feedback", spr_3:"Experten-Bewertung", soon:"Demnächst",
+      proc_label:"Ablauf", proc_title:"Alles, was du brauchst, um die Prüfung zu bestehen", proc_sub:"Schritt für Schritt, vom kostenlosen Start bis zum Prüfungstag.",
+      step1_t:"1. Kostenlos starten", step1_d:"Erstelle dein Konto in wenigen Minuten, wähle dein Niveau (A1 oder B1) und finde durch deine erste kostenlose Testprüfung heraus, wo du stehst.",
+      step2_t:"2. Für die echte Prüfung vorbereiten", step2_d:"Erhalte mit einer einmaligen Zahlung unbegrenzten Zugang zu allen Prüfungsteilen, Beispielfragen und Musterprüfungen im echten Format. Kein Abo. Keine versteckten Kosten.",
+      step3_t:"3. Mit KI deine Fehler zum Vorteil machen", step3_d:"Jede Schreibübung wird in Sekunden analysiert. Erhalte personalisiertes Feedback zu Grammatik, Wortwahl, Struktur und Prüfungskriterien — und werde mit jedem Versuch besser.",
+      step4_t:"4. Teste dich mit echten Trainern", step4_d:"Probe die Sprechprüfung oder lass deinen Text von Experten bewerten. Sammle echte Erfahrung vor der echten Prüfung.",
+      step5_t:"5. Tritt selbstbewusst zur Prüfung an", step5_d:"Jetzt weißt du, was dich erwartet. Da du Fragen, Zeit und Format im Voraus erlebt hast, gehst du bereit und selbstsicher hinein.",
+      ref_label:"🎁 Freunde einladen", ref_title:"Lade Freunde ein, verdiene kostenlose Fragensätze",
+      ref_sub:"Gemeinsam vorbereiten ist einfacher. Schalte die Fragensätze in deinem Konto kostenlos frei, indem du Freunde einlädst.",
+      ref_1t:"Teile deinen persönlichen Link", ref_1d:"Nach der kostenlosen Registrierung erhältst du deinen persönlichen Einladungslink im Panel und teilst ihn mit Freunden.",
+      ref_2t:"Lass deine Freunde üben", ref_2d:"Deine eingeladenen Freunde registrieren sich über deinen Link und schließen mindestens einen Fragensatz ab.",
+      ref_3t:"Neue Sätze freischalten", ref_3d:"Für je 3 Freunde, die einen Fragensatz abschließen, wird automatisch 1 neuer Fragensatz kostenlos in deinem Konto freigeschaltet.",
+      ref_box_t:"3 Freunde = 1 neuer Fragensatz 🎯", ref_box_d:"Kein Einladungslimit — je mehr Freunde sich vorbereiten, desto mehr Fragensätze bekommst du.",
+      ref_cta:"Jetzt registrieren &amp; Einladungslink holen →",
+      faq_label:"FAQ", faq_title:"Fragen, die dich beschäftigen", faq_sub:"Was du vielleicht wissen möchtest, bevor du beginnst.",
+      faq_q1:"Für welche Prüfungen kann ich mich vorbereiten?", faq_a1:"PrufReady ist für die Prüfungen telc A1, telc B1 und DTZ (Deutsch-Test für Zuwanderer) konzipiert. Fragen und Aufgaben orientieren sich am offiziellen Format dieser Prüfungen.",
+      faq_q2:"Wie funktioniert die KI-Schreibbewertung?", faq_a2:"Nachdem du deine Schreibaufgabe eingereicht hast, bewertet die KI sie nach Grammatik, Wortschatz, Struktur und Prüfungskriterien und gibt detailliertes Feedback. Du kannst so viel üben, wie du möchtest.",
+      faq_q3:"Gibt es eine monatliche Gebühr?", faq_a3:"Nein. PrufReady funktioniert vollständig über ein Einmalzahlungsmodell. Du kaufst das A1- oder B1-Modul einmal und hast lebenslangen Zugang. Kein Abo, keine versteckten Kosten.",
+      faq_q4:"Was kann ich mit einem kostenlosen Konto tun?", faq_a4:"Mit einem kostenlosen Konto kannst du dein Niveau wählen und auf deinen ersten Test-Fragensatz zugreifen. Durch das Einladen von Freunden schaltest du weitere Fragensätze kostenlos frei.",
+      cta_label:"Jetzt loslegen", cta_title:"Deine Prüfung wartet", cta_desc:"A1 oder B1, welches Niveau auch immer — eröffne dein kostenloses Konto und starte deine Prüfung. Keine Kreditkarte erforderlich.",
+      cta_btn:"Für die kostenlose Testprüfung registrieren →", cta_sec:"Prüfungsteile",
+      foot_about:"Über uns", foot_privacy:"Datenschutz", foot_contact:"Kontakt", foot_copy:"© 2026 PrufReady. Alle Rechte vorbehalten."
+    }
+  };
+
+  function setLang(lang) {
+    if (!I18N[lang]) lang = 'tr';
+    localStorage.setItem('prufready_lang', lang);
+    document.documentElement.lang = lang;
+    const dict = I18N[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] !== undefined) el.innerHTML = dict[key];
+    });
+    document.querySelectorAll('#lang-switch button').forEach(b =>
+      b.classList.toggle('active', b.dataset.lang === lang));
+  }
+
+  // Sayfa açılışında kayıtlı dili uygula
+  (function initLang(){
+    const saved = localStorage.getItem('prufready_lang') || 'tr';
+    setLang(saved);
+  })();
+
   // --- NOTIFICATION (kept for potential future inline use) ---
   function showNotif(title, msg) {
     document.getElementById('notif-title').textContent = title;
