@@ -265,15 +265,18 @@ function getMyStats() {
 }
 // Supabase'den aktif kullanıcının istatistiklerini çekip localStorage'a yazar
 async function syncStatsFromCloud() {
+  console.log('[stats] syncStatsFromCloud çağrıldı. USE_SUPABASE=', typeof USE_SUPABASE!=='undefined'?USE_SUPABASE:'undef', 'source=', loggedUser?.source);
   if (typeof USE_SUPABASE === 'undefined' || !USE_SUPABASE) return;
   if (!loggedUser || loggedUser.source !== 'registered') return;
   try {
     const cloud = await sbLoadMyStats();  // { B1:{...}, A1:{...} } veya null
+    console.log('[stats] Supabase\'den gelen:', cloud);
     if (!cloud) return;
     const all = loadStats();
     all[loggedUser.email] = cloud;
     saveStats(all);
-  } catch(e) { console.error('Stats sync hatası:', e); }
+    console.log('[stats] localStorage güncellendi, email=', loggedUser.email);
+  } catch(e) { console.error('[stats] Stats sync hatası:', e); }
 }
 
 function resetMyStats(lvl) {
