@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Giriş Yap – ExamReady</title>
+<title>Giriş Yap – DeutschReady</title>
 <style>
 :root {
   --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;
@@ -152,7 +152,7 @@ button{cursor:pointer;font-family:inherit;}
 <body>
 
 <div class="topbar">
-  <a href="index.html" style="text-decoration:none;"><span class="logo">ExamReady</span></a>
+  <a href="index.html" style="text-decoration:none;"><span class="logo">DeutschReady</span></a>
   <div class="topbar-right">
     <a href="index.html" class="back-link">← Ana Sayfa</a>
     <a href="admin.html" id="admin-link" style="display:none;font-size:.78rem;font-weight:700;color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:7px;padding:.3rem .7rem;">⚙️ Admin</a>
@@ -849,23 +849,23 @@ function studentDash(u) {
   </div>
 
   <div class="panel" style="margin-top:1.2rem;">
-    <h3><span>🎁</span> Arkadaşını Davet Et</h3>
-    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">Her başarılı davet için 1 Mock Exam kredisi kazan. 3 arkadaşını davet et, bir oturum ücretsiz al.</p>
+    <h3><span>🎁</span> Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan</h3>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır. Davet sınırı yok.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:.8rem;">
-      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Referans Linkin</div>
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Davet Bağlantın</div>
       <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-        <code id="ref-link-text" style="flex:1;font-size:.82rem;color:var(--accent);font-weight:700;word-break:break-all;background:var(--bg);padding:.4rem .7rem;border-radius:6px;border:1px solid var(--border);">examready.de/register?ref=${u.referralCode||'—'}</code>
+        <code id="ref-link-text" style="flex:1;font-size:.82rem;color:var(--accent);font-weight:700;word-break:break-all;background:var(--bg);padding:.4rem .7rem;border-radius:6px;border:1px solid var(--border);">deutschready.de/register?ref=${u.referralCode||'—'}</code>
         <button onclick="copyRefLink()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.4rem .9rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">Kopyala</button>
       </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;font-size:.83rem;">
-      <span style="color:var(--muted);">Tamamlanan davet</span>
-      <span style="font-weight:800;color:var(--green);">${u.referralCount||0} <span style="color:var(--muted);font-weight:400;">/ 3</span></span>
+      <span style="color:var(--muted);">Sonraki sete kalan</span>
+      <span style="font-weight:800;color:var(--green);">${(u.referralCount||0)%3} <span style="color:var(--muted);font-weight:400;">/ 3 arkadaş</span></span>
     </div>
     <div style="background:var(--border);border-radius:4px;height:6px;margin:.5rem 0;overflow:hidden;">
-      <div style="height:100%;width:${Math.min(100,((u.referralCount||0)/3)*100)}%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:4px;transition:width .4s;"></div>
+      <div style="height:100%;width:${Math.min(100,(((u.referralCount||0)%3)/3)*100)}%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:4px;transition:width .4s;"></div>
     </div>
-    <div style="font-size:.75rem;color:var(--muted);">${3-(u.referralCount||0)} davet daha → 1 ücretsiz Mock Exam oturumu</div>
+    <div style="font-size:.75rem;color:var(--muted);">${3-((u.referralCount||0)%3)} arkadaş daha → 1 yeni soru seti 🎯</div>
   </div>`;
 }
 
@@ -874,7 +874,7 @@ function copyRefLink() {
     const sess = JSON.parse(localStorage.getItem('examready_session_v1')||'{}');
     const reg = JSON.parse(localStorage.getItem('examready_registered_users_v1')||'{}');
     const code = (reg[sess.email]||{}).referralCode || '—';
-    const link = 'examready.de/register?ref=' + code;
+    const link = 'deutschready.de/register?ref=' + code;
     navigator.clipboard.writeText(link).then(()=>showNotif('Kopyalandı!','Referans linkin panoya alındı.'));
   } catch(e){}
 }

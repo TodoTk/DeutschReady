@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ExamReady – Goethe & telc Sınav Hazırlığı</title>
+<title>DeutschReady – telc & DTZ Sınav Hazırlığı</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -75,7 +75,7 @@
   /* STEPS */
   .steps { display: flex; flex-direction: column; gap: 1rem; max-width: 640px; margin: 0 auto; }
   .step { display: flex; gap: 1.2rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; }
-  .step-num { min-width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .9rem; }
+  .step-num { min-width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; flex-shrink: 0; }
   .step h4 { font-weight: 700; margin-bottom: .2rem; }
   .step p { font-size: .85rem; color: var(--muted); }
 
@@ -214,13 +214,12 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" style="text-decoration:none;"><span class="nav-logo">ExamReady</span></a>
+  <a href="index.html" style="text-decoration:none;"><span class="nav-logo">DeutschReady</span></a>
   <ul class="nav-links">
-    <li><a href="#demo-test">Free Mock Exam</a></li>
-    <li><a href="#nasil-calisir">Nasıl Çalışır</a></li>
+    <li><a href="#demo-test">Ücretsiz Deneme</a></li>
+    <li><a href="#nasil-calisir">Neden Farklı</a></li>
     <li><a href="#beceriler">Beceriler</a></li>
     <li><a href="#fiyatlar">Fiyatlar</a></li>
-    <li><a href="#coaching">Mock Exam Sessions</a></li>
   </ul>
   <a href="dashboard.html" id="nav-auth-link" style="font-size:.85rem;color:var(--muted);margin-right:.5rem;">Giriş Yap</a>
   <a href="register.html" class="nav-cta" id="nav-register-btn">Ücretsiz Kayıt Ol</a>
@@ -228,9 +227,9 @@
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">Goethe & telc Sınav Hazırlığı</div>
+  <div class="hero-badge">telc & DTZ Sınav Hazırlığı</div>
   <h1>Sınav Senin Evinde<br><span>Provasını Yapmadan Girme.</span></h1>
-  <p>Goethe ve telc'in gerçek formatıyla birebir aynı simülasyon. Vatandaşlık, oturma izni ya da kariyer fark etmez — sınava girmeden önce gerçek sınav deneyimini yaşa.</p>
+  <p>telc ve DTZ'nin gerçek formatıyla birebir aynı simülasyon. Vatandaşlık, oturma izni ya da kariyer fark etmez — sınava girmeden önce gerçek sınav deneyimini yaşa.</p>
   <div class="hero-btns">
     <a href="javascript:void(0)" onclick="startFreeExam()" class="btn-primary" id="hero-free-btn">Ücretsiz Deneme Sınavı İçin Kayıt Ol →</a>
     <a href="#nasil-calisir" class="btn-ghost">Nasıl Çalışır?</a>
@@ -268,39 +267,46 @@
 <!-- NEDEN FARKLI -->
 <section id="nasil-calisir">
   <div class="section-label">Neden Farklı</div>
-  <div class="section-title">Mevcut çözümler yetmiyor</div>
-  <div class="section-sub">Genel dil uygulamaları veya pahalı dil okulları sizi sınava hazırlamaz.</div>
+  <div class="section-title">Sadece Almanca Öğrenmeyin. Sınavı Geçmeye Hazırlanın.</div>
+  <div class="section-sub">Birçok uygulama size Almanca öğretir. Ancak gerçek sınavda ihtiyacınız olan şey farklıdır: doğru formatta pratik, kişisel geri bildirim ve sınav deneyimi.</div>
   <div class="cards">
     <div class="card">
       <div class="card-icon">📱</div>
-      <h3>Mevcut Uygulamalar</h3>
+      <h3>Genel Dil Uygulamaları</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;">Dil öğrenmek için iyi, sınava hazırlanmak için yeterli değil.</p>
       <ul>
-        <li>Sınav değil, dil öğretir</li>
-        <li>Gerçekçi konuşma pratiği yok</li>
-        <li>Yazma geri bildirimi sınırlı</li>
-        <li>Sınav formatlarıyla uyumsuz</li>
+        <li>Sınav formatına göre hazırlanmaz</li>
+        <li>Gerçek sınav görevlerini deneyimletmez</li>
+        <li>Konuşma pratiği ve kişisel geri bildirim sınırlıdır</li>
+        <li>Yazılarınızın neden puan kaybettiğini göstermez</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon">🏫</div>
-      <h3>Dil Okulları</h3>
+      <h3>Dil Kursları</h3>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;">Etkili olabilir, ancak herkes için uygun değildir.</p>
       <ul>
-        <li>Pahalı ve zaman alıcı</li>
-        <li>Çalışanlar için erişilemez</li>
-        <li>Ölçeklenme sorunu var</li>
-        <li>Bireysel ihtiyaç gözetilmez</li>
+        <li>Yüksek maliyetli olabilir</li>
+        <li>Sabit ders saatleri çalışanlar için zorlayıcıdır</li>
+        <li>Kişisel seviyenize göre ilerlemek her zaman mümkün değildir</li>
+        <li>Daha fazla pratik için ekstra zaman ve bütçe gerekir</li>
       </ul>
     </div>
     <div class="card">
       <div class="card-icon">😰</div>
-      <h3>Öğrenci Sorunu</h3>
+      <h3>Sınava Hazırlananların En Büyük Soruları</h3>
       <ul>
-        <li>Konuşma sınavından korku</li>
-        <li>Kişisel geri bildirim eksik</li>
-        <li>Hazır mıyım bilemiyorum</li>
-        <li>Uygun fiyatlı alternatif yok</li>
+        <li>"Acaba sınava hazır mıyım?"</li>
+        <li>"Schreiben'im yeterince iyi mi?"</li>
+        <li>"Konuşma bölümünde ne yapacağım?"</li>
+        <li>"Bir hata yaptığımda bunu kim gösterecek?"</li>
       </ul>
     </div>
+  </div>
+  <div style="max-width:760px;margin:2rem auto 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:.6rem;">🎯</div>
+    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.6rem;">İhtiyacınız Olan Şey Tek Bir Yerde</h3>
+    <p style="color:var(--muted);font-size:.95rem;max-width:560px;margin:0 auto;">Gerçek sınav formatı + yapay zeka destekli geri bildirim + gerçekçi pratik deneyimi. Kendi hızınızda çalışın, eksiklerinizi görün ve sınava daha güvenli girin.</p>
   </div>
 </section>
 
@@ -308,7 +314,7 @@
 <section id="beceriler">
   <div class="section-label">Tam Kapsam</div>
   <div class="section-title">Sınavın her bölümü hazır</div>
-  <div class="section-sub">Okuma'dan Konuşma'ya, Goethe ve telc formatlarında gerçek sınav yapısıyla pratik.</div>
+  <div class="section-sub">Okuma'dan Konuşma'ya, telc ve DTZ formatlarında gerçek sınav yapısıyla pratik.</div>
   <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;max-width:800px;margin:0 auto;">
     <div class="card">
       <div class="card-icon">📖</div>
@@ -316,24 +322,23 @@
       <p>Kısa metinler, çoktan seçmeli ve eşleştirme alıştırmalarıyla gerçek sınav formatında okuma becerisi.</p>
       <ul><li>Kısa metin anlama</li><li>Çoktan seçmeli sorular</li><li>Eşleştirme alıştırmaları</li></ul>
     </div>
-    <div class="card" style="opacity:.7;">
+    <div class="card">
       <div class="card-icon">🎧</div>
       <h3>Hören – Dinleme</h3>
       <p>Gerçekçi ses kayıtlarıyla sınav koşullarında dinleme anlama pratiği.</p>
       <ul><li>Ses tabanlı alıştırmalar</li><li>Anlama soruları</li><li>Gerçek sınav koşulları</li></ul>
-      <span style="display:inline-block;margin-top:.8rem;font-size:.78rem;font-weight:700;color:var(--muted);background:var(--surface2);padding:.25rem .6rem;border-radius:6px;">Yakında</span>
     </div>
     <div class="card">
-      <div class="card-icon">🎤</div>
-      <h3>Sprechen – Konuşma</h3>
-      <p>Sertifikalı koçla canlı 10 dakikalık mock exam. Gerçek sınav ortamında pratik.</p>
-      <ul><li>2 öğrenci + 1 koç</li><li>Anlık geri bildirim</li><li>Gerçek sınav formatı</li></ul>
-    </div>
-    <div class="card" style="opacity:.7;">
       <div class="card-icon">✍️</div>
       <h3>Schreiben – Yazma</h3>
-      <p>Yapay zeka destekli günlük yazma değerlendirmesi. Gramer, yapı ve sınav kriterlerine göre geri bildirim.</p>
-      <ul><li>E-posta yazma görevi</li><li>Yapay zeka incelemesi</li><li>Günlük değerlendirme</li></ul>
+      <p>Yapay zeka destekli yazma değerlendirmesi. Gramer, yapı ve sınav kriterlerine göre geri bildirim.</p>
+      <ul><li>E-posta / mektup görevi</li><li>Yapay zeka incelemesi</li><li>Kişisel geri bildirim</li></ul>
+    </div>
+    <div class="card" style="opacity:.7;">
+      <div class="card-icon">🎤</div>
+      <h3>Sprechen – Konuşma</h3>
+      <p>Sertifikalı eğitmenle canlı konuşma sınavı provası. Gerçek sınav ortamında pratik.</p>
+      <ul><li>Gerçek sınav formatı</li><li>Anlık geri bildirim</li><li>Uzman değerlendirme</li></ul>
       <span style="display:inline-block;margin-top:.8rem;font-size:.78rem;font-weight:700;color:var(--muted);background:var(--surface2);padding:.25rem .6rem;border-radius:6px;">Yakında</span>
     </div>
   </div>
@@ -342,14 +347,14 @@
 <!-- SÜREÇ -->
 <section>
   <div class="section-label">Süreç</div>
-  <div class="section-title">Sınavdan önce ne yapmalısınız?</div>
-  <div class="section-sub">Sınav gününe kadar adım adım bir hazırlık planı.</div>
+  <div class="section-title">Sınavı Geçmek İçin İhtiyacınız Olan Her Şey</div>
+  <div class="section-sub">Ücretsiz başlangıçtan sınav gününe kadar adım adım.</div>
   <div class="steps">
-    <div class="step"><div class="step-num">1</div><div><h4>Ücretsiz hesabını oluştur, seviyeni seç</h4><p>A1 veya B1 — hangisiyse, yukarıdaki linkten ücretsiz hesap aç ve o seviyenin deneme sınavını çöz.</p></div></div>
-    <div class="step"><div class="step-num">2</div><div><h4>Modülünüzü seçin</h4><p>A1 veya B1 için €29,90 tek seferlik ödemeyle tam erişim. İkisi birden €49,90. Abonelik yok.</p></div></div>
-    <div class="step"><div class="step-num">3</div><div><h4>Her gün yazma pratiği yapın</h4><p>Yapay zeka, gönderdiğiniz her yazıyı dilbilgisi, yapı ve sınav kriterlerine göre değerlendirir.</p></div></div>
-    <div class="step"><div class="step-num">4</div><div><h4>Mock Exam Credit'inizi kullanın</h4><p>Konuşma mock exam veya yazma incelemesi için kredinizi harcayın. İkisi de gerçek koçla.</p></div></div>
-    <div class="step"><div class="step-num">5</div><div><h4>Sınava girin, geçin</h4><p>Sınav ortamını defalarca deneyimledikten sonra gerçek sınava hazırsınız demektir.</p></div></div>
+    <div class="step"><div class="step-num">🚀</div><div><h4>1. Ücretsiz Başlayın</h4><p>Dakikalar içinde hesabınızı oluşturun, seviyenizi seçin (A1 veya B1) ve ilk deneme sınavınızı ücretsiz çözerek nerede olduğunuzu görün.</p></div></div>
+    <div class="step"><div class="step-num">📚</div><div><h4>2. Gerçek Sınava Göre Hazırlanın</h4><p>Tüm sınav bölümlerine, örnek sorulara ve gerçek sınav formatındaki denemelere tek seferlik ödeme ile sınırsız erişin. Abonelik yok. Gizli ücret yok.</p></div></div>
+    <div class="step"><div class="step-num">🤖</div><div><h4>3. Yapay Zeka ile Hatalarınızı Avantaja Çevirin</h4><p>Her yazma çalışmanız saniyeler içinde analiz edilir. Dilbilgisi, kelime seçimi, yapı ve sınav kriterlerine göre kişiselleştirilmiş geri bildirim alın ve her denemede daha iyi sonuç elde edin.</p></div></div>
+    <div class="step"><div class="step-num">🎤</div><div><h4>4. Gerçek Eğitmenlerle Kendinizi Test Edin</h4><p>Konuşma sınavı provası yapın veya yazınızı uzman eğitmenlere değerlendirin. Gerçek sınavdan önce gerçek deneyim kazanın.</p></div></div>
+    <div class="step"><div class="step-num">🎓</div><div><h4>5. Sınava Güvenle Girin</h4><p>Artık neyle karşılaşacağınızı biliyorsunuz. Soruları, süreyi ve sınav formatını önceden deneyimlediğiniz için sınav gününe hazır ve özgüvenli girin.</p></div></div>
   </div>
 </section>
 
@@ -419,69 +424,21 @@
   </div>
 </section>
 
-<!-- COACHING / MOCK EXAM SESSIONS + TAKVIM -->
-<section id="coaching">
-  <div class="section-label">İnsan Koçluğu</div>
-  <div class="section-title">Gerçek mock exam, gerçek koç</div>
-  <div class="section-sub">Yapay zeka yazma becerinizi değerlendirir. Ama konuşma sınavını geçmek için gerçek insanla pratik yapmak şart.</div>
-  <div class="coaching-wrap">
-    <div class="coaching-info">
-      <ul>
-        <li><span>⏱</span><span>10 dakikalık oturum — gerçek sınav formatında</span></li>
-        <li><span>👥</span><span>2 öğrenci + 1 sertifikalı koç</span></li>
-        <li><span>💬</span><span>Oturum sonunda anında geri bildirim</span></li>
-        <li><span>✍️</span><span>Yazma incelemesi için önceden gönderin, oturumda tartışın</span></li>
-        <li><span>💰</span><span>Koçlar oturum başına €5 kazanır</span></li>
-      </ul>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem;font-weight:700;">AKTİF OTURUMLAR</div>
-        <div style="display:flex;flex-direction:column;gap:.5rem;">
-          <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem;background:var(--surface2);border-radius:8px;">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;">AK</div>
-            <div style="flex:1;font-size:.8rem;"><div style="font-weight:600;">A1 Mock Exam Oturumu</div><div style="color:var(--muted);">Koç: Maria S. · 10 dk</div></div>
-            <span style="background:rgba(34,197,94,.2);color:var(--green);font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:5px;">Canlı</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem;background:var(--surface2);border-radius:8px;">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#7c5cfc,#4f8ef7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;">YM</div>
-            <div style="flex:1;font-size:.8rem;"><div style="font-weight:600;">B1 Yazma İncelemesi</div><div style="color:var(--muted);">Koç: Thomas K. · 10 dk</div></div>
-            <span style="background:rgba(34,197,94,.2);color:var(--green);font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:5px;">Canlı</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:.7rem;padding:.6rem;background:var(--surface2);border-radius:8px;">
-            <div style="width:32px;height:32px;background:linear-gradient(135deg,#22c55e,#4f8ef7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;">FS</div>
-            <div style="flex:1;font-size:.8rem;"><div style="font-weight:600;">A1 Mock Exam Oturumu</div><div style="color:var(--muted);">Koç: Jana L. · 10 dk</div></div>
-            <span style="background:rgba(251,191,36,.2);color:#fbbf24;font-size:.7rem;font-weight:700;padding:.2rem .5rem;border-radius:5px;">14:30</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- GERÇEK GİRİŞ CTA -->
-    <div class="scheduler-panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem 1.8rem;gap:1rem;">
-      <div style="font-size:2.2rem;">🔐</div>
-      <h3 style="font-size:1.1rem;font-weight:800;">Öğrenci veya Eğitmen Girişi</h3>
-      <p style="font-size:.85rem;color:var(--muted);max-width:280px;">Mock exam rezerve etmek, ders açmak veya müsaitlik takvimini yönetmek için hesabınıza giriş yapın.</p>
-      <a href="dashboard.html" class="form-btn" style="display:block;text-decoration:none;width:100%;text-align:center;">Giriş Yap →</a>
-      <a href="register.html" style="display:block;text-decoration:none;width:100%;text-align:center;font-size:.82rem;color:var(--accent);font-weight:600;">Hesabın yok mu? Ücretsiz kayıt ol</a>
-      <p style="font-size:.74rem;color:var(--muted);">10 demo öğrenci + 4 demo eğitmen hesabı giriş ekranında listelidir.</p>
-    </div>
-  </div>
-</section>
-
 <!-- REFERRAL -->
 <section>
-  <div class="section-label">Arkadaşını Davet Et</div>
-  <div class="section-title">Arkadaşlarınla Birlikte Ücretsiz Kazan!</div>
-  <div class="section-sub">Kayıt olunca sana özel bir davet bağlantısı verilir. Arkadaşların bu bağlantıyla kayıt olup pratik yaptıkça sen ödüllenirsin.</div>
+  <div class="section-label">🎁 Arkadaşını Davet Et</div>
+  <div class="section-title">Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan</div>
+  <div class="section-sub">Birlikte hazırlanmak daha kolay. Arkadaşlarını davet ederek hesabındaki soru setlerinin kilidini ücretsiz aç.</div>
   <div class="referral-card">
     <div class="referral-steps">
-      <div class="ref-step"><strong>1. Adım:</strong> Ücretsiz kayıt ol, kişisel davet bağlantını panelinden kopyala ve paylaş.</div>
-      <div class="ref-step"><strong>2. Adım:</strong> Bağlantınla katılan her arkadaşın kendi profilinde 20 soru çözsün.</div>
-      <div class="ref-step"><strong>3. Adım:</strong> 20 soruyu tamamlayan her 5 arkadaşın için sana otomatik olarak 1 Mock Exam Credit tanımlanır — sınırsız tekrarlanır.</div>
+      <div class="ref-step"><strong>1. Kişisel bağlantını paylaş</strong><br>Ücretsiz kayıt olduktan sonra sana özel davet bağlantını panelinden al ve arkadaşlarınla paylaş.</div>
+      <div class="ref-step"><strong>2. Arkadaşların pratik yapmaya başlasın</strong><br>Davet ettiğin arkadaşların bağlantın üzerinden kayıt olur ve en az bir soru setini tamamlar.</div>
+      <div class="ref-step"><strong>3. Yeni soru setlerinin kilidini aç</strong><br>Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır.</div>
     </div>
     <div class="referral-reward">
-      <div class="reward-num">5→1</div>
-      <div class="reward-label">5 başarılı davette 1 Mock Exam Credit</div>
-      <div style="font-size:.72rem;color:var(--accent);margin-top:.4rem;font-weight:700;">Davet sınırı yok, kredi kazanmaya devam et</div>
+      <div class="reward-num">3 → 1</div>
+      <div class="reward-label">3 Arkadaş = 1 Yeni Soru Seti 🎯</div>
+      <div style="font-size:.72rem;color:var(--accent);margin-top:.4rem;font-weight:700;">Davet sınırı yok — ne kadar çok arkadaş, o kadar çok set</div>
     </div>
   </div>
   <div style="text-align:center;margin-top:1.5rem;">
@@ -497,27 +454,19 @@
   <div class="faq">
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">Hangi sınavlar için hazırlanabilirim? <span class="faq-icon">+</span></button>
-      <div class="faq-a">ExamReady, Goethe A1, Goethe B1, telc A1 ve telc B1 sınavları için tasarlanmıştır. Sorular ve görevler bu sınavların resmi formatını esas alır.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Mock Exam Credit nedir, nasıl kullanılır? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Her premium modül 2 Mock Exam Credit içerir. Her krediyi bir Mock Exam Oturumu veya Yazma İncelemesi için kullanabilirsiniz. İhtiyacınıza göre seçim yapmakta özgürsünüz.</div>
+      <div class="faq-a">DeutschReady; telc A1, telc B1 ve DTZ (Deutsch-Test für Zuwanderer) sınavları için tasarlanmıştır. Sorular ve görevler bu sınavların resmi formatını esas alır.</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">Yapay zeka yazma değerlendirmesi nasıl çalışır? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Yazma görevinizi gönderdikten sonra yapay zeka gramer, kelime hazinesi, yapı ve sınav kriterlerine göre değerlendirme yapar ve ayrıntılı geri bildirim sunar. Her gün pratik yapabilirsiniz.</div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Mock Exam Oturumu gerçekten 2 öğrencili mi? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Evet. Goethe ve telc sınavlarında konuşma bölümü 2 aday arasında gerçekleşir. ExamReady'nin mock exam oturumları da bu formatı taklit eder — 2 öğrenci, 1 sertifikalı koç, 10 dakika.</div>
+      <div class="faq-a">Yazma görevinizi gönderdikten sonra yapay zeka gramer, kelime hazinesi, yapı ve sınav kriterlerine göre değerlendirme yapar ve ayrıntılı geri bildirim sunar. İstediğiniz kadar pratik yapabilirsiniz.</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" onclick="toggleFaq(this)">Aylık ücret var mı? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Hayır. ExamReady tamamen tek seferlik ödeme modeliyle çalışır. A1 veya B1 modülünü bir kez satın alırsınız, ömür boyu erişirsiniz. Abonelik, gizli ücret yoktur.</div>
+      <div class="faq-a">Hayır. DeutschReady tamamen tek seferlik ödeme modeliyle çalışır. A1 veya B1 modülünü bir kez satın alırsınız, ömür boyu erişirsiniz. Abonelik, gizli ücret yoktur.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" onclick="toggleFaq(this)">Koç olarak nasıl başvurabilirim? <span class="faq-icon">+</span></button>
-      <div class="faq-a">Sertifikalı Almanca öğretmenleri ve yetkin konuşmacılar koç olarak başvurabilir. Koçlar oturum başına €5 kazanır, €25 birikince çekim yapabilir. Başvuru formu için iletişime geçin.</div>
+      <button class="faq-q" onclick="toggleFaq(this)">Ücretsiz hesapla ne yapabilirim? <span class="faq-icon">+</span></button>
+      <div class="faq-a">Ücretsiz hesap açarak seviyenizi seçebilir ve ilk deneme soru setinize erişebilirsiniz. Arkadaşlarınızı davet ederek daha fazla soru setinin kilidini ücretsiz açabilirsiniz.</div>
     </div>
   </div>
 </section>
@@ -538,10 +487,9 @@
   <div class="footer-links">
     <a href="#">Hakkımızda</a>
     <a href="#">Gizlilik</a>
-    <a href="#">Koç Başvurusu</a>
     <a href="#">İletişim</a>
   </div>
-  <p>© 2026 ExamReady. Tüm hakları saklıdır.</p>
+  <p>© 2026 DeutschReady. Tüm hakları saklıdır.</p>
 </footer>
 
 <!-- NOTIFICATION -->
