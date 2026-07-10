@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>DeutschReady – Admin Paneli</title>
+<title>PrufReady – Admin Paneli</title>
 <style>
 :root {
   --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;
@@ -114,7 +114,7 @@ input,select,textarea{font-family:inherit;}
 
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:.5rem;">
-    <a href="index.html" style="text-decoration:none;"><span class="logo">DeutschReady</span></a>
+    <a href="index.html" style="text-decoration:none;"><span class="logo">PrufReady</span></a>
     <span class="admin-badge">ADMIN</span>
   </div>
   <button class="logout-btn" id="logout-btn" onclick="adminLogout()" style="display:none">Çıkış</button>
@@ -125,7 +125,7 @@ input,select,textarea{font-family:inherit;}
   <div class="login-box">
     <div style="font-size:2rem;margin-bottom:.5rem;">🔐</div>
     <h2>Admin Girişi</h2>
-    <p>DeutschReady içerik yönetimi</p>
+    <p>PrufReady içerik yönetimi</p>
     <div class="field"><label>Şifre</label><input type="password" id="admin-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
     <button class="login-btn" onclick="adminLogin()">Giriş Yap</button>
     <div class="err" id="admin-err">Şifre hatalı.</div>

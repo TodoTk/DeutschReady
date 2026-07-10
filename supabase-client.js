@@ -331,5 +331,5 @@ async function sbDeleteScheduleSlot(key) {
 const USE_SUPABASE = SUPABASE_URL !== 'BURAYA_PROJECT_URL_YAPISTIR';
 
 if (!USE_SUPABASE) {
-  console.warn('[DeutschReady] Supabase yapılandırılmamış — localStorage modu aktif.');
+  console.warn('[PrufReady] Supabase yapılandırılmamış — localStorage modu aktif.');
 }
