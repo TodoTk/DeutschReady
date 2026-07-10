@@ -165,6 +165,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script>
 /* ─── SABIT DEĞERLER ─── */
 const SESSION_KEY = 'examready_session_v1';
@@ -207,7 +209,17 @@ function getAudio(key) {
 let QUESTIONS = [];
 const selected = {};
 
-function loadQuestionsFromAdmin() {
+async function loadQuestionsFromAdmin() {
+  if (USE_SUPABASE) {
+    try {
+      const rows = await sbLoadHsvQuestions(SECTION_ID);
+      return rows.map(r => ({
+        id: r.id, aussage: r.aussage, question: r.question,
+        options: r.options, correctAnswer: r.correct_answer,
+        feedback: r.feedback, audioKey: r.audio_key
+      }));
+    } catch(e) { console.error('Supabase HSV yüklenemedi:', e); }
+  }
   try {
     const data = JSON.parse(localStorage.getItem(Q_KEY)) || {};
     return (data[SECTION_ID]?.questions) || [];
@@ -231,13 +243,18 @@ async function renderQuestions(qs) {
 
   const isTF = qs[0].aussage !== undefined;
 
-  // Her soru için HTML + audio blob oluştur
+  // Her soru için HTML + audio (Supabase Storage URL veya IndexedDB)
   const parts = await Promise.all(qs.map(async (q, i) => {
     let audioHTML = '';
     if (q.audioKey) {
-      const buf = await getAudio(q.audioKey);
-      if (buf) {
-        const url  = URL.createObjectURL(new Blob([buf], {type:'audio/mpeg'}));
+      let url = null;
+      if (USE_SUPABASE) {
+        url = sbGetAudioUrl(q.audioKey);
+      } else {
+        const buf = await getAudio(q.audioKey);
+        if (buf) url = URL.createObjectURL(new Blob([buf], {type:'audio/mpeg'}));
+      }
+      if (url) {
         audioHTML = `<div class="audio-block">
           <span class="audio-label">🎧 Aufgabe ${i+1}</span>
           <audio controls controlsList="nodownload" src="${url}"></audio>
@@ -419,10 +436,11 @@ function submitExam() {
   document.getElementById('login-banner-text').textContent = sess.name + ' olarak giriş yapıldı — sonuçların profiline kaydedilecek.';
   document.getElementById('login-banner').style.display = 'block';
 
-  openDB().then(() => {
-    QUESTIONS = loadQuestionsFromAdmin();
+  (async () => {
+    if (!USE_SUPABASE) { try { await openDB(); } catch(e){} }
+    QUESTIONS = await loadQuestionsFromAdmin();
     renderQuestions(QUESTIONS);
-  });
+  })();
 })();
 </script>
 </body>

@@ -155,12 +155,33 @@ async function sbDeleteSchreibenQ(id) {
   await sb.from('schreiben_questions').delete().eq('id', id);
 }
 
-// ── HÖRVERSTEHENmit SORULARI ─────────────────────────────────
+// ── HÖRVERSTEHEN SORULARI ─────────────────────────────────
 
 async function sbLoadHsvQuestions(sectionId) {
   const { data } = await sb.from('hsv_questions')
     .select('*').eq('section_id', sectionId).order('created_at');
   return data || [];
+}
+
+// Tüm Hörverstehen sorularını çek, section bazlı grupla
+// { B1_T1:{questions:[...]}, B1_T2:{...}, ... }
+async function sbLoadAllHsv() {
+  const { data } = await sb.from('hsv_questions').select('*').order('created_at');
+  const result = {};
+  (data || []).forEach(r => {
+    if (!result[r.section_id]) result[r.section_id] = { questions: [] };
+    result[r.section_id].questions.push({
+      id: r.id,
+      aussage: r.aussage,
+      question: r.question,
+      options: r.options,
+      correctAnswer: r.correct_answer,
+      feedback: r.feedback,
+      audioKey: r.audio_key,
+      audioName: r.audio_key
+    });
+  });
+  return result;
 }
 
 async function sbSaveHsvQuestion(q) {

@@ -516,10 +516,26 @@ const SECTION_META = {
   A1_T1: { title:'A1 – Hörverstehen Teil 1', type:'tf',  level:'A1', teil:1 },
 };
 
+let _hsvCache = null;
+
+async function refreshHsvFromCloud() {
+  if (USE_SUPABASE) {
+    try {
+      _hsvCache = await sbLoadAllHsv();
+      localStorage.setItem(Q_KEY, JSON.stringify(_hsvCache));
+    } catch(e) { console.error('Supabase HSV yüklenemedi:', e); }
+  }
+  renderQuestionList();
+}
+
 function loadQuestions() {
+  if (_hsvCache) return _hsvCache;
   try { return JSON.parse(localStorage.getItem(Q_KEY)) || {}; } catch(e) { return {}; }
 }
-function saveQuestions(data) { localStorage.setItem(Q_KEY, JSON.stringify(data)); }
+function saveQuestions(data) {
+  _hsvCache = data;
+  localStorage.setItem(Q_KEY, JSON.stringify(data));
+}
 
 let currentSection = 'B1_T1';
 let pendingAudioBuffer = null;
@@ -535,6 +551,7 @@ async function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if (name==='stats')     loadStats();
+  if (name==='hoer')      { initSectionSel(); await refreshHsvFromCloud(); }
   if (name==='modul')     { initModulSel(); await refreshModulListFromCloud(); }
   if (name==='schreiben') await refreshSchreibenFromCloud();
 }
@@ -601,15 +618,18 @@ function renderQuestionList() {
       ${q.audioKey ? `<div style="margin-top:.7rem;"><audio controls id="player-${q.id}" style="width:100%;height:34px;"></audio></div>` : ''}
     </div>`).join('');
 
-  // Audio oynatıcıları doldur
+  // Audio oynatıcıları doldur — Supabase Storage URL (yoksa IndexedDB fallback)
   qs.filter(q=>q.audioKey).forEach(q => {
-    getAudio(q.audioKey).then(buf => {
-      if (!buf) return;
-      const blob = new Blob([buf], {type:'audio/mpeg'});
-      const url  = URL.createObjectURL(blob);
-      const el   = document.getElementById('player-'+q.id);
-      if (el) el.src = url;
-    });
+    const el = document.getElementById('player-'+q.id);
+    if (!el) return;
+    if (USE_SUPABASE) {
+      el.src = sbGetAudioUrl(q.audioKey);
+    } else {
+      getAudio(q.audioKey).then(buf => {
+        if (!buf) return;
+        el.src = URL.createObjectURL(new Blob([buf], {type:'audio/mpeg'}));
+      });
+    }
   });
 }
 
@@ -644,11 +664,14 @@ function openAddForm(prefillId) {
         document.getElementById('f-mc-correct').value = q.correctAnswer || 'a';
       }
       if (q.audioKey) {
-        getAudio(q.audioKey).then(buf => {
-          if (!buf) return;
-          const blob = new Blob([buf],{type:'audio/mpeg'});
-          showAudioPreview(URL.createObjectURL(blob), q.audioName||q.audioKey);
-        });
+        if (USE_SUPABASE) {
+          showAudioPreview(sbGetAudioUrl(q.audioKey), q.audioName||q.audioKey);
+        } else {
+          getAudio(q.audioKey).then(buf => {
+            if (!buf) return;
+            showAudioPreview(URL.createObjectURL(new Blob([buf],{type:'audio/mpeg'})), q.audioName||q.audioKey);
+          });
+        }
       }
     }
   } else {
@@ -717,33 +740,64 @@ async function saveQuestion() {
     editingId = id;
   }
 
-  // Ses dosyası varsa kaydet
+  // Ses dosyası varsa kaydet (Supabase Storage + IndexedDB fallback)
   if (pendingAudioBuffer) {
     const audioKey = sec + '_' + q.id;
-    await saveAudio(audioKey, pendingAudioBuffer);
+    if (USE_SUPABASE) {
+      try { await sbUploadAudio(audioKey, pendingAudioBuffer); }
+      catch(e) { showNotif('Uyarı','Ses yüklenemedi: '+e.message, true); }
+    } else {
+      await saveAudio(audioKey, pendingAudioBuffer);
+    }
     q.audioKey  = audioKey;
     q.audioName = pendingAudioName;
   }
 
   saveQuestions(data);
+
+  // Supabase'e soru satırını yaz
+  if (USE_SUPABASE) {
+    try {
+      await sbSaveHsvQuestion({
+        id: q.id,
+        section_id: sec,
+        aussage: q.aussage || null,
+        question: q.question || null,
+        options: q.options || null,
+        correct_answer: q.correctAnswer,
+        feedback: q.feedback || null,
+        audio_key: q.audioKey || null
+      });
+    } catch(e) { showNotif('Uyarı','Supabase yazma hatası: '+e.message, true); }
+  }
+
   currentSection = sec;
   initSectionSel();
-  renderQuestionList();
   closeAddForm();
+  await refreshHsvFromCloud();
   showNotif('Kaydedildi ✓', 'Soru başarıyla kaydedildi.');
 }
 
 function editQuestion(id) { openAddForm(id); }
 
-function deleteQuestion(id) {
+async function deleteQuestion(id) {
   if (!confirm('Bu soruyu silmek istediğine emin misin?')) return;
   const data = loadQuestions();
   const sec  = data[currentSection];
   if (!sec) return;
   const q = sec.questions.find(x=>x.id===id);
-  if (q?.audioKey) deleteAudio(q.audioKey);
   sec.questions = sec.questions.filter(x=>x.id!==id);
   saveQuestions(data);
+
+  if (USE_SUPABASE) {
+    try {
+      await sbDeleteHsvQuestion(id);
+      if (q?.audioKey) await sbDeleteAudio(q.audioKey);
+    } catch(e) { console.error(e); }
+  } else if (q?.audioKey) {
+    deleteAudio(q.audioKey);
+  }
+
   renderQuestionList();
   showNotif('Silindi','Soru kaldırıldı.');
 }
