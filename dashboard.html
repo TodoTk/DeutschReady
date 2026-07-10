@@ -479,7 +479,14 @@ function renderDash(u) {
 
   if (u.role==='student') initStudentCal();
   else initInstrSlots();
+
+  // Admin butonu: sadece yetkili e-postalara göster
+  const adminLink = document.getElementById('admin-link');
+  if (adminLink) adminLink.style.display = ADMIN_EMAILS.includes((u.email||'').toLowerCase()) ? 'block' : 'none';
 }
+
+// Admin yetkisi olan e-postalar
+const ADMIN_EMAILS = ['tugrul@gmail.com'];
 
 /* ── STUDENT DASHBOARD ── */
 function studentDash(u) {
@@ -1434,7 +1441,7 @@ function showNotif(title,msg){
 }
 
 /* ── INIT ── */
-document.getElementById('admin-link').style.display = 'block';
+// Admin butonu artık renderDash içinde, sadece admin e-postalarına gösterilir
 renderHints('student');
 
 // Önce Supabase'den modül setlerini + schreiben sorularını çek → localStorage'a yaz
