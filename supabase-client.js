@@ -48,7 +48,16 @@ async function sbGetUser() {
 
 async function sbGetProfile(userId) {
   const { data } = await sb.from('profiles').select('*').eq('id', userId).single();
-  return data;
+  if (!data) return null;
+  // snake_case → camelCase (dashboard'un beklediği alanlar)
+  return {
+    ...data,
+    referralCount : data.referral_count || 0,
+    referralCode  : data.referral_code || null,
+    unlockedFull  : !!data.unlocked_full,
+    initials      : (data.name||'?').split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(),
+    color         : '#4f8ef7'
+  };
 }
 
 // ── SINAV İSTATİSTİKLERİ ─────────────────────────────────────
@@ -105,6 +114,38 @@ async function sbPushExamHistory(userId, level, historyEntry) {
       updated_at: new Date().toISOString()
     });
   }
+}
+
+// Oturumdaki auth kullanıcısını otomatik bulur, sınav sonucunu ekler.
+// entry: { date, score, total, examId?, sections? }
+// Başarılıysa true, kullanıcı yoksa / hata varsa false döner (çağıran localStorage'a düşer).
+async function sbRecordExam(level, entry) {
+  try {
+    const user = await sbGetUser();
+    if (!user) return false;
+    await sbPushExamHistory(user.id, level, entry);
+    return true;
+  } catch(e) { console.error('sbRecordExam hatası:', e); return false; }
+}
+
+// Oturumdaki kullanıcının tüm istatistiklerini dashboard formatında döndürür.
+// { A1:{examsCompleted,questionsAnswered,questionsCorrect,history}, B1:{...} }
+async function sbLoadMyStats() {
+  try {
+    const user = await sbGetUser();
+    if (!user) return null;
+    const { data } = await sb.from('exam_stats').select('*').eq('user_id', user.id);
+    const result = {};
+    (data || []).forEach(r => {
+      result[r.level] = {
+        examsCompleted    : r.exams_completed || 0,
+        questionsAnswered : r.questions_answered || 0,
+        questionsCorrect  : r.questions_correct || 0,
+        history           : r.history || []
+      };
+    });
+    return result;
+  } catch(e) { console.error('sbLoadMyStats hatası:', e); return null; }
 }
 
 // ── MODÜL ALIŞTIRMALARI ───────────────────────────────────────

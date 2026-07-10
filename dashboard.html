@@ -263,6 +263,19 @@ function getMyStats() {
   }
   return { A1: {}, B1: {} };
 }
+// Supabase'den aktif kullanıcının istatistiklerini çekip localStorage'a yazar
+async function syncStatsFromCloud() {
+  if (typeof USE_SUPABASE === 'undefined' || !USE_SUPABASE) return;
+  if (!loggedUser || loggedUser.source !== 'registered') return;
+  try {
+    const cloud = await sbLoadMyStats();  // { B1:{...}, A1:{...} } veya null
+    if (!cloud) return;
+    const all = loadStats();
+    all[loggedUser.email] = cloud;
+    saveStats(all);
+  } catch(e) { console.error('Stats sync hatası:', e); }
+}
+
 function resetMyStats(lvl) {
   if (!loggedUser) return;
   const all = loadStats();
@@ -373,6 +386,7 @@ async function doLogin() {
       document.getElementById('page-login').style.display='none';
       document.getElementById('page-dash').style.display='block';
       document.getElementById('logout-btn').style.display='block';
+      await syncStatsFromCloud();
       renderDash(loggedUser);
       return;
     } catch(e) {
@@ -405,20 +419,46 @@ function logout() {
 }
 
 /* Restore session on page load — keeps the user "logged in" across the whole site until they explicitly log out */
-function restoreSession() {
+async function restoreSession() {
   try {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return false;
     const sess = JSON.parse(raw);
+
+    // Önce demo/localStorage kullanıcısı
     const u = findUser(sess.email);
-    if (!u || u.role !== sess.role) { localStorage.removeItem(SESSION_KEY); return false; }
-    loggedUser = { email: sess.email, ...u };
-    document.getElementById('page-login').style.display='none';
-    document.getElementById('page-dash').style.display='block';
-    document.getElementById('logout-btn').style.display='block';
-    renderDash(loggedUser);
-    return true;
+    if (u && u.role === sess.role) {
+      loggedUser = { email: sess.email, ...u };
+      showDashUI();
+      await syncStatsFromCloud();
+      renderDash(loggedUser);
+      return true;
+    }
+
+    // Supabase Auth kullanıcısı (kayıtlı öğrenci)
+    if (USE_SUPABASE) {
+      const user = await sbGetUser();
+      if (user) {
+        const profile = await sbGetProfile(user.id);
+        if (profile) {
+          loggedUser = { email: profile.email, ...profile, role:'student', level: profile.level||'B1', source:'registered' };
+          showDashUI();
+          await syncStatsFromCloud();
+          renderDash(loggedUser);
+          return true;
+        }
+      }
+    }
+
+    localStorage.removeItem(SESSION_KEY);
+    return false;
   } catch(e) { return false; }
+}
+
+function showDashUI() {
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-dash').style.display='block';
+  document.getElementById('logout-btn').style.display='block';
 }
 
 /* ── RENDER ── */

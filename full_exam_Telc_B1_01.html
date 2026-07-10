@@ -521,6 +521,8 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
 <script>
   const answers = {
     q1:'g', q2:'b', q3:'i', q4:'h', q5:'f',
@@ -717,6 +719,14 @@
         uStats['B1'] = lvlStats;
         allStats[sess.email] = uStats;
         localStorage.setItem(STATS_KEY, JSON.stringify(allStats));
+
+        // Supabase'e de yaz (giriş yapmış kullanıcı için)
+        if (typeof USE_SUPABASE !== 'undefined' && USE_SUPABASE) {
+          sbRecordExam('B1', {
+            date: new Date().toISOString(), score: total, total: 40,
+            examId: 'full_B1_01', sections: { s1, s2, s3, s4 }
+          });
+        }
       }
     } catch(e) {}
   }

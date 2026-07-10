@@ -403,6 +403,10 @@ function submitExam() {
       uStats['B1'] = ls;
       all[sess.email] = uStats;
       localStorage.setItem(STATS_KEY, JSON.stringify(all));
+
+      if (USE_SUPABASE) {
+        sbRecordExam('B1', { date:new Date().toISOString(), score:correct, total, examId:'hsv_t1' });
+      }
     }
   } catch(e) {}
 }
