@@ -58,107 +58,119 @@ button { cursor: pointer; font-family: inherit; }
 
 <div class="topbar">
   <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="PrufReady" style="height:60px;display:block;"/></a>
-  <a href="index.html" class="back-link">← Ana Sayfa</a>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="lang-switch" id="lang-switch">
+      <button data-lang="tr" onclick="setLang('tr')">TR</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="de" onclick="setLang('de')">DE</button>
+    </div>
+    <a href="index.html" class="back-link" data-i18n="rn_back">← Ana Sayfa</a>
+  </div>
 </div>
+<style>
+.lang-switch{display:flex;gap:2px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:2px;}
+.lang-switch button{background:none;border:none;color:var(--muted);font-size:.78rem;font-weight:700;padding:.3rem .5rem;border-radius:6px;cursor:pointer;transition:all .15s;}
+.lang-switch button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+</style>
 
 <div class="wrap">
   <div class="card">
 
     <!-- STEP 0: rol seçimi -->
     <div id="step-role">
-      <h1>Nasıl Kayıt Olmak İstersin?</h1>
-      <div class="sub">PrufReady'ye öğrenci veya eğitmen olarak katıl.</div>
+      <h1 data-i18n="rr_title">Nasıl Kayıt Olmak İstersin?</h1>
+      <div class="sub" data-i18n="rr_sub">PrufReady'ye öğrenci veya eğitmen olarak katıl.</div>
 
       <div style="display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem;">
         <button onclick="chooseRole('student')" style="text-align:left;background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:1.3rem;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
           <span style="font-size:2rem;">🎓</span>
           <div>
-            <div style="font-size:1.05rem;font-weight:800;color:var(--text);">Öğrenci Kaydı</div>
-            <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem;">Ücretsiz deneme sınavına başla, sınava hazırlan.</div>
+            <div style="font-size:1.05rem;font-weight:800;color:var(--text);" data-i18n="rr_stu_t">Öğrenci Kaydı</div>
+            <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem;" data-i18n="rr_stu_d">Ücretsiz deneme sınavına başla, sınava hazırlan.</div>
           </div>
         </button>
         <button onclick="chooseRole('instructor')" style="text-align:left;background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:1.3rem;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;gap:1rem;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
           <span style="font-size:2rem;">👩‍🏫</span>
           <div>
-            <div style="font-size:1.05rem;font-weight:800;color:var(--text);">Eğitmen Kaydı</div>
-            <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem;">Öğrencilere koçluk yap. Başvurun onaydan sonra aktifleşir.</div>
+            <div style="font-size:1.05rem;font-weight:800;color:var(--text);" data-i18n="rr_ins_t">Eğitmen Kaydı</div>
+            <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem;" data-i18n="rr_ins_d">Öğrencilere koçluk yap. Başvurun onaydan sonra aktifleşir.</div>
           </div>
         </button>
       </div>
-      <div class="login-link" style="margin-top:1.4rem;">Zaten hesabın var mı? <a href="dashboard.html">Giriş yap</a></div>
+      <div class="login-link" style="margin-top:1.4rem;"><span data-i18n="rr_have">Zaten hesabın var mı?</span> <a href="dashboard.html" data-i18n="rr_login">Giriş yap</a></div>
     </div>
 
     <!-- STEP 1: account info (öğrenci) -->
     <div id="step-account" style="display:none;">
-      <h1>Ücretsiz Hesap Oluştur</h1>
-      <div class="sub">1 dakikada hesabını aç, ücretsiz deneme sınavına başla.</div>
+      <h1 data-i18n="ra_title">Ücretsiz Hesap Oluştur</h1>
+      <div class="sub" data-i18n="ra_sub">1 dakikada hesabını aç, ücretsiz deneme sınavına başla.</div>
       <div class="step-indicator"><div class="step-dot active"></div><div class="step-dot"></div></div>
 
-      <div class="field"><label>Ad Soyad</label><input type="text" id="reg-name" placeholder="Ayşe Kaya"/></div>
-      <div class="field"><label>E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com"/></div>
-      <div class="field"><label>Şifre</label><input type="password" id="reg-pw" placeholder="En az 6 karakter"/></div>
+      <div class="field"><label data-i18n="f_name">Ad Soyad</label><input type="text" id="reg-name" placeholder="Ayşe Kaya"/></div>
+      <div class="field"><label data-i18n="f_email">E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com"/></div>
+      <div class="field"><label data-i18n="f_pw">Şifre</label><input type="password" id="reg-pw" placeholder="En az 6 karakter"/></div>
       <div class="err" id="err-account"></div>
 
-      <button class="next-btn" onclick="goToLevelStep()">Devam Et →</button>
-      <div class="back-step" onclick="backToRole()">← Geri dön</div>
+      <button class="next-btn" onclick="goToLevelStep()" data-i18n="ra_next">Devam Et →</button>
+      <div class="back-step" onclick="backToRole()" data-i18n="back">← Geri dön</div>
     </div>
 
     <!-- STEP: eğitmen başvurusu -->
     <div id="step-instructor" style="display:none;">
-      <h1>Eğitmen Başvurusu</h1>
-      <div class="sub">Bilgilerini gir. Başvurun incelendikten sonra hesabın aktifleşir.</div>
+      <h1 data-i18n="ri_title">Eğitmen Başvurusu</h1>
+      <div class="sub" data-i18n="ri_sub">Bilgilerini gir. Başvurun incelendikten sonra hesabın aktifleşir.</div>
 
-      <div class="field"><label>Ad Soyad</label><input type="text" id="ins-name" placeholder="Maria Schmidt"/></div>
-      <div class="field"><label>E-posta</label><input type="email" id="ins-email" placeholder="ornek@email.com"/></div>
-      <div class="field"><label>Şifre</label><input type="password" id="ins-pw" placeholder="En az 6 karakter"/></div>
-      <div class="field"><label>Uzmanlık Seviyesi</label>
+      <div class="field"><label data-i18n="f_name">Ad Soyad</label><input type="text" id="ins-name" placeholder="Maria Schmidt"/></div>
+      <div class="field"><label data-i18n="f_email">E-posta</label><input type="email" id="ins-email" placeholder="ornek@email.com"/></div>
+      <div class="field"><label data-i18n="f_pw">Şifre</label><input type="password" id="ins-pw" placeholder="En az 6 karakter"/></div>
+      <div class="field"><label data-i18n="ri_exp_lvl">Uzmanlık Seviyesi</label>
         <select id="ins-expertise" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;width:100%;outline:none;">
           <option value="A1">A1</option>
           <option value="B1">B1</option>
           <option value="A1/B1">A1 & B1</option>
         </select>
       </div>
-      <div class="field"><label>Deneyim</label><input type="text" id="ins-experience" placeholder="Örn: 5 yıl Almanca öğretmenliği"/></div>
-      <div class="field"><label>Kısa Mesaj (opsiyonel)</label><textarea id="ins-note" placeholder="Kendinden kısaca bahset..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;width:100%;outline:none;min-height:70px;resize:vertical;font-family:inherit;"></textarea></div>
+      <div class="field"><label data-i18n="ri_exp">Deneyim</label><input type="text" id="ins-experience" placeholder="Örn: 5 yıl Almanca öğretmenliği"/></div>
+      <div class="field"><label data-i18n="ri_note">Kısa Mesaj (opsiyonel)</label><textarea id="ins-note" placeholder="Kendinden kısaca bahset..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;width:100%;outline:none;min-height:70px;resize:vertical;font-family:inherit;"></textarea></div>
       <div class="err" id="err-instructor"></div>
 
-      <button class="submit-btn" onclick="submitInstructorApplication()">Başvuruyu Gönder →</button>
-      <div class="back-step" onclick="backToRole()">← Geri dön</div>
+      <button class="submit-btn" onclick="submitInstructorApplication()" data-i18n="ri_submit">Başvuruyu Gönder →</button>
+      <div class="back-step" onclick="backToRole()" data-i18n="back">← Geri dön</div>
     </div>
 
     <!-- STEP: eğitmen başvuru başarılı -->
     <div id="step-instructor-done" style="display:none;text-align:center;">
       <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
-      <h1>Başvurun Alındı!</h1>
-      <div class="sub" style="margin-bottom:1.5rem;">Eğitmen başvurun incelemeye alındı. Onaylandığında e-posta ve şifrenle giriş yapabileceksin.</div>
-      <a href="index.html" class="submit-btn" style="display:inline-block;text-decoration:none;">Ana Sayfaya Dön</a>
+      <h1 data-i18n="rd_title">Başvurun Alındı!</h1>
+      <div class="sub" style="margin-bottom:1.5rem;" data-i18n="rd_sub">Eğitmen başvurun incelemeye alındı. Onaylandığında e-posta ve şifrenle giriş yapabileceksin.</div>
+      <a href="index.html" class="submit-btn" style="display:inline-block;text-decoration:none;" data-i18n="rd_home">Ana Sayfaya Dön</a>
     </div>
 
     <!-- STEP 2: level selection -->
     <div id="step-level" style="display:none;">
-      <h1>Seviyeni Seç</h1>
-      <div class="sub">Bu seçim ücretsiz erişimini belirler — dikkatli seç.</div>
+      <h1 data-i18n="rl_title">Seviyeni Seç</h1>
+      <div class="sub" data-i18n="rl_sub">Bu seçim ücretsiz erişimini belirler — dikkatli seç.</div>
       <div class="step-indicator"><div class="step-dot active"></div><div class="step-dot active"></div></div>
 
       <div class="level-grid">
         <div class="level-card" id="lvl-A1" onclick="pickLevel('A1')">
           <div class="lvl-tag">A1</div>
-          <div class="lvl-desc">Temel seviye. Yeni başlayanlar, vatandaşlık/oturma izni için.</div>
+          <div class="lvl-desc" data-i18n="rl_a1">Temel seviye. Yeni başlayanlar, vatandaşlık/oturma izni için.</div>
         </div>
         <div class="level-card" id="lvl-B1" onclick="pickLevel('B1')">
           <div class="lvl-tag">B1</div>
-          <div class="lvl-desc">Orta seviye. Kariyer, üniversite veya ileri vatandaşlık için.</div>
+          <div class="lvl-desc" data-i18n="rl_b1">Orta seviye. Kariyer, üniversite veya ileri vatandaşlık için.</div>
         </div>
       </div>
 
       <div class="level-warn">
         <span>⚠️</span>
-        <span>Seçtiğin seviyenin ücretsiz deneme sınavına erişeceksin. Diğer seviyeye geçmek istersen tam üyelik (€25) almanız gerekir — ücretsiz hesapla seviye değiştirilemez.</span>
+        <span data-i18n="rl_warn">Seçtiğin seviyenin ücretsiz deneme sınavına erişeceksin. Diğer seviyeye geçmek istersen tam üyelik (€25) almanız gerekir — ücretsiz hesapla seviye değiştirilemez.</span>
       </div>
 
       <div class="err" id="err-level"></div>
-      <button class="submit-btn" onclick="completeRegistration()">Hesabımı Oluştur ve Sınava Başla →</button>
-      <div class="back-step" onclick="goToAccountStep()">← Geri dön</div>
+      <button class="submit-btn" onclick="completeRegistration()" data-i18n="rl_submit">Hesabımı Oluştur ve Sınava Başla →</button>
+      <div class="back-step" onclick="goToAccountStep()" data-i18n="back">← Geri dön</div>
     </div>
 
   </div>
@@ -167,6 +179,58 @@ button { cursor: pointer; font-family: inherit; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script>
+// ── ÇOK DİLLİ SİSTEM ──
+const I18N = {
+  tr:{ rn_back:"← Ana Sayfa", rr_title:"Nasıl Kayıt Olmak İstersin?", rr_sub:"PrufReady'ye öğrenci veya eğitmen olarak katıl.",
+    rr_stu_t:"Öğrenci Kaydı", rr_stu_d:"Ücretsiz deneme sınavına başla, sınava hazırlan.",
+    rr_ins_t:"Eğitmen Kaydı", rr_ins_d:"Öğrencilere koçluk yap. Başvurun onaydan sonra aktifleşir.",
+    rr_have:"Zaten hesabın var mı?", rr_login:"Giriş yap",
+    ra_title:"Ücretsiz Hesap Oluştur", ra_sub:"1 dakikada hesabını aç, ücretsiz deneme sınavına başla.",
+    f_name:"Ad Soyad", f_email:"E-posta", f_pw:"Şifre", ra_next:"Devam Et →", back:"← Geri dön",
+    ri_title:"Eğitmen Başvurusu", ri_sub:"Bilgilerini gir. Başvurun incelendikten sonra hesabın aktifleşir.",
+    ri_exp_lvl:"Uzmanlık Seviyesi", ri_exp:"Deneyim", ri_note:"Kısa Mesaj (opsiyonel)", ri_submit:"Başvuruyu Gönder →",
+    rd_title:"Başvurun Alındı!", rd_sub:"Eğitmen başvurun incelemeye alındı. Onaylandığında e-posta ve şifrenle giriş yapabileceksin.", rd_home:"Ana Sayfaya Dön",
+    rl_title:"Seviyeni Seç", rl_sub:"Bu seçim ücretsiz erişimini belirler — dikkatli seç.",
+    rl_a1:"Temel seviye. Yeni başlayanlar, vatandaşlık/oturma izni için.", rl_b1:"Orta seviye. Kariyer, üniversite veya ileri vatandaşlık için.",
+    rl_warn:"Seçtiğin seviyenin ücretsiz deneme sınavına erişeceksin. Diğer seviyeye geçmek istersen tam üyelik (€25) almanız gerekir — ücretsiz hesapla seviye değiştirilemez.",
+    rl_submit:"Hesabımı Oluştur ve Sınava Başla →" },
+  en:{ rn_back:"← Home", rr_title:"How Would You Like to Sign Up?", rr_sub:"Join PrufReady as a student or an instructor.",
+    rr_stu_t:"Student Sign Up", rr_stu_d:"Start the free trial exam and prepare for your test.",
+    rr_ins_t:"Instructor Sign Up", rr_ins_d:"Coach students. Your account activates after approval.",
+    rr_have:"Already have an account?", rr_login:"Log in",
+    ra_title:"Create a Free Account", ra_sub:"Open your account in 1 minute and start the free trial exam.",
+    f_name:"Full Name", f_email:"Email", f_pw:"Password", ra_next:"Continue →", back:"← Go back",
+    ri_title:"Instructor Application", ri_sub:"Enter your details. Your account activates after your application is reviewed.",
+    ri_exp_lvl:"Area of Expertise", ri_exp:"Experience", ri_note:"Short Message (optional)", ri_submit:"Submit Application →",
+    rd_title:"Application Received!", rd_sub:"Your instructor application is under review. Once approved, you can log in with your email and password.", rd_home:"Back to Home",
+    rl_title:"Choose Your Level", rl_sub:"This choice determines your free access — choose carefully.",
+    rl_a1:"Basic level. For beginners, citizenship/residence permit.", rl_b1:"Intermediate level. For career, university, or advanced citizenship.",
+    rl_warn:"You'll access the free trial exam for your chosen level. To switch to the other level, you need full membership (€25) — the level can't be changed with a free account.",
+    rl_submit:"Create My Account and Start the Exam →" },
+  de:{ rn_back:"← Startseite", rr_title:"Wie möchtest du dich registrieren?", rr_sub:"Tritt PrufReady als Lernende:r oder Trainer:in bei.",
+    rr_stu_t:"Schüler-Registrierung", rr_stu_d:"Starte die kostenlose Testprüfung und bereite dich vor.",
+    rr_ins_t:"Trainer-Registrierung", rr_ins_d:"Coache Lernende. Dein Konto wird nach der Freigabe aktiviert.",
+    rr_have:"Hast du schon ein Konto?", rr_login:"Anmelden",
+    ra_title:"Kostenloses Konto erstellen", ra_sub:"Eröffne dein Konto in 1 Minute und starte die kostenlose Testprüfung.",
+    f_name:"Vollständiger Name", f_email:"E-Mail", f_pw:"Passwort", ra_next:"Weiter →", back:"← Zurück",
+    ri_title:"Trainer-Bewerbung", ri_sub:"Gib deine Daten ein. Dein Konto wird nach Prüfung deiner Bewerbung aktiviert.",
+    ri_exp_lvl:"Fachgebiet", ri_exp:"Erfahrung", ri_note:"Kurze Nachricht (optional)", ri_submit:"Bewerbung absenden →",
+    rd_title:"Bewerbung erhalten!", rd_sub:"Deine Trainer-Bewerbung wird geprüft. Nach der Freigabe kannst du dich mit E-Mail und Passwort anmelden.", rd_home:"Zurück zur Startseite",
+    rl_title:"Wähle dein Niveau", rl_sub:"Diese Wahl bestimmt deinen kostenlosen Zugang — wähle sorgfältig.",
+    rl_a1:"Grundstufe. Für Anfänger, Einbürgerung/Aufenthaltstitel.", rl_b1:"Mittelstufe. Für Karriere, Universität oder fortgeschrittene Einbürgerung.",
+    rl_warn:"Du erhältst Zugang zur kostenlosen Testprüfung deines gewählten Niveaus. Um zum anderen Niveau zu wechseln, brauchst du die Vollmitgliedschaft (€25) — mit einem kostenlosen Konto kann das Niveau nicht geändert werden.",
+    rl_submit:"Konto erstellen und Prüfung starten →" }
+};
+function setLang(lang){
+  if(!I18N[lang]) lang='tr';
+  localStorage.setItem('prufready_lang',lang);
+  document.documentElement.lang=lang;
+  const d=I18N[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]!==undefined) el.innerHTML=d[k]; });
+  document.querySelectorAll('#lang-switch button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+}
+(function(){ setLang(localStorage.getItem('prufready_lang')||'tr'); })();
+
 const SESSION_KEY   = 'examready_session_v1';
 const REG_USERS_KEY = 'examready_registered_users_v1';
 
