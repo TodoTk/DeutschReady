@@ -155,6 +155,7 @@ button{cursor:pointer;font-family:inherit;}
   <a href="index.html" style="text-decoration:none;"><span class="logo">DeutschReady</span></a>
   <div class="topbar-right">
     <a href="index.html" class="back-link">← Ana Sayfa</a>
+    <button id="settings-btn" onclick="openSettings()" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:7px;font-size:.82rem;">⚙️ Ayarlar</button>
     <a href="admin.html" id="admin-link" style="display:none;font-size:.78rem;font-weight:700;color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:7px;padding:.3rem .7rem;">⚙️ Admin</a>
     <button class="logout-btn" id="logout-btn" onclick="logout()">Çıkış Yap</button>
   </div>
@@ -198,6 +199,67 @@ button{cursor:pointer;font-family:inherit;}
 </div>
 
 <div class="notif" id="notif"><strong id="n-title"></strong><span id="n-msg"></span></div>
+
+<!-- ── AYARLAR MODALI ── -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.8rem;max-width:480px;width:100%;position:relative;">
+    <button onclick="closeSettings()" style="position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;">✕</button>
+    <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:.3rem;">⚙️ Ayarlar</h2>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1.3rem;">Hesap bilgilerini buradan yönet.</p>
+
+    <!-- Sekmeler -->
+    <div style="display:flex;gap:.4rem;margin-bottom:1.3rem;border-bottom:1px solid var(--border);">
+      <button class="set-tab active" data-tab="account" onclick="setSettingsTab('account')">👤 Hesap</button>
+      <button class="set-tab" data-tab="email" onclick="setSettingsTab('email')">✉️ E-posta</button>
+      <button class="set-tab" data-tab="password" onclick="setSettingsTab('password')">🔒 Şifre</button>
+    </div>
+
+    <!-- HESAP -->
+    <div class="set-panel" id="set-account">
+      <div class="set-field"><label>Ad Soyad</label><input type="text" id="set-name"/></div>
+      <div class="set-field"><label>Seviye</label>
+        <div style="display:flex;gap:.5rem;">
+          <input type="text" id="set-level" disabled style="flex:1;opacity:.6;"/>
+          <span style="font-size:.72rem;color:var(--muted);align-self:center;">Seviye değişimi için tam üyelik gerekir</span>
+        </div>
+      </div>
+      <button class="set-save" onclick="saveAccount()">Kaydet</button>
+      <div class="set-msg" id="set-account-msg"></div>
+    </div>
+
+    <!-- E-POSTA -->
+    <div class="set-panel" id="set-email" style="display:none;">
+      <div class="set-field"><label>Mevcut E-posta</label><input type="email" id="set-cur-email" disabled style="opacity:.6;"/></div>
+      <div class="set-field"><label>Yeni E-posta</label><input type="email" id="set-new-email" placeholder="yeni@email.com"/></div>
+      <button class="set-save" onclick="saveEmail()">E-postayı Değiştir</button>
+      <div class="set-msg" id="set-email-msg"></div>
+      <p style="font-size:.74rem;color:var(--muted);margin-top:.6rem;">Yeni e-postana bir onay bağlantısı gönderilir. Onayladıktan sonra değişiklik geçerli olur.</p>
+    </div>
+
+    <!-- ŞİFRE -->
+    <div class="set-panel" id="set-password" style="display:none;">
+      <div class="set-field"><label>Mevcut Şifre</label><input type="password" id="set-cur-pw" placeholder="••••••••"/></div>
+      <div class="set-field"><label>Yeni Şifre</label><input type="password" id="set-new-pw" placeholder="En az 6 karakter"/></div>
+      <div class="set-field"><label>Yeni Şifre (Tekrar)</label><input type="password" id="set-new-pw2" placeholder="••••••••"/></div>
+      <button class="set-save" onclick="savePassword()">Şifreyi Değiştir</button>
+      <div class="set-msg" id="set-password-msg"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+.set-tab{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;padding:.5rem .3rem;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;}
+.set-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.set-field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.9rem;}
+.set-field label{font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.set-field input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;outline:none;}
+.set-field input:focus{border-color:var(--accent);}
+.set-save{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.75rem;border-radius:9px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:.3rem;}
+.set-save:hover{opacity:.88;}
+.set-msg{font-size:.82rem;margin-top:.7rem;text-align:center;min-height:1.1rem;}
+.set-msg.ok{color:var(--green);}
+.set-msg.err{color:var(--red);}
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
@@ -483,6 +545,10 @@ function renderDash(u) {
   // Admin butonu: sadece yetkili e-postalara göster
   const adminLink = document.getElementById('admin-link');
   if (adminLink) adminLink.style.display = ADMIN_EMAILS.includes((u.email||'').toLowerCase()) ? 'block' : 'none';
+
+  // Ayarlar butonu: kayıtlı öğrencilere göster (demo hesaplarda gizli)
+  const setBtn = document.getElementById('settings-btn');
+  if (setBtn) setBtn.style.display = (u.role==='student' && u.source==='registered') ? 'inline-block' : 'none';
 }
 
 // Admin yetkisi olan e-postalar
@@ -1438,6 +1504,86 @@ function showNotif(title,msg){
   document.getElementById('n-msg').textContent=msg;
   const n=document.getElementById('notif'); n.classList.add('show');
   setTimeout(()=>n.classList.remove('show'),4000);
+}
+
+/* ── AYARLAR ── */
+function openSettings() {
+  if (!loggedUser) return;
+  // Alanları doldur
+  document.getElementById('set-name').value      = loggedUser.name || '';
+  document.getElementById('set-level').value     = loggedUser.level || '';
+  document.getElementById('set-cur-email').value = loggedUser.email || '';
+  document.getElementById('set-new-email').value = '';
+  document.getElementById('set-cur-pw').value    = '';
+  document.getElementById('set-new-pw').value    = '';
+  document.getElementById('set-new-pw2').value   = '';
+  ['set-account-msg','set-email-msg','set-password-msg'].forEach(id=>{ const e=document.getElementById(id); e.textContent=''; e.className='set-msg'; });
+  setSettingsTab('account');
+  document.getElementById('settings-modal').style.display = 'flex';
+}
+function closeSettings() {
+  document.getElementById('settings-modal').style.display = 'none';
+}
+function setSettingsTab(tab) {
+  document.querySelectorAll('.set-tab').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  ['account','email','password'].forEach(t =>
+    document.getElementById('set-'+t).style.display = t===tab ? 'block' : 'none'
+  );
+}
+function setMsg(id, text, ok) {
+  const e = document.getElementById(id);
+  e.textContent = text;
+  e.className = 'set-msg ' + (ok ? 'ok' : 'err');
+}
+
+async function saveAccount() {
+  const name = document.getElementById('set-name').value.trim();
+  if (!name) { setMsg('set-account-msg','Ad Soyad boş olamaz.',false); return; }
+  if (!USE_SUPABASE || loggedUser.source !== 'registered') {
+    setMsg('set-account-msg','Demo hesaplarda düzenleme yapılamaz.',false); return;
+  }
+  try {
+    await sbUpdateProfile({ name });
+    loggedUser.name = name;
+    // session güncelle
+    const sess = JSON.parse(localStorage.getItem(SESSION_KEY)||'{}');
+    sess.name = name; localStorage.setItem(SESSION_KEY, JSON.stringify(sess));
+    setMsg('set-account-msg','✓ Kaydedildi.',true);
+    renderDash(loggedUser);
+  } catch(e) { setMsg('set-account-msg','Hata: '+e.message,false); }
+}
+
+async function saveEmail() {
+  const newEmail = document.getElementById('set-new-email').value.trim().toLowerCase();
+  if (!newEmail || !newEmail.includes('@')) { setMsg('set-email-msg','Geçerli bir e-posta girin.',false); return; }
+  if (!USE_SUPABASE || loggedUser.source !== 'registered') {
+    setMsg('set-email-msg','Demo hesaplarda değiştirilemez.',false); return;
+  }
+  try {
+    await sbUpdateEmail(newEmail);
+    setMsg('set-email-msg','✓ Onay bağlantısı '+newEmail+' adresine gönderildi.',true);
+  } catch(e) { setMsg('set-email-msg','Hata: '+e.message,false); }
+}
+
+async function savePassword() {
+  const cur  = document.getElementById('set-cur-pw').value;
+  const pw1  = document.getElementById('set-new-pw').value;
+  const pw2  = document.getElementById('set-new-pw2').value;
+  if (pw1.length < 6) { setMsg('set-password-msg','Yeni şifre en az 6 karakter olmalı.',false); return; }
+  if (pw1 !== pw2) { setMsg('set-password-msg','Şifreler eşleşmiyor.',false); return; }
+  if (!USE_SUPABASE || loggedUser.source !== 'registered') {
+    setMsg('set-password-msg','Demo hesaplarda değiştirilemez.',false); return;
+  }
+  try {
+    // Mevcut şifreyi doğrula
+    const ok = await sbVerifyPassword(loggedUser.email, cur);
+    if (!ok) { setMsg('set-password-msg','Mevcut şifre yanlış.',false); return; }
+    await sbUpdatePassword(pw1);
+    setMsg('set-password-msg','✓ Şifre güncellendi.',true);
+    document.getElementById('set-cur-pw').value='';
+    document.getElementById('set-new-pw').value='';
+    document.getElementById('set-new-pw2').value='';
+  } catch(e) { setMsg('set-password-msg','Hata: '+e.message,false); }
 }
 
 /* ── INIT ── */

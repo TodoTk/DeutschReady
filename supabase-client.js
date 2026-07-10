@@ -46,6 +46,37 @@ async function sbGetUser() {
   return user;
 }
 
+// ── HESAP AYARLARI ────────────────────────────────────────────
+
+// İsim (ve opsiyonel seviye) güncelle — profiles tablosu
+async function sbUpdateProfile(patch) {
+  const user = await sbGetUser();
+  if (!user) throw new Error('Oturum bulunamadı.');
+  const { error } = await sb.from('profiles').update(patch).eq('id', user.id);
+  if (error) throw error;
+}
+
+// E-posta değiştir — Supabase Auth (onay maili gönderilir)
+async function sbUpdateEmail(newEmail) {
+  const { error } = await sb.auth.updateUser({ email: newEmail });
+  if (error) throw error;
+  // profiles tablosundaki email'i de güncelle
+  const user = await sbGetUser();
+  if (user) await sb.from('profiles').update({ email: newEmail }).eq('id', user.id);
+}
+
+// Şifre değiştir — Supabase Auth
+async function sbUpdatePassword(newPassword) {
+  const { error } = await sb.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
+// Mevcut şifreyi doğrula (yeniden giriş deneyerek)
+async function sbVerifyPassword(email, password) {
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  return !error;
+}
+
 async function sbGetProfile(userId) {
   const { data } = await sb.from('profiles').select('*').eq('id', userId).single();
   if (!data) return null;
