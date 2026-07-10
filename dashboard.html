@@ -175,7 +175,7 @@ button{cursor:pointer;font-family:inherit;}
       Hesabın yok mu? <a href="register.html" style="color:var(--accent);font-weight:700;">Şimdi ücretsiz oluştur →</a>
     </div>
 
-    <div class="hint-box">
+    <div class="hint-box" id="hint-box" style="display:none;">
       <p id="hint-title">🎓 Demo Hesaplar (tıkla → otomatik doldur)</p>
       <div class="hint-grid" id="hint-grid"></div>
     </div>
@@ -261,44 +261,11 @@ button{cursor:pointer;font-family:inherit;}
 <script src="supabase-client.js"></script>
 <script>
 /* ── DATA ── */
-const USERS = {
-  // STUDENTS
-  'ayse.kaya@gmail.com':     { pw:'test123', role:'student', name:'Ayşe Kaya',     initials:'AK', color:'#4f8ef7', module:'A1+B1', credits:2, score:72, sessions:[{d:'3 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'done'},{d:'17 Tem',t:'B1 Mock Exam',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:68,Hörverständnis:74,Schreiben:60,Sprechen:55} },
-  'mehmet.demir@hotmail.com':{ pw:'test123', role:'student', name:'Mehmet Demir',   initials:'MD', color:'#7c5cfc', module:'B1',    credits:1, score:58, sessions:[{d:'5 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'21 Tem',t:'B1 Yazma',c:'Thomas K.',st:'live'}], skills:{Leseverstehen:55,Hörverständnis:60,Schreiben:48,Sprechen:42} },
-  'fatma.sahin@gmail.com':   { pw:'test123', role:'student', name:'Fatma Şahin',    initials:'FS', color:'#22c55e', module:'A1',    credits:2, score:85, sessions:[{d:'10 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'done'},{d:'24 Tem',t:'A1 Mock Exam',c:'Jana L.',st:'soon'}], skills:{Leseverstehen:88,Hörverständnis:82,Schreiben:79,Sprechen:71} },
-  'ali.celik@gmail.com':     { pw:'test123', role:'student', name:'Ali Çelik',      initials:'AC', color:'#f59e0b', module:'A1+B1', credits:4, score:41, sessions:[{d:'12 Tem',t:'A1 Mock Exam',c:'Thomas K.',st:'done'}],                                              skills:{Leseverstehen:40,Hörverständnis:38,Schreiben:35,Sprechen:30} },
-  'zeynep.arslan@gmail.com': { pw:'test123', role:'student', name:'Zeynep Arslan',  initials:'ZA', color:'#ec4899', module:'B1',    credits:0, score:66, sessions:[{d:'7 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'done'},{d:'19 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'28 Tem',t:'B1 Yazma',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:70,Hörverständnis:65,Schreiben:62,Sprechen:58}, source:'registered', freeExamDone:true, referralCount:0, referralCode:'ZEYNEP01', unlockedFull:false },
-  'emre.yilmaz@gmail.com':   { pw:'test123', role:'student', name:'Emre Yılmaz',    initials:'EY', color:'#06b6d4', module:'B1',    credits:1, score:79, sessions:[{d:'14 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'26 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'soon'}], skills:{Leseverstehen:80,Hörverständnis:77,Schreiben:74,Sprechen:68} },
-  'selin.kurt@outlook.com':  { pw:'test123', role:'student', name:'Selin Kurt',     initials:'SK', color:'#8b5cf6', module:'A1',    credits:2, score:53, sessions:[{d:'17 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'soon'}],                                               skills:{Leseverstehen:55,Hörverständnis:50,Schreiben:47,Sprechen:40} },
-  'burak.oz@gmail.com':      { pw:'test123', role:'student', name:'Burak Öz',       initials:'BO', color:'#14b8a6', module:'A1+B1', credits:3, score:91, sessions:[{d:'5 Tem',t:'A1 Mock Exam',c:'Thomas K.',st:'done'},{d:'12 Tem',t:'B1 Mock Exam',c:'Maria S.',st:'done'},{d:'21 Tem',t:'B1 Yazma',c:'Jana L.',st:'live'}], skills:{Leseverstehen:92,Hörverständnis:89,Schreiben:88,Sprechen:85} },
-  'nisa.polat@gmail.com':    { pw:'test123', role:'student', name:'Nisa Polat',      initials:'NP', color:'#f97316', module:'B1',    credits:2, score:63, sessions:[{d:'10 Tem',t:'B1 Mock Exam',c:'Jana L.',st:'done'},{d:'24 Tem',t:'B1 Mock Exam',c:'Thomas K.',st:'soon'}], skills:{Leseverstehen:65,Hörverständnis:62,Schreiben:58,Sprechen:50} },
-  'kemal.tas@hotmail.com':   { pw:'test123', role:'student', name:'Kemal Taş',      initials:'KT', color:'#a855f7', module:'A1',    credits:1, score:47, sessions:[{d:'19 Tem',t:'A1 Mock Exam',c:'Maria S.',st:'soon'}],                                               skills:{Leseverstehen:48,Hörverständnis:44,Schreiben:40,Sprechen:35} },
+// Demo hesaplar kaldırıldı — tüm hesaplar Supabase üzerinden yönetilir
+const USERS = {};
 
-  // INSTRUCTORS
-  'maria.s@examready.de':    { pw:'coach123', role:'instructor', name:'Maria Schmidt',   initials:'MS', color:'#22c55e', lang:'A1/B1', sessions_done:34, rating:4.9, earnings:170, upcoming:[{d:'17 Tem 14:00',s:'Ayşe K. + Selin K.',t:'A1 Mock Exam'},{d:'19 Tem 15:00',s:'Zeynep A. + Nisa P.',t:'B1 Mock Exam'},{d:'24 Tem 10:00',s:'Fatma Ş. + ??',t:'A1 Mock Exam',open:true}], avail:{} },
-  'thomas.k@examready.de':   { pw:'coach123', role:'instructor', name:'Thomas Klein',    initials:'TK', color:'#4f8ef7', lang:'B1',    sessions_done:21, rating:4.8, earnings:105, upcoming:[{d:'21 Tem 11:00',s:'Mehmet D. + Burak Ö.',t:'B1 Yazma'},{d:'24 Tem 14:00',s:'Nisa P. + ??',t:'B1 Mock Exam',open:true},{d:'28 Tem 16:00',s:'Zeynep A. + ??',t:'B1 Yazma',open:true}], avail:{} },
-  'jana.l@examready.de':     { pw:'coach123', role:'instructor', name:'Jana Lang',       initials:'JL', color:'#ec4899', lang:'A1/B1', sessions_done:28, rating:4.9, earnings:140, upcoming:[{d:'21 Tem 10:00',s:'Emre Y. + ??',t:'B1 Mock Exam',open:true},{d:'24 Tem 14:30',s:'Zeynep A. + Nisa P.',t:'A1 Mock Exam'}], avail:{} },
-  'ali.v@examready.de':      { pw:'coach123', role:'instructor', name:'Ali Vural',       initials:'AV', color:'#f59e0b', lang:'A1',    sessions_done:12, rating:4.7, earnings:60,  upcoming:[{d:'26 Tem 09:00',s:'Kemal T. + ??',t:'A1 Mock Exam',open:true}], avail:{} },
-};
-
-const STUDENT_HINTS = [
-  ['ayse.kaya@gmail.com','Ayşe K.'],
-  ['mehmet.demir@hotmail.com','Mehmet D.'],
-  ['fatma.sahin@gmail.com','Fatma Ş.'],
-  ['ali.celik@gmail.com','Ali Ç.'],
-  ['zeynep.arslan@gmail.com','Zeynep A.'],
-  ['emre.yilmaz@gmail.com','Emre Y.'],
-  ['selin.kurt@outlook.com','Selin K.'],
-  ['burak.oz@gmail.com','Burak Ö.'],
-  ['nisa.polat@gmail.com','Nisa P.'],
-  ['kemal.tas@hotmail.com','Kemal T.'],
-];
-const INSTR_HINTS = [
-  ['maria.s@examready.de','Maria S.'],
-  ['thomas.k@examready.de','Thomas K.'],
-  ['jana.l@examready.de','Jana L.'],
-  ['ali.v@examready.de','Ali V.'],
-];
+const STUDENT_HINTS = [];
+const INSTR_HINTS = [];
 
 let currentRole = 'student';
 let loggedUser = null;
@@ -860,11 +827,10 @@ function studentDash(u) {
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
       <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">📝 Modül Alıştırmaları (B1)</div>
       <div style="display:flex;flex-direction:column;gap:.5rem;">
-        ${modRow('Leseverstehen',  'B1_LSV', ['exam_Telc_B1_lsv_01.html','exam_Telc_B1_lsv_02.html'], {checker: hasLSVSet})}
-        ${modRow('Hörverstehen',   'B1_HSV', ['exam_Telc_B1_hsv_01.html'], {checker: hasHSVSet})}
-        ${modRow('Sprachbausteine','B1_SPB', ['exam_Telc_B1_spb_01.html','exam_Telc_B1_spb_02.html'], {checker: hasSPBSet})}
+        ${modRow('Leseverstehen',  'B1_LSV', [], {checker: hasLSVSet})}
+        ${modRow('Hörverstehen',   'B1_HSV', [], {checker: hasHSVSet})}
+        ${modRow('Sprachbausteine','B1_SPB', [], {checker: hasSPBSet})}
         ${modRow('Schreiben',      'B1_SCH', [], {schreiben:true, href:'exam_Telc_B1_sch.html'})}
-        ${modRow('Deneme Sınavı',  'B1_DNM', ['full_exam_Telc_B1_01.html'])}
       </div>
       ${!isPremium ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">🔒 Kilit: ücretsiz hesap → 1 set açık · Her 3 referans → +1 set · Premium → tümü açık</div>` : ''}
       ${modeHint}
@@ -874,8 +840,9 @@ function studentDash(u) {
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
       <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">📝 Modül Alıştırmaları (A1)</div>
       <div style="display:flex;flex-direction:column;gap:.5rem;">
-        ${modRow('Deneme Sınavı', 'A1_DNM', ['full_exam_Telc_A1_01.html'])}
+        ${modRow('Leseverstehen',  'A1_LSV', [], {checker: ()=>false})}
       </div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">A1 içeriği yakında admin panelinden eklenecek.</div>
     </div>`;
 
   const examLinksHTML = isBoth
