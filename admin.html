@@ -139,6 +139,7 @@ input,select,textarea{font-family:inherit;}
     <button class="tab active" onclick="switchTab('hoer')">🎧 Hörverstehen</button>
     <button class="tab" onclick="switchTab('modul')">📖 Modül Alıştırmaları</button>
     <button class="tab" onclick="switchTab('schreiben')">✍️ Schreiben</button>
+    <button class="tab" onclick="switchTab('egitmen')">👩‍🏫 Eğitmenler</button>
     <button class="tab" onclick="switchTab('stats')">📊 İstatistikler</button>
     <button class="tab" onclick="switchTab('settings')">⚙️ Ayarlar</button>
   </div>
@@ -382,6 +383,15 @@ input,select,textarea{font-family:inherit;}
     <div id="sch-list"></div>
   </div>
 
+  <!-- ── EĞİTMEN ONAYLARI TAB ── -->
+  <div class="tab-panel" id="tab-egitmen">
+    <div class="sh"><h2>Eğitmen Başvuruları</h2><button class="btn-ghost btn-sm" onclick="loadInstructors()">↻ Yenile</button></div>
+    <h3 style="font-size:.9rem;font-weight:800;margin:1rem 0 .6rem;color:var(--yellow);">⏳ Onay Bekleyenler</h3>
+    <div id="pending-instructors"><div class="empty">Yükleniyor...</div></div>
+    <h3 style="font-size:.9rem;font-weight:800;margin:1.5rem 0 .6rem;color:var(--green);">✓ Onaylı Eğitmenler</h3>
+    <div id="approved-instructors"><div class="empty">Yükleniyor...</div></div>
+  </div>
+
   <!-- ── İSTATİSTİKLER TAB ── -->
   <div class="tab-panel" id="tab-stats">
     <div class="sh"><h2>Kullanıcı İstatistikleri</h2><button class="btn-ghost btn-sm" onclick="loadStats()">↻ Yenile</button></div>
@@ -546,7 +556,7 @@ let editingId          = null;
    TAB NAVIGATION
 ───────────────────────────────────────────── */
 async function switchTab(name) {
-  const names=['hoer','modul','schreiben','stats','settings'];
+  const names=['hoer','modul','schreiben','egitmen','stats','settings'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', names[i]===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
@@ -554,6 +564,61 @@ async function switchTab(name) {
   if (name==='hoer')      { initSectionSel(); await refreshHsvFromCloud(); }
   if (name==='modul')     { initModulSel(); await refreshModulListFromCloud(); }
   if (name==='schreiben') await refreshSchreibenFromCloud();
+  if (name==='egitmen')   await loadInstructors();
+}
+
+/* ── EĞİTMEN ONAYLARI ── */
+async function loadInstructors() {
+  const pendingEl  = document.getElementById('pending-instructors');
+  const approvedEl = document.getElementById('approved-instructors');
+  if (!USE_SUPABASE) {
+    pendingEl.innerHTML = approvedEl.innerHTML = '<div class="empty">Supabase bağlantısı yok.</div>';
+    return;
+  }
+  try {
+    const [pending, approved] = await Promise.all([
+      sbLoadPendingInstructors(), sbLoadApprovedInstructors()
+    ]);
+    pendingEl.innerHTML = pending.length ? pending.map(p=>instrCard(p,true)).join('')
+      : '<div class="empty">Bekleyen başvuru yok.</div>';
+    approvedEl.innerHTML = approved.length ? approved.map(p=>instrCard(p,false)).join('')
+      : '<div class="empty">Onaylı eğitmen yok.</div>';
+  } catch(e) {
+    pendingEl.innerHTML = '<div class="empty">Hata: '+e.message+'</div>';
+  }
+}
+
+function instrCard(p, isPending) {
+  return `<div class="q-card" style="margin-bottom:.5rem;">
+    <div class="q-card-top">
+      <div class="q-num" style="background:linear-gradient(135deg,#7c5cfc,#4f8ef7);">${(p.name||'?')[0]}</div>
+      <div class="q-body">
+        <div class="q-aussage">${p.name||'—'} <span style="font-size:.72rem;color:var(--muted);">(${p.email})</span></div>
+        <div class="q-meta">
+          <span class="audio-chip">${p.expertise||'—'}</span>
+          ${p.experience?`<span>${p.experience}</span>`:''}
+        </div>
+        ${p.application_note?`<div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;font-style:italic;">"${p.application_note}"</div>`:''}
+      </div>
+      <div class="q-actions">
+        ${isPending
+          ? `<button class="btn-primary btn-sm" onclick="approveInstr('${p.id}')">✓ Onayla</button>
+             <button class="btn-danger btn-sm" onclick="rejectInstr('${p.id}')">✗ Reddet</button>`
+          : `<span style="font-size:.72rem;color:var(--green);font-weight:700;">✓ Aktif</span>
+             <button class="btn-danger btn-sm" onclick="rejectInstr('${p.id}')">🗑</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+async function approveInstr(id) {
+  try { await sbApproveInstructor(id); showNotif('Onaylandı ✓','Eğitmen artık giriş yapabilir.'); await loadInstructors(); }
+  catch(e){ showNotif('Hata',e.message,true); }
+}
+async function rejectInstr(id) {
+  if (!confirm('Bu başvuru/eğitmen silinsin mi?')) return;
+  try { await sbRejectInstructor(id); showNotif('Silindi','Kayıt kaldırıldı.'); await loadInstructors(); }
+  catch(e){ showNotif('Hata',e.message,true); }
 }
 
 /* ─────────────────────────────────────────────

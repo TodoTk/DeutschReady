@@ -46,6 +46,34 @@ async function sbGetUser() {
   return user;
 }
 
+// ── EĞİTMEN ONAY (ADMIN) ──────────────────────────────────────
+
+// Bekleyen eğitmen başvurularını getir
+async function sbLoadPendingInstructors() {
+  const { data } = await sb.from('profiles')
+    .select('*').eq('role','instructor').eq('status','pending').order('created_at');
+  return data || [];
+}
+
+// Onaylı eğitmenleri getir
+async function sbLoadApprovedInstructors() {
+  const { data } = await sb.from('profiles')
+    .select('*').eq('role','instructor').eq('status','approved').order('created_at');
+  return data || [];
+}
+
+// Eğitmen başvurusunu onayla
+async function sbApproveInstructor(userId) {
+  const { error } = await sb.from('profiles').update({ status:'approved' }).eq('id', userId);
+  if (error) throw error;
+}
+
+// Eğitmen başvurusunu reddet (sil)
+async function sbRejectInstructor(userId) {
+  const { error } = await sb.from('profiles').delete().eq('id', userId);
+  if (error) throw error;
+}
+
 // ── HESAP AYARLARI ────────────────────────────────────────────
 
 // İsim (ve opsiyonel seviye) güncelle — profiles tablosu

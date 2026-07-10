@@ -165,11 +165,7 @@ button{cursor:pointer;font-family:inherit;}
 <div id="page-login">
   <div class="login-box">
     <h2>Giriş Yap</h2>
-    <p>Hesabınıza erişin</p>
-    <div class="role-tabs">
-      <button class="rtab active" id="rtab-s" onclick="setRole('student')">🎓 Öğrenci</button>
-      <button class="rtab" id="rtab-i" onclick="setRole('instructor')">👩‍🏫 Eğitmen</button>
-    </div>
+    <p>E-posta ve şifrenle giriş yap — hesap türüne göre yönlendirilirsin.</p>
     <div class="field"><label>E-posta</label><input type="email" id="inp-email" placeholder="ornek@email.com" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <div class="field"><label>Şifre</label><input type="password" id="inp-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
     <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
@@ -180,7 +176,7 @@ button{cursor:pointer;font-family:inherit;}
     </div>
 
     <div class="hint-box">
-      <p id="hint-title">🎓 Demo Öğrenci Hesapları (tıkla → otomatik doldur)</p>
+      <p id="hint-title">🎓 Demo Hesaplar (tıkla → otomatik doldur)</p>
       <div class="hint-grid" id="hint-grid"></div>
     </div>
   </div>
@@ -396,22 +392,16 @@ function findUser(email) {
 }
 
 /* ── ROLE TAB ── */
-function setRole(r) {
-  currentRole = r;
-  document.getElementById('rtab-s').className = 'rtab' + (r==='student'?' active':'');
-  document.getElementById('rtab-i').className = 'rtab' + (r==='instructor'?' active':'');
-  document.getElementById('hint-title').textContent = r==='student' ? '🎓 Demo Öğrenci Hesapları (tıkla → otomatik doldur)' : '👩‍🏫 Demo Eğitmen Hesapları (tıkla → otomatik doldur)';
-  renderHints(r);
-  document.getElementById('err-msg').style.display='none';
-}
-
-function renderHints(r) {
+// Demo hesap ipuçları — öğrenci + eğitmen tek listede
+function renderHints() {
   const grid = document.getElementById('hint-grid');
-  const list = r==='student' ? STUDENT_HINTS : INSTR_HINTS;
-  const pw = r==='student' ? 'test123' : 'coach123';
-  grid.innerHTML = list.map(([email,name])=>
-    `<div class="hint-item" onclick="fillLogin('${email}','${pw}')"><span>${name}</span> · ${email.split('@')[0]}</div>`
+  const students = STUDENT_HINTS.map(([email,name])=>
+    `<div class="hint-item" onclick="fillLogin('${email}','test123')"><span>🎓 ${name}</span></div>`
   ).join('');
+  const instr = INSTR_HINTS.map(([email,name])=>
+    `<div class="hint-item" onclick="fillLogin('${email}','coach123')"><span>👩‍🏫 ${name}</span></div>`
+  ).join('');
+  grid.innerHTML = students + instr;
 }
 
 function fillLogin(email, pw) {
@@ -420,38 +410,51 @@ function fillLogin(email, pw) {
   document.getElementById('err-msg').style.display='none';
 }
 
-/* ── LOGIN (persisted to localStorage so the session survives navigating to index.html / exam.html / video-room.html) ── */
+/* ── TEK GİRİŞ — rol otomatik belirlenir ── */
 async function doLogin() {
   const email = document.getElementById('inp-email').value.trim().toLowerCase();
   const pw    = document.getElementById('inp-pw').value;
   const errEl = document.getElementById('err-msg');
+  errEl.style.display='none';
 
-  // Demo / eğitmen hesapları: localStorage yöntemi
+  // 1) Demo hesap (localStorage) — rol USERS'tan otomatik
   const demoUser = findUser(email);
   if (demoUser && demoUser.source !== 'registered') {
-    if (demoUser.pw !== pw || demoUser.role !== currentRole) {
-      errEl.style.display='block'; return;
-    }
+    if (demoUser.pw !== pw) { errEl.textContent='E-posta veya şifre hatalı.'; errEl.style.display='block'; return; }
     loggedUser = {email, ...demoUser};
     localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role: demoUser.role, name: demoUser.name, level: demoUser.level }));
-    document.getElementById('page-login').style.display='none';
-    document.getElementById('page-dash').style.display='block';
-    document.getElementById('logout-btn').style.display='block';
+    showDashUI();
     renderDash(loggedUser);
     return;
   }
 
-  // Kayıtlı kullanıcılar: Supabase Auth
-  if (USE_SUPABASE && currentRole === 'student') {
+  // 2) Supabase Auth — profildeki role göre yönlendir
+  if (USE_SUPABASE) {
     try {
       const { user } = await sbSignIn(email, pw);
       const profile  = await sbGetProfile(user.id);
-      if (!profile) { errEl.style.display='block'; return; }
+      if (!profile) { errEl.textContent='Profil bulunamadı.'; errEl.style.display='block'; return; }
+
+      // Eğitmen ve onay bekliyor mu?
+      if (profile.role === 'instructor' && profile.status === 'pending') {
+        await sbSignOut();
+        errEl.textContent = 'Eğitmen başvurun henüz onaylanmadı. Onay sonrası giriş yapabilirsin.';
+        errEl.style.display='block'; return;
+      }
+
+      if (profile.role === 'instructor') {
+        loggedUser = { email: profile.email, ...profile, role:'instructor', source:'registered',
+          lang: profile.expertise||'A1/B1', sessions_done:0, rating:5.0, earnings:0, upcoming:[], avail:{} };
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role:'instructor', name: profile.name }));
+        showDashUI();
+        renderDash(loggedUser);
+        return;
+      }
+
+      // Öğrenci
       loggedUser = { email, ...profile, role:'student', level: profile.level||'B1', source:'registered' };
       localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role:'student', name: profile.name, level: profile.level }));
-      document.getElementById('page-login').style.display='none';
-      document.getElementById('page-dash').style.display='block';
-      document.getElementById('logout-btn').style.display='block';
+      showDashUI();
       await syncStatsFromCloud();
       renderDash(loggedUser);
       return;
@@ -461,16 +464,12 @@ async function doLogin() {
     }
   }
 
-  // Fallback: localStorage kayıtlı kullanıcı
+  // 3) Fallback: localStorage kayıtlı kullanıcı
   const u = findUser(email);
-  if (!u || u.pw !== pw || u.role !== currentRole) {
-    errEl.style.display='block'; return;
-  }
+  if (!u || u.pw !== pw) { errEl.textContent='E-posta veya şifre hatalı.'; errEl.style.display='block'; return; }
   loggedUser = {email, ...u};
   localStorage.setItem(SESSION_KEY, JSON.stringify({ email, role: u.role, name: u.name, level: u.level }));
-  document.getElementById('page-login').style.display='none';
-  document.getElementById('page-dash').style.display='block';
-  document.getElementById('logout-btn').style.display='block';
+  showDashUI();
   renderDash(loggedUser);
 }
 
@@ -501,12 +500,20 @@ async function restoreSession() {
       return true;
     }
 
-    // Supabase Auth kullanıcısı (kayıtlı öğrenci)
+    // Supabase Auth kullanıcısı — role göre öğrenci/eğitmen
     if (USE_SUPABASE) {
       const user = await sbGetUser();
       if (user) {
         const profile = await sbGetProfile(user.id);
         if (profile) {
+          if (profile.role === 'instructor') {
+            if (profile.status === 'pending') { localStorage.removeItem(SESSION_KEY); return false; }
+            loggedUser = { email: profile.email, ...profile, role:'instructor', source:'registered',
+              lang: profile.expertise||'A1/B1', sessions_done:0, rating:5.0, earnings:0, upcoming:[], avail:{} };
+            showDashUI();
+            renderDash(loggedUser);
+            return true;
+          }
           loggedUser = { email: profile.email, ...profile, role:'student', level: profile.level||'B1', source:'registered' };
           showDashUI();
           await syncStatsFromCloud();
@@ -1588,7 +1595,7 @@ async function savePassword() {
 
 /* ── INIT ── */
 // Admin butonu artık renderDash içinde, sadece admin e-postalarına gösterilir
-renderHints('student');
+renderHints();
 
 // Önce Supabase'den modül setlerini + schreiben sorularını çek → localStorage'a yaz
 // (dashboard render bunları senkron okuyor)
