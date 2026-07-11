@@ -1599,46 +1599,49 @@ async function deleteSchreibenQ(id) {
 /* ─────────────────────────────────────────────
    İSTATİSTİKLER
 ───────────────────────────────────────────── */
-function loadStats() {
-  const STATS_KEY = 'examready_student_stats_v1';
-  const all = JSON.parse(localStorage.getItem(STATS_KEY)||'{}');
-  const REG_KEY = 'examready_registered_users_v1';
-  const reg = JSON.parse(localStorage.getItem(REG_KEY)||'{}');
+async function loadStats() {
+  const box = document.getElementById('stats-content');
+  if (!USE_SUPABASE) { box.innerHTML = '<div class="empty">Supabase bağlı değil.</div>'; return; }
+  box.innerHTML = '<div class="empty">Yükleniyor…</div>';
+  try {
+    const { data: profs } = await sb.from('profiles')
+      .select('id,name,email,level,module,referral_count,role').eq('role','student');
+    const { data: stats } = await sb.from('exam_stats').select('user_id,exams_completed');
 
-  const entries = Object.entries(all);
-  if (!entries.length) {
-    document.getElementById('stats-content').innerHTML = '<div class="empty">Henüz istatistik verisi yok.</div>';
-    return;
-  }
+    const examCount = {};
+    (stats||[]).forEach(r => { examCount[r.user_id] = (examCount[r.user_id]||0) + (r.exams_completed||0); });
 
-  let html = `<div class="stats-row">
-    <div class="stat-card"><div class="stat-num">${entries.length}</div><div class="stat-lbl">Aktif Öğrenci</div></div>
-  </div>
-  <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
-    <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted);">
-      <th style="padding:.5rem .6rem;text-align:left;">Öğrenci</th>
-      <th style="padding:.5rem .6rem;text-align:right;">Sınav</th>
-      <th style="padding:.5rem .6rem;text-align:right;">Soru</th>
-      <th style="padding:.5rem .6rem;text-align:right;">Doğruluk</th>
-      <th style="padding:.5rem .6rem;text-align:left;">Seviye</th>
-    </tr></thead>
-    <tbody>`;
+    const list = (profs||[]).slice();
+    if (!list.length) { box.innerHTML = '<div class="empty">Henüz kayıtlı öğrenci yok.</div>'; return; }
+    list.sort((a,b) => (examCount[b.id]||0) - (examCount[a.id]||0));
 
-  entries.forEach(([email, levels]) => {
-    Object.entries(levels).forEach(([lvl, s]) => {
-      const acc = s.questionsAnswered > 0 ? Math.round(s.questionsCorrect/s.questionsAnswered*100) : 0;
-      const color = acc >= 60 ? 'var(--green)' : acc >= 40 ? 'var(--yellow)' : 'var(--red)';
+    let html = `<div class="stats-row">
+      <div class="stat-card"><div class="stat-num">${list.length}</div><div class="stat-lbl">Kayıtlı Öğrenci</div></div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted);">
+        <th style="padding:.5rem .6rem;text-align:left;">Öğrenci</th>
+        <th style="padding:.5rem .6rem;text-align:right;">Çözülen Sınav</th>
+        <th style="padding:.5rem .6rem;text-align:right;">Referans</th>
+        <th style="padding:.5rem .6rem;text-align:left;">Seviye</th>
+      </tr></thead>
+      <tbody>`;
+
+    list.forEach(p => {
+      const lvl = p.level==='BOTH' ? (p.module || 'A1+B1') : (p.level || '-');
       html += `<tr style="border-bottom:1px solid rgba(255,255,255,.04);">
-        <td style="padding:.45rem .6rem;">${email}</td>
-        <td style="padding:.45rem .6rem;text-align:right;">${s.examsCompleted||0}</td>
-        <td style="padding:.45rem .6rem;text-align:right;">${s.questionsAnswered||0}</td>
-        <td style="padding:.45rem .6rem;text-align:right;font-weight:700;color:${color};">${acc}%</td>
+        <td style="padding:.45rem .6rem;">${p.name||'-'}<div style="font-size:.7rem;color:var(--muted);">${p.email||''}</div></td>
+        <td style="padding:.45rem .6rem;text-align:right;font-weight:700;">${examCount[p.id]||0}</td>
+        <td style="padding:.45rem .6rem;text-align:right;font-weight:700;color:var(--accent);">${p.referral_count||0}</td>
         <td style="padding:.45rem .6rem;">${lvl}</td>
       </tr>`;
     });
-  });
-  html += '</tbody></table>';
-  document.getElementById('stats-content').innerHTML = html;
+    html += '</tbody></table>';
+    box.innerHTML = html;
+  } catch(e) {
+    console.error('İstatistik yüklenemedi:', e);
+    box.innerHTML = '<div class="empty">İstatistikler yüklenemedi.</div>';
+  }
 }
 
 /* ─────────────────────────────────────────────
