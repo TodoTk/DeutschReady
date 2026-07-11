@@ -895,7 +895,7 @@ function studentDash(u) {
     <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:.8rem;">
       <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Davet Bağlantın</div>
       <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-        <code id="ref-link-text" style="flex:1;font-size:.82rem;color:var(--accent);font-weight:700;word-break:break-all;background:var(--bg);padding:.4rem .7rem;border-radius:6px;border:1px solid var(--border);">deutschready.de/register?ref=${u.referralCode||'—'}</code>
+        <code id="ref-link-text" style="flex:1;font-size:.82rem;color:var(--accent);font-weight:700;word-break:break-all;background:var(--bg);padding:.4rem .7rem;border-radius:6px;border:1px solid var(--border);">${location.origin}/register.html?ref=${u.referralCode||'—'}</code>
         <button onclick="copyRefLink()" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.4rem .9rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;">Kopyala</button>
       </div>
     </div>
@@ -909,10 +909,8 @@ function studentDash(u) {
 
 function copyRefLink() {
   try {
-    const sess = JSON.parse(localStorage.getItem('examready_session_v1')||'{}');
-    const reg = JSON.parse(localStorage.getItem('examready_registered_users_v1')||'{}');
-    const code = (reg[sess.email]||{}).referralCode || '—';
-    const link = 'deutschready.de/register?ref=' + code;
+    const link = (document.getElementById('ref-link-text')?.textContent || '').trim();
+    if (!link) return;
     navigator.clipboard.writeText(link).then(()=>showNotif('Kopyalandı!','Referans linkin panoya alındı.'));
   } catch(e){}
 }
