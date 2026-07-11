@@ -216,8 +216,9 @@
 <script src="supabase-client.js"></script>
 <script>
 /* ── Dil (i18n) ── */
-const CUR_LANG = localStorage.getItem('prufready_lang') || 'de';
-const L = (de,en,tr) => CUR_LANG==='en' ? en : CUR_LANG==='tr' ? tr : de;
+// Sınav ekranı her zaman Almanca (dil değişiminden etkilenmez)
+const CUR_LANG = 'de';
+const L = (de,en,tr) => de;
 const TX = {
   back        : ()=>L('← Zum Profil','← Back to Profile','← Profile Dön'),
   backPlain   : ()=>L('Zum Profil','Back to Profile','Profile Dön'),

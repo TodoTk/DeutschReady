@@ -48,7 +48,7 @@
 
 <header>
   <img src="logo.png" alt="PrufReady" style="height:60px;display:block;"/>
-  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+  <a href="dashboard.html" class="back-link">← Zum Profil</a>
 </header>
 
 <div id="gate-wrap">
@@ -65,13 +65,13 @@
     <div style="text-align:center;margin-bottom:2rem;">
       <div class="badge">Subtest: Schreiben</div>
       <h1>Schreiben – Aufgabe</h1>
-      <p style="color:var(--muted);font-size:.92rem;">Bir yazma görevi — istediğin zaman yeni rastgele soru yükle.</p>
+      <p style="color:var(--muted);font-size:.92rem;">Eine Schreibaufgabe — laden Sie jederzeit eine neue zufällige Aufgabe.</p>
     </div>
 
     <div id="question-area"></div>
 
     <div style="text-align:center;margin-top:1.5rem;">
-      <button class="btn-ghost" onclick="loadRandom()">🔀 Yeni Rastgele Soru</button>
+      <button class="btn-ghost" onclick="loadRandom()">🔀 Neue Zufallsaufgabe</button>
     </div>
   </div>
 </div>
@@ -111,7 +111,7 @@ const isStudy = getMode() === 'study';
 async function loadRandom() {
   if (!poolCache.length) poolCache = await loadPoolAsync();
   if (!poolCache.length) {
-    document.getElementById('question-area').innerHTML = '<div class="empty-state">📭 Henüz soru eklenmedi.<br><a href="admin.html" style="color:var(--accent);font-weight:700;">Admin panelinden</a> soru ekleyin.</div>';
+    document.getElementById('question-area').innerHTML = '<div class="empty-state">📭 Noch keine Aufgaben vorhanden.</div>';
     return;
   }
   currentQ = poolCache[Math.floor(Math.random() * poolCache.length)];
@@ -134,7 +134,7 @@ function renderQ(q) {
   const pointsHTML = (q.points||[]).map(p=>`<li>${personalize(p)}</li>`).join('');
   const exampleHTML = q.example && isStudy
     ? `<div style="margin-top:1rem;">
-        <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Örnek Yanıtı Göster</button>
+        <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Musterlösung anzeigen</button>
         <div class="example-box" id="example-box">${personalize(q.example)}</div>
        </div>` : '';
   const criteriaHTML = q.criteria && isStudy
@@ -150,19 +150,19 @@ function renderQ(q) {
 
   document.getElementById('question-area').innerHTML = `
     <div class="card">
-      <div class="tag">${q.type==='brief'?'Brief (Mektup)':q.type==='email'?'E-Mail':'Notiz'} · ${q.level}${q.setNo?` · Set ${q.setNo}`:''}</div>
+      <div class="tag">${q.type==='brief'?'Brief':q.type==='email'?'E-Mail':'Notiz'} · ${q.level}${q.setNo?` · Set ${q.setNo}`:''}</div>
       <div class="task-text">${personalize(q.task)}</div>
       ${pointsBlock}
       ${criteriaHTML}
     </div>
     <div class="card">
-      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Yanıtınızı yazın:</div>
+      <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Schreiben Sie hier Ihre Antwort:</div>
       <textarea class="answer-box" id="answer-box" oninput="updateWC()" placeholder="Hier schreiben Sie Ihren Text..."></textarea>
-      <div class="word-count" id="wc">0 kelime</div>
+      <div class="word-count" id="wc">0 Wörter</div>
       <div class="btn-row">
-        <button class="btn-evaluate" onclick="evaluateAnswer()">🤖 Değerlendir</button>
-        ${isStudy ? `<button class="btn-primary" onclick="showCriteria()">📋 Kriterleri Gör</button>` : ''}
-        <button class="btn-ghost" onclick="clearAnswer()">Temizle</button>
+        <button class="btn-evaluate" onclick="evaluateAnswer()">🤖 Auswerten</button>
+        ${isStudy ? `<button class="btn-primary" onclick="showCriteria()">📋 Bewertungskriterien</button>` : ''}
+        <button class="btn-ghost" onclick="clearAnswer()">Löschen</button>
       </div>
       <div class="ai-eval-box" id="ai-eval-box"></div>
       ${exampleHTML}
@@ -173,20 +173,20 @@ function evaluateAnswer() {
   const answer = document.getElementById('answer-box')?.value?.trim();
   const box = document.getElementById('ai-eval-box');
   if (!answer) {
-    box.innerHTML = '<span style="color:var(--muted);">Önce bir yanıt yazın.</span>';
+    box.innerHTML = '<span style="color:var(--muted);">Bitte schreiben Sie zuerst einen Text.</span>';
     box.classList.add('show'); return;
   }
   // AI bağlantısı ileriki adımda eklenecek
   box.innerHTML = `<div style="color:var(--muted);font-size:.84rem;text-align:center;padding:.5rem 0;">
     <div style="font-size:1.2rem;margin-bottom:.4rem;">🤖</div>
-    AI değerlendirmesi yakında eklenecek. Bu alan API entegrasyonu sonrası aktif olacak.
+    Die KI-Auswertung wird bald verfügbar sein. Dieser Bereich wird nach der API-Anbindung aktiv.
   </div>`;
   box.classList.add('show');
 }
 
 function updateWC() {
   const words = (document.getElementById('answer-box')?.value||'').trim().split(/\s+/).filter(Boolean).length;
-  document.getElementById('wc').textContent = words + ' kelime';
+  document.getElementById('wc').textContent = words + ' Wörter';
 }
 function clearAnswer() {
   const el = document.getElementById('answer-box');
@@ -197,7 +197,7 @@ function toggleExample() {
   const btn = document.getElementById('ex-btn');
   const show = box.style.display==='block';
   box.style.display = show ? 'none' : 'block';
-  btn.textContent = show ? '💡 Örnek Yanıtı Göster' : '💡 Örneği Gizle';
+  btn.textContent = show ? '💡 Musterlösung anzeigen' : '💡 Musterlösung ausblenden';
 }
 function showCriteria() {
   const box = document.getElementById('criteria-box');
@@ -207,9 +207,9 @@ function showCriteria() {
 (function init(){
   const sess = getSession();
   if (!sess) {
-    document.getElementById('gate-title').textContent='Giriş gerekli';
-    document.getElementById('gate-text').textContent='Bu içeriğe erişmek için hesabınızla giriş yapın.';
-    document.getElementById('gate-cta').textContent='Giriş Yap →';
+    document.getElementById('gate-title').textContent='Anmeldung erforderlich';
+    document.getElementById('gate-text').textContent='Bitte melden Sie sich mit Ihrem Konto an, um auf diesen Inhalt zuzugreifen.';
+    document.getElementById('gate-cta').textContent='Anmelden →';
     document.getElementById('gate-cta').href='dashboard.html';
     document.getElementById('gate-wrap').style.display='block';
     return;
