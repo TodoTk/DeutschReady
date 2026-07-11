@@ -63,6 +63,11 @@ const TRMAP = {
   "Davet Bağlantın": {en:"Your Invite Link", de:"Dein Einladungslink"},
   "Kopyala": {en:"Copy", de:"Kopieren"},
   "Sonraki sete kalan": {en:"Until next set", de:"Bis zum nächsten Satz"},
+  "Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan": {en:"Invite Friends, Earn Free Question Sets", de:"Freunde einladen, kostenlose Fragensätze verdienen"},
+  "Kayıt olurken 2 set hediye. Davet ettiğin her arkadaş için 1 yeni soru seti ücretsiz açılır. Davet sınırı yok.": {en:"2 sets free on sign-up. For each friend you invite, 1 new question set is unlocked for free. No invite limit.", de:"Bei der Anmeldung 2 Sätze geschenkt. Für jeden eingeladenen Freund wird 1 neuer Fragensatz kostenlos freigeschaltet. Kein Einladungslimit."},
+  "Davet ettiğin arkadaş": {en:"Friends invited", de:"Eingeladene Freunde"},
+  "Her davet ettiğin arkadaş için 1 yeni soru seti açılır 🎯": {en:"Each friend you invite unlocks 1 new question set 🎯", de:"Für jeden eingeladenen Freund wird 1 neuer Fragensatz freigeschaltet 🎯"},
+  "🔒 Ücretsiz hesap → 2 set hediye · Her davet → +1 set · Premium → tümü açık": {en:"🔒 Free account → 2 sets free · Each invite → +1 set · Premium → all unlocked", de:"🔒 Kostenloses Konto → 2 Sätze geschenkt · Jede Einladung → +1 Satz · Premium → alle offen"},
   // ── Ayarlar modalı ──
   "Hesap bilgilerini buradan yönet.": {en:"Manage your account details here.", de:"Verwalte hier deine Kontodaten."},
   "👤 Hesap": {en:"👤 Account", de:"👤 Konto"},
@@ -104,6 +109,7 @@ const TRPREFIX = [
   ["Modül:", {en:"Module:", de:"Modul:"}],
   ["Deneme Sınavı ", {en:"Mock Exam ", de:"Musterprüfung "}],
   ["arkadaş daha → 1 yeni soru seti", {en:"more friends → 1 new question set", de:"weitere Freunde → 1 neuer Fragensatz"}],
+  ["ekstra set", {en:"extra sets", de:"Extra-Sätze"}],
 ];
 
 let CUR_LANG = localStorage.getItem('prufready_lang') || 'de';

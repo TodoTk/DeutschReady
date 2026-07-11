@@ -519,7 +519,7 @@ function renderDash(u) {
   av.textContent = u.initials;
   av.style.background = `linear-gradient(135deg,${u.color},${u.color}99)`;
   document.getElementById('d-name').innerHTML = u.name + `<span class="role-badge ${u.role}">${u.role==='student'?'🎓 Öğrenci':'👩‍🏫 Eğitmen'}</span>`;
-  document.getElementById('d-sub').textContent = u.role==='student' ? `Modül: ${u.module} · ${u.email}` : `${u.lang} Koçu · ${u.email}`;
+  document.getElementById('d-sub').textContent = u.role==='student' ? `Modül: ${u.module}` : `${u.lang} Koçu`;
 
   const content = document.getElementById('dash-content');
   if (u.role==='student') content.innerHTML = studentDash(u);
