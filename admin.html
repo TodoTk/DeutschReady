@@ -276,7 +276,6 @@ input,select,textarea{font-family:inherit;}
       <div id="mf-lsv-t1" style="display:none;">
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">5 Kısa Metin (Sorular 1–5) — önce metin, altında başlık seç</div>
         <div id="mf-texts-container"></div>
-        <button class="btn-ghost btn-sm" onclick="addLSVT1Text()" style="margin-top:.4rem;">+ Metin Ekle</button>
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">10 Başlık (Überschriften) — a'dan j'ye</div>
         <div class="form-grid" id="mf-headings-grid"></div>
       </div>
@@ -289,14 +288,12 @@ input,select,textarea{font-family:inherit;}
         </div>
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">5 Soru (Soru 6–10) — her soru için 3 şık</div>
         <div id="mf-t2-questions"></div>
-        <button class="btn-ghost btn-sm" onclick="addT2Question()" style="margin-top:.4rem;">+ Soru Ekle (maks. 5)</button>
       </div>
 
       <!-- LSV T3: 10 Situation + 12 Anzeige (Sorular 11–20) -->
       <div id="mf-lsv-t3" style="display:none;">
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">10 Durum / Situation (Sorular 11–20)</div>
         <div id="mf-situations-container"></div>
-        <button class="btn-ghost btn-sm" onclick="addSituation()" style="margin-top:.4rem;">+ Durum Ekle (maks. 10)</button>
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">12 İlan (Anzeigen) — a'dan l'ye</div>
         <div id="mf-ads-grid"></div>
       </div>
@@ -309,7 +306,6 @@ input,select,textarea{font-family:inherit;}
         </div>
         <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Her Boşluk için 3 Şık (a / b / c)</div>
         <div id="mf-spb-gaps"></div>
-        <button class="btn-ghost btn-sm" onclick="addSPBGap()" style="margin-top:.4rem;">+ Boşluk Ekle (maks. 10)</button>
       </div>
 
       <!-- SPB T2: metin (31–40 boşluklu) + 15'li kelime bankası (a–o) -->
@@ -1010,98 +1006,84 @@ function updateModulTypeUI() {
   if (type==='hsv')    initHsvFields(modKey);
 }
 
-// ── LSV T1: 5 metin + 10 başlık ──
+const _expField = (id) => `<div class="form-field"><label style="color:var(--accent);">💡 Açıklama (sonuçta gösterilir)</label><textarea id="${id}" style="min-height:50px;" placeholder="Doğru cevabın neden doğru olduğunu açıkla..."></textarea></div>`;
+
+// ── LSV T1: 5 sabit metin + 10 başlık (her metne açıklama) ──
 function initLSVT1Fields() {
-  document.getElementById('mf-texts-container').innerHTML='';
   const hg = document.getElementById('mf-headings-grid');
   if (hg) hg.innerHTML = 'abcdefghij'.split('').map(l=>
     `<div class="form-field"><label>Başlık ${l.toUpperCase()}</label><input id="mf-h-${l}" type="text" placeholder="Überschrift ${l.toUpperCase()}"/></div>`
   ).join('');
-}
-function addLSVT1Text() {
   const c = document.getElementById('mf-texts-container');
-  if (c.children.length >= 5) { showNotif('Limit','Maks. 5 metin eklenebilir.',true); return; }
-  const i = c.children.length + 1;
-  const div = document.createElement('div');
-  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
-  div.innerHTML=`
-    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${i} (Metin ${i})</div>
-    <div class="form-field"><textarea id="mf-text-${i}" style="min-height:70px;" placeholder="Kısa metin ${i}..."></textarea></div>
-    <div class="form-field"><label>Doğru Başlık</label><select id="mf-ans-${i}">${'abcdefghij'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('')}</select></div>`;
-  c.appendChild(div);
-}
-
-// ── LSV T2: metin + 5 soru (6–10) ──
-function initT2Fields() {
-  document.getElementById('mf-t2-questions').innerHTML='';
-}
-function addT2Question() {
-  const c = document.getElementById('mf-t2-questions');
-  if (c.children.length >= 5) { showNotif('Limit','Maks. 5 soru eklenebilir.',true); return; }
-  const i = c.children.length + 1;
-  const qNum = 5 + i; // 6, 7, 8, 9, 10
-  const div = document.createElement('div');
-  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
-  div.innerHTML=`
-    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum}</div>
-    <div class="form-field"><input id="mf-q${i}-text" type="text" placeholder="Soru metni..."/></div>
-    <div class="form-grid">
-      <div class="form-field"><label>a)</label><input id="mf-q${i}-a" type="text"/></div>
-      <div class="form-field"><label>b)</label><input id="mf-q${i}-b" type="text"/></div>
-      <div class="form-field"><label>c)</label><input id="mf-q${i}-c" type="text"/></div>
-      <div class="form-field"><label>Doğru</label><select id="mf-q${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+  const opts = 'abcdefghij'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('');
+  c.innerHTML = Array.from({length:5},(_,idx)=>{ const i=idx+1;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${i} (Metin ${i})</div>
+      <div class="form-field"><textarea id="mf-text-${i}" style="min-height:70px;" placeholder="Kısa metin ${i}..."></textarea></div>
+      <div class="form-field"><label>Doğru Başlık</label><select id="mf-ans-${i}">${opts}</select></div>
+      ${_expField('mf-exp-t1-'+i)}
     </div>`;
-  c.appendChild(div);
+  }).join('');
 }
+function addLSVT1Text(){}
 
-// ── LSV T3: 10 durum (11–20) + 12 ilan ──
+// ── LSV T2: metin + 5 sabit soru (6–10) ──
+function initT2Fields() {
+  const c = document.getElementById('mf-t2-questions');
+  c.innerHTML = Array.from({length:5},(_,idx)=>{ const i=idx+1; const qNum=5+i;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum}</div>
+      <div class="form-field"><input id="mf-q${i}-text" type="text" placeholder="Soru metni..."/></div>
+      <div class="form-grid">
+        <div class="form-field"><label>a)</label><input id="mf-q${i}-a" type="text"/></div>
+        <div class="form-field"><label>b)</label><input id="mf-q${i}-b" type="text"/></div>
+        <div class="form-field"><label>c)</label><input id="mf-q${i}-c" type="text"/></div>
+        <div class="form-field"><label>Doğru</label><select id="mf-q${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+      </div>
+      ${_expField('mf-exp-t2-'+i)}
+    </div>`;
+  }).join('');
+}
+function addT2Question(){}
+
+// ── LSV T3: 10 sabit durum (11–20) + 12 ilan ──
 function initLSVT3Fields() {
-  document.getElementById('mf-situations-container').innerHTML='';
   const ag = document.getElementById('mf-ads-grid');
   if (ag) ag.innerHTML = 'abcdefghijkl'.split('').map(l=>
     `<div class="form-field"><label>İlan ${l.toUpperCase()}</label><textarea id="mf-ad-${l}" style="min-height:55px;" placeholder="İlan ${l.toUpperCase()}"></textarea></div>`
   ).join('');
-}
-function addSituation() {
   const c = document.getElementById('mf-situations-container');
-  if (c.children.length >= 10) { showNotif('Limit','Maks. 10 durum eklenebilir.',true); return; }
-  const i = c.children.length + 1;
-  const qNum = 10 + i; // 11–20
-  const div = document.createElement('div');
-  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
-  div.innerHTML=`
-    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum} – Durum ${i}</div>
-    <div style="display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;">
-      <textarea id="mf-sit-${i}" style="flex:1;min-height:55px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.5rem;color:var(--text);font-family:inherit;" placeholder="Durum ${i}..."></textarea>
-      <select id="mf-sit-ans-${i}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem;color:var(--text);">
-        ${'abcdefghijkl'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('')}
-        <option value="x">X – Keine passende</option>
-      </select>
+  const opts = 'abcdefghijkl'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('') + '<option value="x">X – Keine passende</option>';
+  c.innerHTML = Array.from({length:10},(_,idx)=>{ const i=idx+1; const qNum=10+i;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum} – Durum ${i}</div>
+      <div style="display:flex;gap:.8rem;align-items:flex-start;flex-wrap:wrap;">
+        <textarea id="mf-sit-${i}" style="flex:1;min-height:55px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.5rem;color:var(--text);font-family:inherit;" placeholder="Durum ${i}..."></textarea>
+        <select id="mf-sit-ans-${i}" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem;color:var(--text);">${opts}</select>
+      </div>
+      ${_expField('mf-exp-t3-'+i)}
     </div>`;
-  c.appendChild(div);
+  }).join('');
 }
+function addSituation(){}
 
-// ── SPB T1: lückentext 10 boşluk, 3 şık (21–30) ──
+// ── SPB T1: 10 sabit boşluk, 3 şık (21–30) ──
 function initSPBT1Fields() {
-  document.getElementById('mf-spb-gaps').innerHTML='';
-}
-function addSPBGap() {
   const c = document.getElementById('mf-spb-gaps');
-  if (c.children.length >= 10) { showNotif('Limit','Maks. 10 boşluk eklenebilir.',true); return; }
-  const i = c.children.length + 1;
-  const qNum = 20 + i; // 21–30
-  const div = document.createElement('div');
-  div.style.cssText='background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;';
-  div.innerHTML=`
-    <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Boşluk (${qNum})</div>
-    <div class="form-grid">
-      <div class="form-field"><label>a)</label><input id="mf-gap${i}-a" type="text"/></div>
-      <div class="form-field"><label>b)</label><input id="mf-gap${i}-b" type="text"/></div>
-      <div class="form-field"><label>c)</label><input id="mf-gap${i}-c" type="text"/></div>
-      <div class="form-field"><label>Doğru</label><select id="mf-gap${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+  c.innerHTML = Array.from({length:10},(_,idx)=>{ const i=idx+1; const qNum=20+i;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Boşluk (${qNum})</div>
+      <div class="form-grid">
+        <div class="form-field"><label>a)</label><input id="mf-gap${i}-a" type="text"/></div>
+        <div class="form-field"><label>b)</label><input id="mf-gap${i}-b" type="text"/></div>
+        <div class="form-field"><label>c)</label><input id="mf-gap${i}-c" type="text"/></div>
+        <div class="form-field"><label>Doğru</label><select id="mf-gap${i}-ans"><option value="a">a</option><option value="b">b</option><option value="c">c</option></select></div>
+      </div>
+      ${_expField('mf-exp-spb1-'+i)}
     </div>`;
-  c.appendChild(div);
+  }).join('');
 }
+function addSPBGap(){}
 
 // ── SPB T2: metin (31–40 boşluklu) + 15'li banka (a–o) ──
 function initSPBT2Fields() {
@@ -1116,9 +1098,12 @@ function initSPBT2Fields() {
   if (!ac) return;
   ac.innerHTML = Array.from({length:10},(_,i)=>{
     const qNum = 31 + i;
-    return `<div style="display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border-radius:7px;padding:.4rem .6rem;margin:0 .4rem .4rem 0;">
-      <span style="font-size:.8rem;font-weight:700;color:var(--accent);">(${qNum})</span>
-      <select id="mf-sq${i+1}-ans" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.3rem .45rem;color:var(--text);">${opts15}</select>
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.7rem;margin-bottom:.5rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;">
+        <span style="font-size:.8rem;font-weight:700;color:var(--accent);">Boşluk (${qNum})</span>
+        <select id="mf-sq${i+1}-ans" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.3rem .45rem;color:var(--text);">${opts15}</select>
+      </div>
+      ${_expField('mf-exp-spb2-'+(i+1))}
     </div>`;
   }).join('');
 }
@@ -1142,6 +1127,7 @@ function initHsvFields(modKey) {
       <div class="form-field"><label>Doğru Cevap</label>
         <select id="mf-hsv-q${i+1}-ans"><option value="R">Richtig</option><option value="F">Falsch</option></select>
       </div>
+      ${_expField('mf-exp-hsv-'+(i+1))}
     </div>`;
   }).join('');
 }
@@ -1179,7 +1165,7 @@ async function saveModulSet() {
   if (structure === 'lsv-t1') {
     const texts = [];
     let i=1; while(document.getElementById(`mf-text-${i}`)) {
-      texts.push({ text: document.getElementById(`mf-text-${i}`).value.trim(), answer: document.getElementById(`mf-ans-${i}`).value });
+      texts.push({ text: document.getElementById(`mf-text-${i}`).value.trim(), answer: document.getElementById(`mf-ans-${i}`).value, exp: document.getElementById(`mf-exp-t1-${i}`)?.value.trim()||'' });
       i++;
     }
     const headings = {};
@@ -1191,7 +1177,7 @@ async function saveModulSet() {
     const text = document.getElementById('mf-t2-text')?.value.trim()||'';
     const questions = [];
     let i=1; while(document.getElementById(`mf-q${i}-text`)) {
-      questions.push({ q: document.getElementById(`mf-q${i}-text`).value.trim(), a: document.getElementById(`mf-q${i}-a`).value.trim(), b: document.getElementById(`mf-q${i}-b`).value.trim(), c: document.getElementById(`mf-q${i}-c`).value.trim(), answer: document.getElementById(`mf-q${i}-ans`).value });
+      questions.push({ q: document.getElementById(`mf-q${i}-text`).value.trim(), a: document.getElementById(`mf-q${i}-a`).value.trim(), b: document.getElementById(`mf-q${i}-b`).value.trim(), c: document.getElementById(`mf-q${i}-c`).value.trim(), answer: document.getElementById(`mf-q${i}-ans`).value, exp: document.getElementById(`mf-exp-t2-${i}`)?.value.trim()||'' });
       i++;
     }
     if (!text || !questions.length) { showNotif('Hata','Metin ve en az 1 soru gerekli.',true); return; }
@@ -1200,7 +1186,7 @@ async function saveModulSet() {
   } else if (structure === 'lsv-t3') {
     const situations = [];
     let i=1; while(document.getElementById(`mf-sit-${i}`)) {
-      situations.push({ text: document.getElementById(`mf-sit-${i}`).value.trim(), answer: document.getElementById(`mf-sit-ans-${i}`).value });
+      situations.push({ text: document.getElementById(`mf-sit-${i}`).value.trim(), answer: document.getElementById(`mf-sit-ans-${i}`).value, exp: document.getElementById(`mf-exp-t3-${i}`)?.value.trim()||'' });
       i++;
     }
     const ads = {};
@@ -1212,7 +1198,7 @@ async function saveModulSet() {
     const text = document.getElementById('mf-spb-text')?.value.trim()||'';
     const gaps = [];
     let i=1; while(document.getElementById(`mf-gap${i}-a`)) {
-      gaps.push({ a: document.getElementById(`mf-gap${i}-a`).value.trim(), b: document.getElementById(`mf-gap${i}-b`).value.trim(), c: document.getElementById(`mf-gap${i}-c`).value.trim(), answer: document.getElementById(`mf-gap${i}-ans`).value });
+      gaps.push({ a: document.getElementById(`mf-gap${i}-a`).value.trim(), b: document.getElementById(`mf-gap${i}-b`).value.trim(), c: document.getElementById(`mf-gap${i}-c`).value.trim(), answer: document.getElementById(`mf-gap${i}-ans`).value, exp: document.getElementById(`mf-exp-spb1-${i}`)?.value.trim()||'' });
       i++;
     }
     if (!text || !gaps.length) { showNotif('Hata','Metin ve en az 1 boşluk gerekli.',true); return; }
@@ -1224,7 +1210,7 @@ async function saveModulSet() {
     'abcdefghijklmno'.split('').forEach(l => { options[l] = document.getElementById('mf-o-'+l)?.value.trim()||''; });
     const gaps = [];
     for (let i=1; i<=10; i++) {
-      gaps.push({ answer: document.getElementById(`mf-sq${i}-ans`)?.value||'' });
+      gaps.push({ answer: document.getElementById(`mf-sq${i}-ans`)?.value||'', exp: document.getElementById(`mf-exp-spb2-${i}`)?.value.trim()||'' });
     }
     if (!text || !Object.values(options).some(v=>v)) { showNotif('Hata','Metin ve en az 1 seçenek gerekli.',true); return; }
     content = { text, options, gaps };
@@ -1236,7 +1222,7 @@ async function saveModulSet() {
     const questions = [];
     for (let i=1; i<=count; i++) {
       const a = document.getElementById(`mf-hsv-q${i}`)?.value.trim()||'';
-      questions.push({ aussage: a, answer: document.getElementById(`mf-hsv-q${i}-ans`)?.value||'R' });
+      questions.push({ aussage: a, answer: document.getElementById(`mf-hsv-q${i}-ans`)?.value||'R', exp: document.getElementById(`mf-exp-hsv-${i}`)?.value.trim()||'' });
     }
     if (!questions.some(q=>q.aussage)) { showNotif('Hata','En az 1 soru gerekli.',true); return; }
 
@@ -1320,6 +1306,7 @@ function editModulSet(key, n) {
         if (!document.getElementById(`mf-text-${i+1}`)) addLSVT1Text();
         document.getElementById(`mf-text-${i+1}`).value  = t.text||'';
         document.getElementById(`mf-ans-${i+1}`).value   = t.answer||'a';
+        const e=document.getElementById(`mf-exp-t1-${i+1}`); if(e) e.value=t.exp||'';
       });
       // Başlıkları doldur
       if (c.headings) Object.entries(c.headings).forEach(([l,v])=>{
@@ -1334,12 +1321,14 @@ function editModulSet(key, n) {
         document.getElementById(`mf-q${i+1}-b`).value    = q.b||'';
         document.getElementById(`mf-q${i+1}-c`).value    = q.c||'';
         document.getElementById(`mf-q${i+1}-ans`).value  = q.answer||'a';
+        const e=document.getElementById(`mf-exp-t2-${i+1}`); if(e) e.value=q.exp||'';
       });
     } else if (structure === 'lsv-t3') {
       if (c.situations) c.situations.forEach((s,i)=>{
         if (!document.getElementById(`mf-sit-${i+1}`)) addSituation();
         document.getElementById(`mf-sit-${i+1}`).value     = s.text||'';
         document.getElementById(`mf-sit-ans-${i+1}`).value = s.answer||'x';
+        const e=document.getElementById(`mf-exp-t3-${i+1}`); if(e) e.value=s.exp||'';
       });
       if (c.ads) Object.entries(c.ads).forEach(([l,v])=>{
         const el = document.getElementById('mf-ad-'+l); if(el) el.value = v;
@@ -1352,6 +1341,7 @@ function editModulSet(key, n) {
         document.getElementById(`mf-gap${i+1}-b`).value   = g.b||'';
         document.getElementById(`mf-gap${i+1}-c`).value   = g.c||'';
         document.getElementById(`mf-gap${i+1}-ans`).value = g.answer||'a';
+        const e=document.getElementById(`mf-exp-spb1-${i+1}`); if(e) e.value=g.exp||'';
       });
     } else if (structure === 'spb-t2') {
       if (c.text) document.getElementById('mf-spb2-text').value = c.text;
@@ -1362,6 +1352,7 @@ function editModulSet(key, n) {
       gaps.forEach((g,i)=>{
         const elAns = document.getElementById(`mf-sq${i+1}-ans`);
         if(elAns) elAns.value = g.answer||'';
+        const e=document.getElementById(`mf-exp-spb2-${i+1}`); if(e) e.value=g.exp||'';
       });
     } else if (structure === 'hsv') {
       existingHsvAudioKey = c.audioKey || null;
@@ -1376,6 +1367,7 @@ function editModulSet(key, n) {
         const elA = document.getElementById(`mf-hsv-q${i+1}-ans`);
         if(elQ) elQ.value = q.aussage||'';
         if(elA) elA.value = q.answer||'R';
+        const e=document.getElementById(`mf-exp-hsv-${i+1}`); if(e) e.value=q.exp||'';
       });
     }
     document.getElementById('modul-form-title').textContent = `Set ${n} Düzenle`;

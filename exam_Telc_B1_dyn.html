@@ -105,6 +105,9 @@
   .submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:1rem 2.5rem;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;transition:opacity .2s;}
   .submit-btn:hover{opacity:.88;}
   .result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1.2rem;}
+  .rb-item{background:var(--surface2);border-radius:8px;padding:.8rem;text-align:center;}
+  .rb-num{font-size:1.3rem;font-weight:800;color:var(--accent);}
+  .rb-lab{font-size:.72rem;color:var(--muted);margin-top:.2rem;}
   .result-score{font-size:3rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
   .cta-row{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;}
   .cta-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;font-size:.92rem;text-decoration:none;}
@@ -189,7 +192,9 @@
     <div class="result-card">
       <div class="result-score" id="res-score"></div>
       <div id="res-label" style="font-size:1rem;color:var(--muted);margin-top:.5rem;"></div>
+      <div id="res-breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;margin-top:1.4rem;"></div>
     </div>
+    <div id="analysis-box" class="result-card" style="display:none;text-align:left;"></div>
   </div>
 
   <div class="submit-wrap" id="submit-wrap" style="display:none;">
@@ -515,17 +520,26 @@ function selMC(id, val, correct) {
 // Kaydedilen yapıları submit için tut
 const renderedParts = [];
 
+const PART_LABEL = {
+  'lsv-t1':'Leseverstehen Teil 1', 'lsv-t2':'Leseverstehen Teil 2', 'lsv-t3':'Leseverstehen Teil 3',
+  'spb-t1':'Sprachbausteine Teil 1', 'spb-t2':'Sprachbausteine Teil 2'
+};
 function submitExam() {
   let correct = 0;
+  const analysis = [];   // { qn, ok, yourAns, correctText, exp }
+  const breakdown = [];  // { label, pc, pt }
+
   renderedParts.forEach(p => {
     const {type, content, startQ} = p;
+    const _s0 = analysis.length;
     if (type === 'lsv-t1') {
       content.texts.forEach((t,i)=>{
         const qn=startQ+i; const id=`lsv1-${qn}`;
-        const sel=document.getElementById(id);
-        const ok=sel?.value===t.answer; if(ok) correct++;
+        const sel=document.getElementById(id); const your=sel?.value||'';
+        const ok=your===t.answer; if(ok) correct++;
         if(sel){sel.className='match-sel-split'+(ok?' correct':' wrong');sel.disabled=true;}
-        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+t.answer.toUpperCase()+') '+(content.headings[t.answer]||'');fb.className='fb show '+(ok?'ok':'err');}}
+        analysis.push({qn, ok, yourAns: your?your.toUpperCase():'—',
+          correctText:`'${t.answer.toUpperCase()}': ${content.headings[t.answer]||''}`, exp:t.exp||''});
       });
     } else if (type === 'lsv-t2') {
       content.questions.forEach((q,i)=>{
@@ -537,29 +551,36 @@ function submitExam() {
           if(k===q.answer) btn.classList.add('correct');
           else if(k===sel) btn.classList.add('wrong');
         });
-        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+q.answer.toUpperCase();fb.className='fb show '+(ok?'ok':'err');}}
+        analysis.push({qn, ok, yourAns: sel?sel.toUpperCase():'—',
+          correctText:`'${q.answer.toUpperCase()}': ${q[q.answer]||''}`, exp:q.exp||''});
       });
     } else if (type === 'lsv-t3') {
       content.situations.forEach((s,i)=>{
         const qn=startQ+i; const id=`lsv3-${qn}`;
-        const sel=document.getElementById(id);
-        const ok=sel?.value===s.answer; if(ok) correct++;
+        const sel=document.getElementById(id); const your=sel?.value||'';
+        const ok=your===s.answer; if(ok) correct++;
         if(sel){sel.className='match-sel-split'+(ok?' correct':' wrong');sel.disabled=true;}
-        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Falsch — Richtig: '+(s.answer==='x'?'X – Keine':s.answer.toUpperCase());fb.className='fb show '+(ok?'ok':'err');}}
+        const cl = s.answer==='x'?'X (Keine)':s.answer.toUpperCase();
+        analysis.push({qn, ok, yourAns: your?(your==='x'?'X':your.toUpperCase()):'—',
+          correctText:`'${cl}'`, exp:s.exp||''});
       });
     } else if (type === 'spb-t1') {
       content.gaps.forEach((g,i)=>{
         const qn=startQ+i; const id=`spb1-${qn}`;
-        const sel=document.getElementById(id);
-        const ok=sel?.value===g.answer; if(ok) correct++;
+        const sel=document.getElementById(id); const your=sel?.value||'';
+        const ok=your===g.answer; if(ok) correct++;
         if(sel){sel.className='gap-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+        analysis.push({qn, ok, yourAns: your?your.toUpperCase():'—',
+          correctText:`'${g.answer.toUpperCase()}': ${g[g.answer]||''}`, exp:g.exp||''});
       });
     } else if (type === 'spb-t2') {
-      (content.gaps||content.questions||[]).forEach((g,i)=>{
+      (content.gaps||[]).forEach((g,i)=>{
         const qn=startQ+i; const id=`spb2-${qn}`;
-        const sel=document.getElementById(id);
-        const ok=sel?.value===g.answer; if(ok) correct++;
+        const sel=document.getElementById(id); const your=sel?.value||'';
+        const ok=your===g.answer; if(ok) correct++;
         if(sel){sel.className='gap-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+        analysis.push({qn, ok, yourAns: your?your.toUpperCase():'—',
+          correctText:`'${g.answer.toUpperCase()}': ${(content.options&&content.options[g.answer])||''}`, exp:g.exp||''});
       });
     } else if (type === 'hsv') {
       content.questions.forEach((q,i)=>{
@@ -569,14 +590,37 @@ function submitExam() {
         [R,F].forEach(b=>{ if(b){b.onclick=null;b.style.cursor='default';} });
         if(q.answer==='R'){ R.classList.add('correct'); if(sel==='F') F.classList.add('wrong'); }
         else { F.classList.add('correct'); if(sel==='R') R.classList.add('wrong'); }
-        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Doğru cevap: '+(q.answer==='R'?'Richtig':'Falsch');fb.className='fb show '+(ok?'ok':'err');}}
+        analysis.push({qn, ok, yourAns: sel==='R'?'Richtig':sel==='F'?'Falsch':'—',
+          correctText: q.answer==='R'?'Richtig':'Falsch', exp:q.exp||''});
       });
     }
+    // Bölüm bazlı skor
+    const items = analysis.slice(_s0);
+    const label = PART_LABEL[type] || ('Hörverstehen Teil '+(p.teil||''));
+    breakdown.push({ label, pc: items.filter(x=>x.ok).length, pt: items.length });
   });
 
   const pct=totalQ>0?Math.round(correct/totalQ*100):0;
   document.getElementById('res-score').textContent=correct+'/'+totalQ;
   document.getElementById('res-label').textContent=pct>=60?'🎉 Sehr gut!':pct>=40?'📚 Weiter üben.':'💪 Noch einmal versuchen.';
+
+  // Bölüm bazlı skor kutuları
+  document.getElementById('res-breakdown').innerHTML = breakdown.map(b=>
+    `<div class="rb-item"><div class="rb-num">${b.pc}/${b.pt}</div><div class="rb-lab">${b.label}</div></div>`
+  ).join('');
+
+  // ── Fragen-Analyse und Erklärungen ──
+  const rows = analysis.map(a=>{
+    const head = a.ok
+      ? `<div style="color:var(--green);font-weight:700;font-size:.9rem;">✓ Frage ${a.qn}</div>`
+      : `<div style="color:var(--red);font-weight:700;font-size:.9rem;">✗ Frage ${a.qn} — Deine Antwort: ${a.yourAns}</div>`;
+    const line = `<div style="font-size:.85rem;color:var(--muted);margin-top:.25rem;line-height:1.55;">Richtig ist ${a.correctText}${a.exp?' — '+a.exp:''}</div>`;
+    return `<div style="padding:.7rem 0;border-bottom:1px dashed var(--border);">${head}${line}</div>`;
+  }).join('');
+  document.getElementById('analysis-box').innerHTML =
+    `<h3 style="font-size:1rem;font-weight:800;margin-bottom:.8rem;">Fragen-Analyse und Erklärungen</h3>${rows}`;
+  document.getElementById('analysis-box').style.display='block';
+
   document.getElementById('submit-wrap').style.display='none';
   document.getElementById('results').style.display='block';
   document.getElementById('page-end-cta').style.display='block';
