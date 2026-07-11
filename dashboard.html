@@ -765,7 +765,7 @@ function studentDash(u) {
   // Sprachbausteine set N hazır mı? (T1+T2 her ikisi tamamlandıysa)
   function hasSPBSet(n) { return !!(_adminAll['B1_SPB_T1']?.[n]?.hasContent && _adminAll['B1_SPB_T2']?.[n]?.hasContent); }
   // Hörverstehen set N hazır mı?
-  function hasHSVSet(n) { return !!(_adminAll['B1_HSV']?.[n]?.hasContent); }
+  function hasHSVSet(n) { return !!(_adminAll['B1_HSV_T1']?.[n]?.hasContent && _adminAll['B1_HSV_T2']?.[n]?.hasContent && _adminAll['B1_HSV_T3']?.[n]?.hasContent); }
 
   // Schreiben havuzunda kaç soru var?
   function schreibenCount() {

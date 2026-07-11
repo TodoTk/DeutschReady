@@ -137,8 +137,7 @@ input,select,textarea{font-family:inherit;}
 <div id="page-admin">
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('hoer')">🎧 Hörverstehen</button>
-    <button class="tab" onclick="switchTab('modul')">📖 Modül Alıştırmaları</button>
+    <button class="tab active" onclick="switchTab('modul')">📖 Modül Alıştırmaları</button>
     <button class="tab" onclick="switchTab('schreiben')">✍️ Schreiben</button>
     <button class="tab" onclick="switchTab('egitmen')">👩‍🏫 Eğitmenler</button>
     <button class="tab" onclick="switchTab('stats')">📊 İstatistikler</button>
@@ -257,11 +256,14 @@ input,select,textarea{font-family:inherit;}
         <div class="form-field">
           <label>Modül</label>
           <select id="mf-module" onchange="updateModulTypeUI()">
-            <option value="B1_LSV_T1">B1 – Leseverstehen Teil 1 (Zuordnung: Überschrift)</option>
-            <option value="B1_LSV_T2">B1 – Leseverstehen Teil 2 (MC: Langer Text)</option>
-            <option value="B1_LSV_T3">B1 – Leseverstehen Teil 3 (Zuordnung: Anzeige)</option>
-            <option value="B1_SPB_T1">B1 – Sprachbausteine Teil 1 (Lückentext MC)</option>
-            <option value="B1_SPB_T2">B1 – Sprachbausteine Teil 2 (Lückentext MC)</option>
+            <option value="B1_LSV_T1">B1 – Leseverstehen Teil 1 (Zuordnung)</option>
+            <option value="B1_LSV_T2">B1 – Leseverstehen Teil 2 (MC)</option>
+            <option value="B1_LSV_T3">B1 – Leseverstehen Teil 3 (Zuordnung)</option>
+            <option value="B1_SPB_T1">B1 – Sprachbausteine Teil 1 (Sor. 21–30)</option>
+            <option value="B1_SPB_T2">B1 – Sprachbausteine Teil 2 (Sor. 31–40)</option>
+            <option value="B1_HSV_T1">B1 – Hörverstehen Teil 1 (Sor. 41–45)</option>
+            <option value="B1_HSV_T2">B1 – Hörverstehen Teil 2 (Sor. 46–55)</option>
+            <option value="B1_HSV_T3">B1 – Hörverstehen Teil 3 (Sor. 56–60)</option>
           </select>
         </div>
         <div class="form-field">
@@ -310,12 +312,37 @@ input,select,textarea{font-family:inherit;}
         <button class="btn-ghost btn-sm" onclick="addSPBGap()" style="margin-top:.4rem;">+ Boşluk Ekle (maks. 10)</button>
       </div>
 
-      <!-- SPB T2: 10 soru (31–40), 15 cevap seçeneği (a–o) -->
+      <!-- SPB T2: metin (31–40 boşluklu) + 15'li kelime bankası (a–o) -->
       <div id="mf-spb-t2" style="display:none;">
-        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">15 Cevap Seçeneği (a – o)</div>
+        <div class="form-field">
+          <label>Metin — boşlukları (31) (32)... şeklinde işaretle (31–40 arası)</label>
+          <textarea id="mf-spb2-text" style="min-height:130px;" placeholder="Sehr geehrter Herr Janosch, ich interessiere mich sehr (31) Ihr Angebot und hätte deshalb (32) nähere Informationen..."></textarea>
+        </div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">15 Kelime Bankası (a – o)</div>
         <div class="form-grid" id="mf-spb2-options-grid"></div>
-        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">10 Soru (31–40) — her soru için doğru şık seç</div>
-        <div id="mf-spb2-questions"></div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin:1rem 0 .5rem;">10 Boşluk için Doğru Cevap (31–40 → a-o)</div>
+        <div id="mf-spb2-answers"></div>
+      </div>
+
+      <!-- HSV T1/T2/T3: audio + transkript + Richtig/Falsch sorular -->
+      <div id="mf-hsv" style="display:none;">
+        <div class="form-field">
+          <label>Ses Dosyası (MP3)</label>
+          <div class="drop-zone" id="hsv-drop" onclick="document.getElementById('hsv-audio-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleHsvDrop(event)">
+            <p>🎵 MP3 dosyasını sürükle veya <strong>tıklayarak seç</strong></p>
+          </div>
+          <input type="file" id="hsv-audio-input" accept="audio/*" style="display:none" onchange="handleHsvFile(event)"/>
+          <div id="hsv-audio-preview" style="display:none;margin-top:.6rem;">
+            <div style="font-size:.76rem;color:var(--green);margin-bottom:.3rem;" id="hsv-audio-name"></div>
+            <audio controls id="hsv-audio-player" style="width:100%;height:36px;"></audio>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Transkript (dinleme metni — opsiyonel, arşiv için)</label>
+          <textarea id="mf-hsv-transcript" style="min-height:110px;" placeholder="Audio'nun tam metnini buraya yapıştırın..."></textarea>
+        </div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;" id="mf-hsv-qlabel">Sorular (Richtig / Falsch)</div>
+        <div id="mf-hsv-questions"></div>
       </div>
 
       <div class="form-actions" style="margin-top:1rem;">
@@ -452,8 +479,7 @@ function showAdmin() {
   document.getElementById('page-login').style.display = 'none';
   document.getElementById('page-admin').style.display = 'block';
   document.getElementById('logout-btn').style.display = 'block';
-  initSectionSel();
-  renderQuestionList();
+  switchTab('modul');  // ilk sekme: Modül Alıştırmaları
 }
 function changePw() {
   const a = document.getElementById('new-pw').value;
@@ -557,7 +583,7 @@ let editingId          = null;
    TAB NAVIGATION
 ───────────────────────────────────────────── */
 async function switchTab(name) {
-  const names=['hoer','modul','schreiben','egitmen','stats','settings'];
+  const names=['modul','schreiben','egitmen','stats','settings'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', names[i]===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
@@ -920,6 +946,9 @@ const MODUL_TYPES = {
   B1_LSV_T3: { label:'B1 Leseverstehen T3 (Sorular 11–20)',structure:'lsv-t3'  },
   B1_SPB_T1: { label:'B1 Sprachbausteine T1 (Sor. 21–30)', structure:'spb-t1' },
   B1_SPB_T2: { label:'B1 Sprachbausteine T2 (Sor. 31–40)', structure:'spb-t2' },
+  B1_HSV_T1: { label:'B1 Hörverstehen T1 (Sor. 41–45)',    structure:'hsv', count:5,  start:41 },
+  B1_HSV_T2: { label:'B1 Hörverstehen T2 (Sor. 46–55)',    structure:'hsv', count:10, start:46 },
+  B1_HSV_T3: { label:'B1 Hörverstehen T3 (Sor. 56–60)',    structure:'hsv', count:5,  start:56 },
 };
 
 // Bellek önbelleği — Supabase'den çekilen modül setleri
@@ -967,8 +996,9 @@ function setModulType(key) {
 }
 
 function updateModulTypeUI() {
-  const type = MODUL_TYPES[document.getElementById('mf-module').value]?.structure || 'lsv-t1';
-  ['lsv-t1','lsv-t2','lsv-t3','spb-t1','spb-t2'].forEach(id=>{
+  const modKey = document.getElementById('mf-module').value;
+  const type = MODUL_TYPES[modKey]?.structure || 'lsv-t1';
+  ['lsv-t1','lsv-t2','lsv-t3','spb-t1','spb-t2','hsv'].forEach(id=>{
     const el = document.getElementById('mf-'+id);
     if(el) el.style.display = id===type?'block':'none';
   });
@@ -977,6 +1007,7 @@ function updateModulTypeUI() {
   if (type==='lsv-t3') initLSVT3Fields();
   if (type==='spb-t1') initSPBT1Fields();
   if (type==='spb-t2') initSPBT2Fields();
+  if (type==='hsv')    initHsvFields(modKey);
 }
 
 // ── LSV T1: 5 metin + 10 başlık ──
@@ -1072,28 +1103,61 @@ function addSPBGap() {
   c.appendChild(div);
 }
 
-// ── SPB T2: 10 soru (31–40), 15 seçenek (a–o) ──
+// ── SPB T2: metin (31–40 boşluklu) + 15'li banka (a–o) ──
 function initSPBT2Fields() {
-  // 15 seçenek alanları
   const og = document.getElementById('mf-spb2-options-grid');
   if (og) og.innerHTML = 'abcdefghijklmno'.split('').map(l=>
-    `<div class="form-field"><label>Seçenek ${l.toUpperCase()}</label><input id="mf-o-${l}" type="text" placeholder="${l.toUpperCase()})"/></div>`
+    `<div class="form-field"><label>${l.toUpperCase()}</label><input id="mf-o-${l}" type="text" placeholder="${l.toUpperCase()})"/></div>`
   ).join('');
 
-  // 10 soru alanları
+  // 31–40 boşluklarının doğru cevabı (a–o)
   const opts15 = 'abcdefghijklmno'.split('').map(l=>`<option value="${l}">${l.toUpperCase()}</option>`).join('');
-  const qc = document.getElementById('mf-spb2-questions');
-  if (!qc) return;
-  qc.innerHTML = Array.from({length:10},(_,i)=>{
+  const ac = document.getElementById('mf-spb2-answers');
+  if (!ac) return;
+  ac.innerHTML = Array.from({length:10},(_,i)=>{
     const qNum = 31 + i;
-    return `<div style="background:var(--surface2);border-radius:8px;padding:.7rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.8rem;">
-      <div style="font-size:.8rem;font-weight:700;color:var(--accent);min-width:50px;">Soru ${qNum}</div>
-      <input id="mf-sq${i+1}" type="text" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.4rem .6rem;color:var(--text);font-size:.83rem;" placeholder="Soru metni (opsiyonel — genellikle metin içinde)"/>
-      <select id="mf-sq${i+1}-ans" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.35rem .5rem;color:var(--text);">
-        <option value="">Doğru şık</option>${opts15}
-      </select>
+    return `<div style="display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border-radius:7px;padding:.4rem .6rem;margin:0 .4rem .4rem 0;">
+      <span style="font-size:.8rem;font-weight:700;color:var(--accent);">(${qNum})</span>
+      <select id="mf-sq${i+1}-ans" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.3rem .45rem;color:var(--text);">${opts15}</select>
     </div>`;
   }).join('');
+}
+
+// ── HSV: audio + transkript + Richtig/Falsch sorular ──
+let pendingHsvBuffer = null, pendingHsvName = null, existingHsvAudioKey = null;
+function initHsvFields(modKey) {
+  const meta = MODUL_TYPES[modKey];
+  const count = meta?.count || 5;
+  const start = meta?.start || 41;
+  pendingHsvBuffer = null; pendingHsvName = null; existingHsvAudioKey = null;
+  document.getElementById('mf-hsv-transcript').value = '';
+  document.getElementById('hsv-audio-preview').style.display = 'none';
+  document.getElementById('mf-hsv-qlabel').textContent = `${count} Soru (${start}–${start+count-1}) · Richtig / Falsch`;
+  const qc = document.getElementById('mf-hsv-questions');
+  qc.innerHTML = Array.from({length:count},(_,i)=>{
+    const qNum = start + i;
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
+      <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum}</div>
+      <div class="form-field"><textarea id="mf-hsv-q${i+1}" style="min-height:55px;" placeholder="Aussage (ifade)..."></textarea></div>
+      <div class="form-field"><label>Doğru Cevap</label>
+        <select id="mf-hsv-q${i+1}-ans"><option value="R">Richtig</option><option value="F">Falsch</option></select>
+      </div>
+    </div>`;
+  }).join('');
+}
+function handleHsvFile(e){ const f=e.target.files[0]; if(f) processHsvFile(f); }
+function handleHsvDrop(e){ e.preventDefault(); document.getElementById('hsv-drop').classList.remove('drag'); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('audio/')) processHsvFile(f); }
+function processHsvFile(file){
+  pendingHsvName = file.name;
+  const r = new FileReader();
+  r.onload = ev => {
+    pendingHsvBuffer = ev.target.result;
+    const url = URL.createObjectURL(new Blob([pendingHsvBuffer],{type:'audio/mpeg'}));
+    document.getElementById('hsv-audio-name').textContent = '🎵 ' + file.name;
+    document.getElementById('hsv-audio-player').src = url;
+    document.getElementById('hsv-audio-preview').style.display = 'block';
+  };
+  r.readAsArrayBuffer(file);
 }
 
 function openModulForm() {
@@ -1155,14 +1219,37 @@ async function saveModulSet() {
     content = { text, gaps };
 
   } else if (structure === 'spb-t2') {
+    const text = document.getElementById('mf-spb2-text')?.value.trim()||'';
     const options = {};
     'abcdefghijklmno'.split('').forEach(l => { options[l] = document.getElementById('mf-o-'+l)?.value.trim()||''; });
-    const questions = [];
+    const gaps = [];
     for (let i=1; i<=10; i++) {
-      questions.push({ q: document.getElementById(`mf-sq${i}`)?.value.trim()||'', answer: document.getElementById(`mf-sq${i}-ans`)?.value||'' });
+      gaps.push({ answer: document.getElementById(`mf-sq${i}-ans`)?.value||'' });
     }
-    if (!Object.values(options).some(v=>v)) { showNotif('Hata','En az 1 seçenek girin.',true); return; }
-    content = { options, questions };
+    if (!text || !Object.values(options).some(v=>v)) { showNotif('Hata','Metin ve en az 1 seçenek gerekli.',true); return; }
+    content = { text, options, gaps };
+
+  } else if (structure === 'hsv') {
+    const meta = MODUL_TYPES[moduleKey];
+    const count = meta?.count || 5;
+    const transcript = document.getElementById('mf-hsv-transcript')?.value.trim()||'';
+    const questions = [];
+    for (let i=1; i<=count; i++) {
+      const a = document.getElementById(`mf-hsv-q${i}`)?.value.trim()||'';
+      questions.push({ aussage: a, answer: document.getElementById(`mf-hsv-q${i}-ans`)?.value||'R' });
+    }
+    if (!questions.some(q=>q.aussage)) { showNotif('Hata','En az 1 soru gerekli.',true); return; }
+
+    // Ses dosyası: yeni yüklendiyse Storage'a, yoksa mevcut key korunur
+    let audioKey = existingHsvAudioKey;
+    if (pendingHsvBuffer) {
+      audioKey = 'hsv_' + moduleKey + '_set' + setNum;
+      if (USE_SUPABASE) {
+        try { await sbUploadAudio(audioKey, pendingHsvBuffer); }
+        catch(e){ showNotif('Uyarı','Ses yüklenemedi: '+e.message, true); }
+      }
+    }
+    content = { audioKey: audioKey||null, transcript, questions };
   }
 
   const sets = loadModulSets();
@@ -1267,14 +1354,28 @@ function editModulSet(key, n) {
         document.getElementById(`mf-gap${i+1}-ans`).value = g.answer||'a';
       });
     } else if (structure === 'spb-t2') {
+      if (c.text) document.getElementById('mf-spb2-text').value = c.text;
       if (c.options) Object.entries(c.options).forEach(([l,v])=>{
         const el = document.getElementById('mf-o-'+l); if(el) el.value = v;
       });
-      if (c.questions) c.questions.forEach((q,i)=>{
-        const elQ   = document.getElementById(`mf-sq${i+1}`);
+      const gaps = c.gaps || c.questions || [];
+      gaps.forEach((g,i)=>{
         const elAns = document.getElementById(`mf-sq${i+1}-ans`);
-        if(elQ)   elQ.value   = q.q||'';
-        if(elAns) elAns.value = q.answer||'';
+        if(elAns) elAns.value = g.answer||'';
+      });
+    } else if (structure === 'hsv') {
+      existingHsvAudioKey = c.audioKey || null;
+      if (c.transcript) document.getElementById('mf-hsv-transcript').value = c.transcript;
+      if (c.audioKey && USE_SUPABASE) {
+        document.getElementById('hsv-audio-name').textContent = '🎵 Mevcut ses';
+        document.getElementById('hsv-audio-player').src = sbGetAudioUrl(c.audioKey);
+        document.getElementById('hsv-audio-preview').style.display = 'block';
+      }
+      if (c.questions) c.questions.forEach((q,i)=>{
+        const elQ = document.getElementById(`mf-hsv-q${i+1}`);
+        const elA = document.getElementById(`mf-hsv-q${i+1}-ans`);
+        if(elQ) elQ.value = q.aussage||'';
+        if(elA) elA.value = q.answer||'R';
       });
     }
     document.getElementById('modul-form-title').textContent = `Set ${n} Düzenle`;

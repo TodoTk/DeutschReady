@@ -83,6 +83,18 @@
   .spb2-sel:focus{border-color:var(--accent);}
   .spb2-sel.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
   .spb2-sel.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+  /* HSV — audio + Richtig/Falsch */
+  .audio-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .audio-label{font-size:.78rem;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .audio-block audio{flex:1;min-width:220px;height:38px;}
+  .hsv-q{padding:.8rem 0;border-bottom:1px solid var(--border);}
+  .hsv-q:last-child{border-bottom:none;}
+  .hsv-btn{padding:.45rem 1rem;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .15s;}
+  .hsv-btn:hover{border-color:var(--accent);color:var(--text);}
+  .hsv-btn.sel-r{border-color:var(--accent);color:var(--accent);background:rgba(122,171,255,.12);}
+  .hsv-btn.sel-f{border-color:var(--red);color:var(--red);background:rgba(255,112,112,.1);}
+  .hsv-btn.correct{border-color:var(--green)!important;color:var(--green)!important;background:rgba(52,214,114,.12)!important;}
+  .hsv-btn.wrong{border-color:var(--red)!important;color:var(--red)!important;background:rgba(255,112,112,.12)!important;}
   /* Feedback */
   .fb{font-size:.78rem;margin-top:.3rem;padding:.35rem .6rem;border-radius:5px;display:none;}
   .fb.show{display:block;}
@@ -229,6 +241,9 @@ const NUM = {
   'B1_LSV_T3': { start:11, count:10 },
   'B1_SPB_T1': { start:21, count:10 },
   'B1_SPB_T2': { start:31, count:10 },
+  'B1_HSV_T1': { start:41, count:5  },
+  'B1_HSV_T2': { start:46, count:10 },
+  'B1_HSV_T3': { start:56, count:5  },
 };
 
 /* ── Soru sayacı ── */
@@ -402,37 +417,83 @@ function renderSPBT1(content, startQ) {
 }
 
 /* ─────────────────────────────────────────────────
-   RENDER: SPB T2 (10 soru, 15 seçenek, 31-40)
+   RENDER: SPB T2 — metin-içi boşluk (31-40) + 15'li banka
 ──────────────────────────────────────────────────*/
 function renderSPBT2(content, startQ) {
-  const {options, questions} = content;
+  const {text, options, gaps} = content;
   const opts15 = Object.entries(options).filter(([,v])=>v).map(([l,v])=>
     `<option value="${l}">${l.toUpperCase()}) ${v}</option>`).join('');
 
-  const optRef = `<div class="spb2-opts">
-    <p>Seçenekler (a–o):</p>
-    ${Object.entries(options).filter(([,v])=>v).map(([l,v])=>`<div style="font-size:.82rem;padding:.12rem 0;"><strong>${l.toUpperCase()})</strong> ${v}</div>`).join('')}
-  </div>`;
-
-  const qRows = questions.map((q,i)=>{
+  let html = text || '';
+  const n = (gaps||[]).length || 10;
+  for (let i=0;i<n;i++){
     const qn=startQ+i; const id=`spb2-${qn}`;
     totalQ++;
-    return `<div class="spb2-q-row">
-      <div class="spb2-qnum">${qn}</div>
-      ${q.q ? `<div class="spb2-qt">${q.q}</div>` : '<div class="spb2-qt" style="color:var(--muted);font-size:.78rem;">—</div>'}
-      <select class="spb2-sel" id="${id}" onchange="markAnswered('${id}')">
-        <option value="">—</option>${opts15}
-      </select>
+    html = html.replace(`(${qn})`,
+      `<select class="gap-sel" id="${id}" onchange="markAnswered('${id}')"><option value="">…</option>${opts15}</select>`);
+  }
+
+  const bank = `<div class="spb2-opts">
+    <p>Wortbank (a–o):</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.3rem;">
+    ${Object.entries(options).filter(([,v])=>v).map(([l,v])=>`<div style="font-size:.82rem;"><strong style="color:var(--accent);">${l.toUpperCase()})</strong> ${v}</div>`).join('')}
+    </div>
+  </div>`;
+
+  return `<div class="section-card">
+    <div class="section-tag">Sprachbausteine · Teil 2 · Sorular ${startQ}–${startQ+n-1}</div>
+    <h2>Sprachbausteine – Teil 2</h2>
+    <p class="instr">Lesen Sie den Text und wählen Sie für jede Lücke (${startQ}–${startQ+n-1}) das passende Wort aus der Wortbank.</p>
+    ${bank}
+    <div class="spb-text" style="margin-top:1rem;">${html}</div>
+  </div>`;
+}
+
+/* ─────────────────────────────────────────────────
+   RENDER: HSV — audio + Richtig/Falsch sorular
+──────────────────────────────────────────────────*/
+function renderHSV(content, startQ, teilNo) {
+  const {audioKey, questions} = content;
+  const audioUrl = (audioKey && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(audioKey) : null;
+  const audioHTML = audioUrl
+    ? `<div class="audio-block"><span class="audio-label">🎧 Teil ${teilNo}</span><audio controls controlsList="nodownload" src="${audioUrl}"></audio></div>`
+    : '<div style="color:var(--yellow);font-size:.8rem;margin-bottom:.8rem;">⚠ Ses dosyası yok</div>';
+
+  const rows = (questions||[]).map((q,i)=>{
+    const qn=startQ+i; const id=`hsv-${qn}`;
+    totalQ++;
+    return `<div class="hsv-q">
+      <div style="display:flex;gap:.7rem;align-items:flex-start;">
+        <span style="font-size:.85rem;font-weight:800;color:var(--accent);min-width:26px;padding-top:.35rem;">${qn}</span>
+        <div style="flex:1;">
+          <div style="font-size:.9rem;color:var(--text);margin-bottom:.5rem;line-height:1.5;">${q.aussage}</div>
+          <div style="display:flex;gap:.5rem;">
+            <button class="hsv-btn" id="${id}-R" onclick="selHSV('${id}','R')">✓ Richtig</button>
+            <button class="hsv-btn" id="${id}-F" onclick="selHSV('${id}','F')">✗ Falsch</button>
+          </div>
+          <div class="fb" id="${id}-fb"></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 
   return `<div class="section-card">
-    <div class="section-tag">Sprachbausteine · Teil 2 · Sorular ${startQ}–${startQ+questions.length-1}</div>
-    <h2>Sprachbausteine – Teil 2</h2>
-    <p class="instr">Wählen Sie für jede Aufgabe (${startQ}–${startQ+questions.length-1}) die passende Antwort.</p>
-    ${optRef}
-    <div>${qRows}</div>
+    <div class="section-tag">Hörverstehen · Teil ${teilNo} · Sorular ${startQ}–${startQ+questions.length-1}</div>
+    <h2>Hörverstehen – Teil ${teilNo}</h2>
+    <p class="instr">Hören Sie den Text und entscheiden Sie: Richtig oder Falsch?</p>
+    ${audioHTML}
+    <div>${rows}</div>
   </div>`;
+}
+
+// HSV Richtig/Falsch seçimi
+const hsvAnswers = {};
+function selHSV(id, val) {
+  hsvAnswers[id] = val;
+  markAnswered(id);
+  const R=document.getElementById(id+'-R'), F=document.getElementById(id+'-F');
+  R.className='hsv-btn'+(val==='R'?' sel-r':'');
+  F.className='hsv-btn'+(val==='F'?' sel-f':'');
 }
 
 /* ─────────────────────────────────────────────────
@@ -494,11 +555,21 @@ function submitExam() {
         if(sel){sel.className='gap-sel'+(ok?' correct':' wrong');sel.disabled=true;}
       });
     } else if (type === 'spb-t2') {
-      content.questions.forEach((q,i)=>{
+      (content.gaps||content.questions||[]).forEach((g,i)=>{
         const qn=startQ+i; const id=`spb2-${qn}`;
         const sel=document.getElementById(id);
-        const ok=sel?.value===q.answer; if(ok) correct++;
-        if(sel){sel.className='spb2-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+        const ok=sel?.value===g.answer; if(ok) correct++;
+        if(sel){sel.className='gap-sel'+(ok?' correct':' wrong');sel.disabled=true;}
+      });
+    } else if (type === 'hsv') {
+      content.questions.forEach((q,i)=>{
+        const qn=startQ+i; const id=`hsv-${qn}`;
+        const sel=hsvAnswers[id]; const ok=sel===q.answer; if(ok) correct++;
+        const R=document.getElementById(id+'-R'), F=document.getElementById(id+'-F');
+        [R,F].forEach(b=>{ if(b){b.onclick=null;b.style.cursor='default';} });
+        if(q.answer==='R'){ R.classList.add('correct'); if(sel==='F') F.classList.add('wrong'); }
+        else { F.classList.add('correct'); if(sel==='R') R.classList.add('wrong'); }
+        if(isStudy){const fb=document.getElementById(id+'-fb');if(fb){fb.textContent=ok?'✓ Richtig':'✗ Doğru cevap: '+(q.answer==='R'?'Richtig':'Falsch');fb.className='fb show '+(ok?'ok':'err');}}
       });
     }
   });
@@ -537,10 +608,17 @@ function submitExam() {
       { key:'B1_SPB_T1', type:'spb-t1', startQ: NUM['B1_SPB_T1'].start },
       { key:'B1_SPB_T2', type:'spb-t2', startQ: NUM['B1_SPB_T2'].start },
     ];
+  } else if (MODULE === 'B1_HSV') {
+    parts = [
+      { key:'B1_HSV_T1', type:'hsv', startQ: NUM['B1_HSV_T1'].start, teil:1 },
+      { key:'B1_HSV_T2', type:'hsv', startQ: NUM['B1_HSV_T2'].start, teil:2 },
+      { key:'B1_HSV_T3', type:'hsv', startQ: NUM['B1_HSV_T3'].start, teil:3 },
+    ];
   } else if (NUM[MODULE]) {
     // Tekli bölüm önizleme
-    const structure = MODULE.includes('LSV_T1')?'lsv-t1':MODULE.includes('LSV_T2')?'lsv-t2':MODULE.includes('LSV_T3')?'lsv-t3':MODULE.includes('SPB_T1')?'spb-t1':'spb-t2';
-    parts = [{ key: MODULE, type: structure, startQ: NUM[MODULE].start }];
+    const structure = MODULE.includes('LSV_T1')?'lsv-t1':MODULE.includes('LSV_T2')?'lsv-t2':MODULE.includes('LSV_T3')?'lsv-t3':MODULE.includes('SPB_T1')?'spb-t1':MODULE.includes('SPB_T2')?'spb-t2':'hsv';
+    const teilNo = MODULE.includes('_T1')?1:MODULE.includes('_T2')?2:3;
+    parts = [{ key: MODULE, type: structure, startQ: NUM[MODULE].start, teil: teilNo }];
   } else {
     // Bilinmeyen modül
     document.getElementById('gate-title').textContent='Bilinmeyen modül';
@@ -562,7 +640,7 @@ function submitExam() {
   }
 
   // Başlık
-  const moduleLabel = MODULE==='B1_LSV'?'Leseverstehen':MODULE==='B1_SPB'?'Sprachbausteine':MODULE.replace('B1_','').replace('_',' ');
+  const moduleLabel = MODULE==='B1_LSV'?'Leseverstehen':MODULE==='B1_SPB'?'Sprachbausteine':MODULE==='B1_HSV'?'Hörverstehen':MODULE.replace('B1_','').replace('_',' ');
   document.getElementById('exam-badge').textContent = `${moduleLabel} · Set ${SET_NUM}`;
   document.getElementById('exam-title').textContent = moduleLabel;
   document.getElementById('exam-sub').textContent   = `Set ${SET_NUM} · ${isStudy?'Çalışma':'Sınav'} Modu`;
@@ -576,6 +654,7 @@ function submitExam() {
     else if (p.type==='lsv-t3') html += renderLSVT3(p.content, p.startQ);
     else if (p.type==='spb-t1') html += renderSPBT1(p.content, p.startQ);
     else if (p.type==='spb-t2') html += renderSPBT2(p.content, p.startQ);
+    else if (p.type==='hsv')    html += renderHSV(p.content, p.startQ, p.teil);
   }
 
   document.getElementById('question-area').innerHTML = html;
