@@ -22,7 +22,8 @@
   h1{font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;margin-bottom:.4rem;}
   .task-text{font-size:.95rem;line-height:1.75;color:var(--text);margin-bottom:1rem;}
   .points-list{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.2rem;}
-  .points-list li{font-size:.88rem;color:var(--muted);padding-left:1rem;}
+  .points-list li{font-size:.9rem;color:var(--text);padding-left:1.3rem;position:relative;}
+  .points-list li:before{content:'▪';position:absolute;left:.2rem;color:var(--accent);}
   .ai-eval-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;margin-top:.8rem;display:none;font-size:.87rem;line-height:1.7;color:var(--text);}
   .ai-eval-box.show{display:block;}
   .btn-evaluate{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;border:none;padding:.65rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;}
@@ -117,21 +118,41 @@ async function loadRandom() {
   renderQ(currentQ);
 }
 
+// Kullanıcı adını görev/örnek metnindeki yer tutuculara yerleştir
+function personalize(txt) {
+  if (!txt) return txt;
+  const name = (getSession()?.name || '').trim();
+  if (!name) return txt;
+  return txt.replace(/\[\s*(user\s*name|username|name|vorname|isim|ad soyad|ad)\s*\]/gi, name);
+}
+
+// telc B1 Schreiben standart yönergeleri (sabit)
+const SCH_INTRO  = 'Antworten Sie auf die E-Mail. Schreiben Sie etwas zu allen vier Punkten:';
+const SCH_OUTRO  = 'Überlegen Sie sich vor dem Schreiben eine passende Reihenfolge der Punkte, einen passenden Betreff, eine passende Anrede, Einleitung und einen passenden Schluss.';
+
 function renderQ(q) {
-  const pointsHTML = (q.points||[]).map(p=>`<li>${p}</li>`).join('');
+  const pointsHTML = (q.points||[]).map(p=>`<li>${personalize(p)}</li>`).join('');
   const exampleHTML = q.example && isStudy
     ? `<div style="margin-top:1rem;">
         <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Örnek Yanıtı Göster</button>
-        <div class="example-box" id="example-box">${q.example}</div>
+        <div class="example-box" id="example-box">${personalize(q.example)}</div>
        </div>` : '';
   const criteriaHTML = q.criteria && isStudy
     ? `<div class="criteria-box" id="criteria-box">${q.criteria}</div>` : '';
 
+  // Standart yönergeli maddeler bloğu (4 madde + üst/alt sabit ibareler)
+  const pointsBlock = pointsHTML ? `
+    <div style="background:var(--surface2);border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.2rem;">
+      <div style="font-style:italic;font-size:.87rem;color:var(--text);margin-bottom:.7rem;">${SCH_INTRO}</div>
+      <ul class="points-list" style="margin-bottom:.9rem;">${pointsHTML}</ul>
+      <div style="font-style:italic;font-size:.83rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.7rem;">${SCH_OUTRO}</div>
+    </div>` : '';
+
   document.getElementById('question-area').innerHTML = `
     <div class="card">
       <div class="tag">${q.type==='brief'?'Brief (Mektup)':q.type==='email'?'E-Mail':'Notiz'} · ${q.level}${q.setNo?` · Set ${q.setNo}`:''}</div>
-      <div class="task-text">${q.task}</div>
-      ${pointsHTML ? `<ul class="points-list">${pointsHTML}</ul>` : ''}
+      <div class="task-text">${personalize(q.task)}</div>
+      ${pointsBlock}
       ${criteriaHTML}
     </div>
     <div class="card">
