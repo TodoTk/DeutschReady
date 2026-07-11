@@ -21,6 +21,9 @@ button{cursor:pointer;font-family:inherit;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:.9rem 2rem;border-bottom:1px solid var(--border);background:rgba(15,17,23,.97);position:sticky;top:0;z-index:200;}
 .logo{font-weight:800;font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .topbar-right{display:flex;align-items:center;gap:1rem;}
+.lang-switch{display:flex;gap:2px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:2px;}
+.lang-switch button{background:none;border:none;color:var(--muted);font-size:.76rem;font-weight:700;padding:.28rem .48rem;border-radius:6px;cursor:pointer;transition:all .15s;}
+.lang-switch button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
 .back-link{font-size:.82rem;color:var(--muted);}
 .back-link:hover{color:var(--accent);}
 .logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:7px;font-size:.82rem;display:none;}
@@ -155,6 +158,11 @@ button{cursor:pointer;font-family:inherit;}
 <div class="topbar">
   <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="PrufReady" style="height:60px;display:block;"/></a>
   <div class="topbar-right">
+    <div class="lang-switch" id="lang-switch">
+      <button data-lang="tr" onclick="setLang('tr')">TR</button>
+      <button data-lang="en" onclick="setLang('en')">EN</button>
+      <button data-lang="de" onclick="setLang('de')">DE</button>
+    </div>
     <a href="index.html" class="back-link">← Ana Sayfa</a>
     <button id="settings-btn" onclick="openSettings()" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:7px;font-size:.82rem;">⚙️ Ayarlar</button>
     <a href="admin.html" id="admin-link" style="display:none;font-size:.78rem;font-weight:700;color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:7px;padding:.3rem .7rem;">⚙️ Admin</a>
@@ -260,6 +268,7 @@ button{cursor:pointer;font-family:inherit;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
+<script src="i18n-dom.js"></script>
 <script>
 /* ── DATA ── */
 // Demo hesaplar kaldırıldı — tüm hesaplar Supabase üzerinden yönetilir
@@ -524,6 +533,9 @@ function renderDash(u) {
   // Ayarlar butonu: kayıtlı öğrencilere göster (demo hesaplarda gizli)
   const setBtn = document.getElementById('settings-btn');
   if (setBtn) setBtn.style.display = (u.role==='student' && u.source==='registered') ? 'inline-block' : 'none';
+
+  // Dinamik içerik render edildi — seçili dile çevir
+  if (typeof translatePage === 'function') translatePage(CUR_LANG);
 }
 
 // Admin yetkisi olan e-postalar
@@ -867,36 +879,15 @@ function studentDash(u) {
 
   ${statsHTML}
 
-  <div class="grid2">
-    <div class="panel">
-      <h3><span>📅</span> Mock Exam Rezervasyonu</h3>
-      <div class="week-tabs">
-        <button class="wtab active" id="wtab-0" onclick="switchWeek(0)">Bu Hafta</button>
-        <button class="wtab" id="wtab-1" onclick="switchWeek(1)">Gelecek Hafta</button>
-      </div>
-      <div class="day-rail" id="day-rail"></div>
-      <div class="slot-list" id="slot-list"></div>
-      <div class="cal-legend" style="margin-top:.7rem;">
-        <div class="cl-item"><div class="cl-dot" style="background:var(--green)"></div>2 yer</div>
-        <div class="cl-item"><div class="cl-dot" style="background:var(--yellow)"></div>1 yer kaldı</div>
-        <div class="cl-item"><div class="cl-dot" style="background:var(--muted)"></div>Dolu/Farklı seviye</div>
-      </div>
-    </div>
-    <div class="panel">
-      <h3><span>📝</span> Sınav Merkezi</h3>
-      <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.3rem;">
-        ${examLinksHTML}
-        <a href="video-room.html" style="display:block;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:.7rem 1rem;border-radius:8px;font-weight:700;font-size:.85rem;text-align:center;">🎥 Mock Exam Görüşme Odasını Test Et</a>
-        <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
-          <strong>Mock Exam Credit:</strong> <span style="color:var(--green);font-weight:800;">${u.credits}</span>
-          ${u.credits===0?'<br><span style="color:var(--muted);font-size:.76rem;">Kredi bitti — ek oturum satın alın.</span>':'<br><span style="color:var(--muted);font-size:.76rem;">Takvimden oturum rezerve edin.</span>'}
-        </div>
-        ${u.source==='registered' ? `
-        <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
-          <strong>Seviyen: ${u.level}</strong><br>
-          <span style="color:var(--muted);font-size:.76rem;">Ücretsiz hesabınla yalnızca ${u.level} sorularına erişebilirsin. ${u.level==='A1'?'B1':'A1'} için tam üyelik (€29,90) gerekir.</span>
-        </div>` : ''}
-      </div>
+  <div class="panel">
+    <h3><span>📝</span> Sınav Merkezi</h3>
+    <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.3rem;">
+      ${examLinksHTML}
+      ${u.source==='registered' ? `
+      <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
+        <strong>Seviyen: ${u.level}</strong><br>
+        <span style="color:var(--muted);font-size:.76rem;">Ücretsiz hesabınla yalnızca ${u.level} sorularına erişebilirsin. ${u.level==='A1'?'B1':'A1'} için tam üyelik gerekir.</span>
+      </div>` : ''}
     </div>
   </div>
 
@@ -1251,6 +1242,7 @@ function showLevelPickModal(key){
       <button onclick="document.getElementById('level-pick-modal').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:.45rem 1rem;border-radius:7px;cursor:pointer;font-size:.82rem;">İptal</button>
     </div>`;
   document.body.appendChild(modal);
+  if(typeof translatePage==="function") translatePage(CUR_LANG);
 }
 
 /* ── INSTRUCTOR: open/close 30-min lesson slots (writes to the same shared schedule) ── */
@@ -1411,6 +1403,7 @@ function showExamDetail(lvl, histIdx){
       ${sectionRows.join('')}
     </div>`;
   document.body.appendChild(modal);
+  if(typeof translatePage==="function") translatePage(CUR_LANG);
 }
 
 /* ── TÜM SINAVLAR MODAL ── */
@@ -1471,6 +1464,7 @@ function showAllExams(lvl){
       </table>
     </div>`;
   document.body.appendChild(modal);
+  if(typeof translatePage==="function") translatePage(CUR_LANG);
 }
 
 /* ── NOTIF ── */
@@ -1495,6 +1489,7 @@ function openSettings() {
   ['set-account-msg','set-email-msg','set-password-msg'].forEach(id=>{ const e=document.getElementById(id); e.textContent=''; e.className='set-msg'; });
   setSettingsTab('account');
   document.getElementById('settings-modal').style.display = 'flex';
+  if(typeof translatePage==='function') translatePage(CUR_LANG);
 }
 function closeSettings() {
   document.getElementById('settings-modal').style.display = 'none';
@@ -1564,6 +1559,8 @@ async function savePassword() {
 /* ── INIT ── */
 // Admin butonu artık renderDash içinde, sadece admin e-postalarına gösterilir
 renderHints();
+// Kayıtlı dili login ekranı ve statik metinlere uygula
+if (typeof translatePage === 'function') translatePage(CUR_LANG);
 
 // Önce Supabase'den modül setlerini + schreiben sorularını çek → localStorage'a yaz
 // (dashboard render bunları senkron okuyor)
