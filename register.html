@@ -109,6 +109,7 @@ button { cursor: pointer; font-family: inherit; }
       <div class="field"><label data-i18n="f_name">Ad Soyad</label><input type="text" id="reg-name" placeholder="Ayşe Kaya"/></div>
       <div class="field"><label data-i18n="f_email">E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com"/></div>
       <div class="field"><label data-i18n="f_pw">Şifre</label><input type="password" id="reg-pw" placeholder="En az 6 karakter"/></div>
+      <div class="field"><label data-i18n="f_ref">Referans Kodu (opsiyonel)</label><input type="text" id="reg-ref" placeholder="REF-XXXXXX"/></div>
       <div class="err" id="err-account"></div>
 
       <button class="next-btn" onclick="goToLevelStep()" data-i18n="ra_next">Devam Et →</button>
@@ -186,7 +187,7 @@ const I18N = {
     rr_ins_t:"Eğitmen Kaydı", rr_ins_d:"Öğrencilere koçluk yap. Başvurun onaydan sonra aktifleşir.",
     rr_have:"Zaten hesabın var mı?", rr_login:"Giriş yap",
     ra_title:"Ücretsiz Hesap Oluştur", ra_sub:"1 dakikada hesabını aç, ücretsiz deneme sınavına başla.",
-    f_name:"Ad Soyad", f_email:"E-posta", f_pw:"Şifre", ra_next:"Devam Et →", back:"← Geri dön",
+    f_name:"Ad Soyad", f_ref:"Referans Kodu (opsiyonel)", f_email:"E-posta", f_pw:"Şifre", ra_next:"Devam Et →", back:"← Geri dön",
     ri_title:"Eğitmen Başvurusu", ri_sub:"Bilgilerini gir. Başvurun incelendikten sonra hesabın aktifleşir.",
     ri_exp_lvl:"Uzmanlık Seviyesi", ri_exp:"Deneyim", ri_note:"Kısa Mesaj (opsiyonel)", ri_submit:"Başvuruyu Gönder →",
     rd_title:"Başvurun Alındı!", rd_sub:"Eğitmen başvurun incelemeye alındı. Onaylandığında e-posta ve şifrenle giriş yapabileceksin.", rd_home:"Ana Sayfaya Dön",
@@ -199,7 +200,7 @@ const I18N = {
     rr_ins_t:"Instructor Sign Up", rr_ins_d:"Coach students. Your account activates after approval.",
     rr_have:"Already have an account?", rr_login:"Log in",
     ra_title:"Create a Free Account", ra_sub:"Open your account in 1 minute and start the free trial exam.",
-    f_name:"Full Name", f_email:"Email", f_pw:"Password", ra_next:"Continue →", back:"← Go back",
+    f_name:"Full Name", f_ref:"Referral Code (optional)", f_email:"Email", f_pw:"Password", ra_next:"Continue →", back:"← Go back",
     ri_title:"Instructor Application", ri_sub:"Enter your details. Your account activates after your application is reviewed.",
     ri_exp_lvl:"Area of Expertise", ri_exp:"Experience", ri_note:"Short Message (optional)", ri_submit:"Submit Application →",
     rd_title:"Application Received!", rd_sub:"Your instructor application is under review. Once approved, you can log in with your email and password.", rd_home:"Back to Home",
@@ -212,7 +213,7 @@ const I18N = {
     rr_ins_t:"Trainer-Registrierung", rr_ins_d:"Coache Lernende. Dein Konto wird nach der Freigabe aktiviert.",
     rr_have:"Hast du schon ein Konto?", rr_login:"Anmelden",
     ra_title:"Kostenloses Konto erstellen", ra_sub:"Eröffne dein Konto in 1 Minute und starte die kostenlose Testprüfung.",
-    f_name:"Vollständiger Name", f_email:"E-Mail", f_pw:"Passwort", ra_next:"Weiter →", back:"← Zurück",
+    f_name:"Vollständiger Name", f_ref:"Empfehlungscode (optional)", f_email:"E-Mail", f_pw:"Passwort", ra_next:"Weiter →", back:"← Zurück",
     ri_title:"Trainer-Bewerbung", ri_sub:"Gib deine Daten ein. Dein Konto wird nach Prüfung deiner Bewerbung aktiviert.",
     ri_exp_lvl:"Fachgebiet", ri_exp:"Erfahrung", ri_note:"Kurze Nachricht (optional)", ri_submit:"Bewerbung absenden →",
     rd_title:"Bewerbung erhalten!", rd_sub:"Deine Trainer-Bewerbung wird geprüft. Nach der Freigabe kannst du dich mit E-Mail und Passwort anmelden.", rd_home:"Zurück zur Startseite",
@@ -235,6 +236,15 @@ const SESSION_KEY   = 'examready_session_v1';
 const REG_USERS_KEY = 'examready_registered_users_v1';
 
 let chosenLevel = null;
+
+// URL'de ?ref=KOD varsa referans alanını otomatik doldur
+(function prefillRef(){
+  const ref = new URLSearchParams(location.search).get('ref');
+  if (ref) {
+    const el = document.getElementById('reg-ref');
+    if (el) el.value = ref.toUpperCase();
+  }
+})();
 
 // ── ROL SEÇİMİ ──
 function chooseRole(role) {
@@ -344,10 +354,12 @@ async function completeRegistration() {
   const color    = colors[Math.floor(Math.random()*colors.length)];
   const refCode  = 'REF-' + Math.random().toString(36).substring(2,8).toUpperCase();
 
+  const refInput = (document.getElementById('reg-ref').value || '').trim().toUpperCase() || null;
+
   try {
     if (USE_SUPABASE) {
-      // ── Supabase Auth kaydı ──
-      await sbSignUp(email, pw, name, chosenLevel);
+      // ── Supabase Auth kaydı (referans kodu ile) ──
+      await sbSignUp(email, pw, name, chosenLevel, refInput);
     } else {
       // ── localStorage fallback ──
       const regUsers = loadRegisteredUsers();

@@ -8,7 +8,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ── AUTH ─────────────────────────────────────────────────────
 
-async function sbSignUp(email, password, name, level) {
+async function sbSignUp(email, password, name, level, referredBy) {
   const { data, error } = await sb.auth.signUp({
     email, password,
     options: { data: { name, level } }
@@ -26,7 +26,21 @@ async function sbSignUp(email, password, name, level) {
       role          : 'student',
       source        : 'registered',
       referral_code : 'REF' + Math.random().toString(36).substr(2,6).toUpperCase(),
+      referred_by   : referredBy || null,
     });
+
+    // Davet eden varsa referral_count'unu artır
+    if (referredBy) {
+      try {
+        const { data: ref } = await sb.from('profiles')
+          .select('id,referral_count').eq('referral_code', referredBy).single();
+        if (ref) {
+          await sb.from('profiles')
+            .update({ referral_count: (ref.referral_count||0) + 1 })
+            .eq('id', ref.id);
+        }
+      } catch(e) { console.warn('Referral sayacı güncellenemedi:', e); }
+    }
   }
   return data;
 }
