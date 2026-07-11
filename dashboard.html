@@ -755,7 +755,8 @@ function studentDash(u) {
   // Demo & premium → tümü açık | Ücretsiz → 1 + her 5 referansta +1
   const MAX_SETS = 15;
   const isPremium = u.source !== 'registered' || !!u.unlockedFull;
-  const unlockCount = isPremium ? MAX_SETS : Math.min(MAX_SETS, 1 + Math.floor((u.referralCount||0)/3));
+  // Ücretsiz: ilk 2 set hediye + her referans için +1 set
+  const unlockCount = isPremium ? MAX_SETS : Math.min(MAX_SETS, 2 + (u.referralCount||0));
 
   // Admin modül setleri — tüm veriyi tek seferde yükle
   const _adminAll = (()=>{ try{return JSON.parse(localStorage.getItem('examready_module_sets_v1')||'{}')}catch(e){return {};} })();
@@ -805,7 +806,7 @@ function studentDash(u) {
       const isUnlocked = n <= unlockCount;
 
       if (!isUnlocked) {
-        const tip = isPremium ? '' : `${Math.max(0,(n-unlockCount)*3-(u.referralCount||0)%3)} referans daha gerekli`;
+        const tip = isPremium ? '' : `${n-unlockCount} referans daha gerekli`;
         return `<span title="${tip}" style="${circleLocked}">🔒</span>`;
       }
 
@@ -845,7 +846,7 @@ function studentDash(u) {
         ${modRow('Sprachbausteine','B1_SPB', [], {checker: hasSPBSet})}
         ${modRow('Schreiben',      'B1_SCH', [], {schreiben:true, href:'exam_Telc_B1_sch.html'})}
       </div>
-      ${!isPremium ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">🔒 Kilit: ücretsiz hesap → 1 set açık · Her 3 referans → +1 set · Premium → tümü açık</div>` : ''}
+      ${!isPremium ? `<div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">🔒 Ücretsiz hesap → 2 set hediye · Her davet → +1 set · Premium → tümü açık</div>` : ''}
       ${modeHint}
     </div>`;
 
@@ -893,7 +894,7 @@ function studentDash(u) {
 
   <div class="panel" style="margin-top:1.2rem;">
     <h3><span>🎁</span> Arkadaşlarını Davet Et, Ücretsiz Soru Setleri Kazan</h3>
-    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">Her 3 arkadaşın bir soru setini tamamladığında, hesabında otomatik olarak 1 yeni soru seti ücretsiz açılır. Davet sınırı yok.</p>
+    <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem;">Kayıt olurken 2 set hediye. Davet ettiğin her arkadaş için 1 yeni soru seti ücretsiz açılır. Davet sınırı yok.</p>
     <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:.8rem;">
       <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Davet Bağlantın</div>
       <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
@@ -902,13 +903,10 @@ function studentDash(u) {
       </div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;font-size:.83rem;">
-      <span style="color:var(--muted);">Sonraki sete kalan</span>
-      <span style="font-weight:800;color:var(--green);">${(u.referralCount||0)%3} <span style="color:var(--muted);font-weight:400;">/ 3 arkadaş</span></span>
+      <span style="color:var(--muted);">Davet ettiğin arkadaş</span>
+      <span style="font-weight:800;color:var(--green);">${u.referralCount||0} <span style="color:var(--muted);font-weight:400;">→ ${u.referralCount||0} ekstra set</span></span>
     </div>
-    <div style="background:var(--border);border-radius:4px;height:6px;margin:.5rem 0;overflow:hidden;">
-      <div style="height:100%;width:${Math.min(100,(((u.referralCount||0)%3)/3)*100)}%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:4px;transition:width .4s;"></div>
-    </div>
-    <div style="font-size:.75rem;color:var(--muted);">${3-((u.referralCount||0)%3)} arkadaş daha → 1 yeni soru seti 🎯</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;">Her davet ettiğin arkadaş için 1 yeni soru seti açılır 🎯</div>
   </div>`;
 }
 
