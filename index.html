@@ -675,6 +675,9 @@
     }
   };
 
+  // Giriş yapmış kullanıcı için "Profile git" buton metni (dile göre)
+  const PROFILE_BTN = { tr:'📊 Profilime Git →', en:'📊 Go to Profile →', de:'📊 Zum Profil →' };
+
   function setLang(lang) {
     if (!I18N[lang]) lang = 'tr';
     localStorage.setItem('prufready_lang', lang);
@@ -686,6 +689,8 @@
     });
     document.querySelectorAll('#lang-switch button').forEach(b =>
       b.classList.toggle('active', b.dataset.lang === lang));
+    // Dil değişince giriş-durumu arayüzünü tekrar uygula (aksi halde çıkış yapılmış gibi görünür)
+    applyAuthUI();
   }
 
   // Sayfa açılışında kayıtlı dili uygula
@@ -729,41 +734,46 @@
     }
   }
 
-  // --- SESSION-AWARE UI ---
-  (function(){
+  // --- SESSION-AWARE UI (açılışta + her dil değişiminde çağrılır) ---
+  function applyAuthUI(){
     try {
+      const lang = localStorage.getItem('prufready_lang') || 'de';
       const raw = localStorage.getItem('examready_session_v1');
       const freeBtnIds = ['hero-free-btn','demo-free-btn','price-free-btn','cta-free-btn'];
-      if (raw) {
-        const sess = JSON.parse(raw);
-        if (sess && sess.name) {
-          // Giriş yapılmış: butonları "Profilime Git" yap ve dashboard'a yönlendir
-          freeBtnIds.forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.textContent = '📊 Profilime Git →';
-            el.removeAttribute('onclick');
-            el.setAttribute('href', 'dashboard.html');
-            el.onclick = function(){ window.location.href = 'dashboard.html'; };
-          });
+      let sess = null;
+      if (raw) { try { sess = JSON.parse(raw); } catch(e){} }
 
-          // demo-test bölümünü de güncelle
-          const demoSection = document.getElementById('demo-test');
-          if (demoSection) demoSection.style.display = 'none';
-
-          const link = document.getElementById('nav-auth-link');
-          if (link) {
-            link.textContent = '👤 ' + sess.name.split(' ')[0];
-            link.href = 'dashboard.html';
-            link.style.color = 'var(--accent)';
-            link.style.fontWeight = '700';
-          }
-          const regBtn = document.getElementById('nav-register-btn');
-          if (regBtn) regBtn.style.display = 'none';
+      if (sess && sess.name) {
+        // Giriş yapılmış: butonları "Profile git" yap ve dashboard'a yönlendir
+        freeBtnIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.textContent = PROFILE_BTN[lang] || PROFILE_BTN.de;
+          el.removeAttribute('onclick');
+          el.setAttribute('href', 'dashboard.html');
+          el.onclick = function(){ window.location.href = 'dashboard.html'; };
+        });
+        const demoSection = document.getElementById('demo-test');
+        if (demoSection) demoSection.style.display = 'none';
+        const link = document.getElementById('nav-auth-link');
+        if (link) {
+          link.textContent = '👤 ' + sess.name.split(' ')[0];
+          link.href = 'dashboard.html';
+          link.style.color = 'var(--accent)';
+          link.style.fontWeight = '700';
         }
+        const regBtn = document.getElementById('nav-register-btn');
+        if (regBtn) regBtn.style.display = 'none';
+      } else {
+        // Giriş yok: demo bölümünü göster, kayıt butonunu geri getir
+        const demoSection = document.getElementById('demo-test');
+        if (demoSection) demoSection.style.display = '';
+        const regBtn = document.getElementById('nav-register-btn');
+        if (regBtn) regBtn.style.display = '';
       }
     } catch(e){}
-  })();
+  }
+  applyAuthUI();
 </script>
 </body>
 </html>
