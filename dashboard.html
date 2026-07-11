@@ -884,11 +884,6 @@ function studentDash(u) {
     <h3><span>📝</span> Sınav Merkezi</h3>
     <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.3rem;">
       ${examLinksHTML}
-      ${u.source==='registered' ? `
-      <div style="background:var(--surface2);border-radius:8px;padding:.9rem;font-size:.83rem;">
-        <strong>Seviyen: ${u.level}</strong><br>
-        <span style="color:var(--muted);font-size:.76rem;">Ücretsiz hesabınla yalnızca ${u.level} sorularına erişebilirsin. ${u.level==='A1'?'B1':'A1'} için tam üyelik gerekir.</span>
-      </div>` : ''}
     </div>
   </div>
 

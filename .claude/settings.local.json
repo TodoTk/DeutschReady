@@ -11,7 +11,8 @@
       "Bash(awk 'NR==251 {print substr\\($0,1,200\\)}' index.html)",
       "Bash(python3 _i18n_apply.py)",
       "Bash(python3 _i18n_apply2.py)",
-      "Bash(python3)"
+      "Bash(python3)",
+      "Bash(grep -n \"Seviyen: \\\\${u.level}\\\\|Ücretsiz hesabınla yalnızca\" dashboard.html)"
     ]
   }
 }
