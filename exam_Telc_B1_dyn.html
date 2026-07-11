@@ -226,9 +226,11 @@ const TX = {
   fragen      : ()=>L('Fragen','Questions','Sorular'),
   chooseHead  : ()=>L('— Überschrift wählen —','— Choose heading —','— Başlık seç —'),
   chooseAd    : ()=>L('— Anzeige —','— Ad —','— İlan —'),
-  instrT1     : (a,b)=>L(`Ordnen Sie jedem Text (${a}–${b}) die passende Überschrift zu. Fünf Überschriften bleiben übrig.`,`Match each text (${a}–${b}) with the correct heading. Five headings are not used.`,`Her metne (${a}–${b}) uygun başlığı seçin. Beş başlık kullanılmaz.`),
-  instrT2     : ()=>L('Lesen Sie den Text und wählen Sie für jede Aufgabe die richtige Lösung (a, b oder c).','Read the text and choose the correct answer (a, b or c) for each task.','Metni okuyun ve her soru için doğru cevabı (a, b veya c) seçin.'),
-  instrT3     : (a,b)=>L(`Ordnen Sie jeder Situation (${a}–${b}) die passende Anzeige zu. Gibt es keine passende Anzeige, wählen Sie X.`,`Match each situation (${a}–${b}) with the right ad. If there is no suitable ad, choose X.`,`Her duruma (${a}–${b}) uygun ilanı seçin. Uygun ilan yoksa X seçin.`),
+  instrT1     : (a,b)=>L(`Lesen Sie die Überschriften und die Texte ${a}–${b}. Finden Sie für jeden Text die passende Überschrift. Sie können jede Überschrift nur einmal benutzen.`,`Read the headings and texts ${a}–${b}. Find the matching heading for each text. Each heading can only be used once.`,`Başlıkları ve ${a}–${b} metinlerini okuyun. Her metne uygun başlığı bulun. Her başlık yalnızca bir kez kullanılır.`),
+  instrT2     : (a,b)=>L(`Lesen Sie den Text und die Aufgaben ${a}–${b}. Welche Lösung (a, b oder c) ist jeweils richtig?`,`Read the text and tasks ${a}–${b}. Which answer (a, b or c) is correct in each case?`,`Metni ve ${a}–${b} sorularını okuyun. Her soruda hangi cevap (a, b veya c) doğru?`),
+  instrT3     : (a,b)=>L(`Lesen Sie die Situationen ${a}–${b} und die Anzeigen. Finden Sie für jede Situation die passende Anzeige. Sie können jede Anzeige nur einmal benutzen. Wenn Sie keine passende Anzeige finden, markieren Sie X.`,`Read situations ${a}–${b} and the ads. Find the matching ad for each situation. Each ad can only be used once. If there is no matching ad, mark X.`,`${a}–${b} durumlarını ve ilanları okuyun. Her duruma uygun ilanı bulun. Her ilan yalnızca bir kez kullanılır. Uygun ilan yoksa X işaretleyin.`),
+  instrSPB1   : (a,b)=>L(`Lesen Sie den Text und schließen Sie die Lücken ${a}–${b}. Welche Lösung (a, b oder c) ist jeweils richtig?`,`Read the text and fill the gaps ${a}–${b}. Which answer (a, b or c) is correct in each case?`,`Metni okuyun ve ${a}–${b} boşluklarını doldurun. Her boşlukta hangi cevap (a, b veya c) doğru?`),
+  instrSPB2   : (a,b)=>L(`Lesen Sie den Text und schließen Sie die Lücken ${a}–${b}. Benutzen Sie die Wörter a–o. Jedes Wort können Sie nur einmal benutzen.`,`Read the text and fill the gaps ${a}–${b}. Use the words a–o. Each word can only be used once.`,`Metni okuyun ve ${a}–${b} boşluklarını doldurun. a–o kelimelerini kullanın. Her kelime yalnızca bir kez kullanılır.`),
 };
 
 // Statik arayüz metinlerini dile göre ayarla
@@ -367,7 +369,7 @@ function renderLSVT2(content, startQ) {
     <div style="margin-bottom:.8rem;">
       <div class="section-tag">Leseverstehen · Teil 2 · ${TX.fragen()} ${startQ}–${startQ+questions.length-1}</div>
       <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 2</h2>
-      <p class="instr" style="margin-bottom:0;">${TX.instrT2()}</p>
+      <p class="instr" style="margin-bottom:0;">${TX.instrT2(startQ,startQ+questions.length-1)}</p>
     </div>
     <div class="split-layout">
       <div class="split-questions">${questionRows}</div>
@@ -444,7 +446,7 @@ function renderSPBT1(content, startQ) {
   return `<div class="section-card">
     <div class="section-tag">Sprachbausteine · Teil 1 · ${TX.fragen()} ${startQ}–${startQ+gaps.length-1}</div>
     <h2>Sprachbausteine – Teil 1</h2>
-    <p class="instr">Wählen Sie für jede Lücke (${startQ}–${startQ+gaps.length-1}) das richtige Wort.</p>
+    <p class="instr">${TX.instrSPB1(startQ,startQ+gaps.length-1)}</p>
     <div class="spb-text">${html}</div>
   </div>`;
 }
@@ -476,7 +478,7 @@ function renderSPBT2(content, startQ) {
   return `<div class="section-card">
     <div class="section-tag">Sprachbausteine · Teil 2 · ${TX.fragen()} ${startQ}–${startQ+n-1}</div>
     <h2>Sprachbausteine – Teil 2</h2>
-    <p class="instr">Lesen Sie den Text und wählen Sie für jede Lücke (${startQ}–${startQ+n-1}) das passende Wort aus der Wortbank.</p>
+    <p class="instr">${TX.instrSPB2(startQ,startQ+n-1)}</p>
     ${bank}
     <div class="spb-text" style="margin-top:1rem;">${html}</div>
   </div>`;
