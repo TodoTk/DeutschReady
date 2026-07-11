@@ -79,6 +79,15 @@ input,select,textarea{font-family:inherit;}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--accent);}
 .form-field textarea{resize:vertical;min-height:80px;}
 .form-row{display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;}
+/* Görsel metin editörü (WYSIWYG) */
+.rte-wrap{margin-bottom:.3rem;}
+.rte-toolbar{display:flex;gap:.2rem;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;padding:.3rem;}
+.rte-toolbar button{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:5px;min-width:30px;height:28px;font-size:.8rem;cursor:pointer;padding:0 .45rem;line-height:1;}
+.rte-toolbar button:hover{border-color:var(--accent);color:var(--accent);}
+.rte-editor{background:var(--surface2);border:1px solid var(--border);border-radius:0 0 8px 8px;padding:.6rem .85rem;color:var(--text);font-size:.88rem;min-height:80px;outline:none;line-height:1.7;overflow-wrap:anywhere;}
+.rte-editor:focus{border-color:var(--accent);}
+.rte-editor h3{font-size:1.15rem;margin:.3rem 0;color:var(--text);}
+.rte-editor:empty:before{content:attr(data-ph);color:var(--muted);}
 .form-actions{display:flex;gap:.6rem;margin-top:.5rem;}
 
 /* AUDIO DROP ZONE */
@@ -991,6 +1000,56 @@ function setModulType(key) {
   closeModulForm();
 }
 
+// ── Görsel metin editörü (WYSIWYG) ──
+// textarea'yı gizler, üstüne araç çubuğu + düzenlenebilir alan koyar.
+// Yazılanları arka planda textarea.value'ya HTML olarak senkronlar,
+// böylece kaydetme/yükleme kodu hiç değişmeden çalışır.
+function makeRich(el){
+  if(!el || el.dataset.rte) return;
+  el.dataset.rte='1';
+  const ph = el.getAttribute('placeholder')||'';
+  el.style.display='none';
+  const wrap=document.createElement('div'); wrap.className='rte-wrap';
+  const tb=document.createElement('div'); tb.className='rte-toolbar';
+  tb.innerHTML=`
+    <button type="button" data-cmd="bold" title="Kalın"><b>B</b></button>
+    <button type="button" data-cmd="italic" title="İtalik"><i>I</i></button>
+    <button type="button" data-cmd="underline" title="Altı çizili"><u>U</u></button>
+    <button type="button" data-block="h3" title="Başlık (büyük)">H</button>
+    <button type="button" data-size="5" title="Büyük yazı">A+</button>
+    <button type="button" data-size="3" title="Normal">A</button>
+    <button type="button" data-size="1" title="Küçük yazı">a-</button>
+    <button type="button" data-cmd="insertUnorderedList" title="Liste">•</button>
+    <button type="button" data-cmd="removeFormat" title="Biçimi temizle">✕</button>`;
+  const ed=document.createElement('div'); ed.className='rte-editor';
+  ed.contentEditable='true'; ed.setAttribute('data-ph', ph); ed.innerHTML=el.value||'';
+  tb.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('mousedown',e=>{
+      e.preventDefault(); ed.focus();
+      if(b.dataset.cmd)        document.execCommand(b.dataset.cmd,false,null);
+      else if(b.dataset.block) document.execCommand('formatBlock',false,b.dataset.block);
+      else if(b.dataset.size)  document.execCommand('fontSize',false,b.dataset.size);
+      el.value=ed.innerHTML;
+    });
+  });
+  ed.addEventListener('input',()=>{ el.value=ed.innerHTML; });
+  // programatik .value degisimini editore yansit (duzenleme modu icin)
+  const proto=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
+  Object.defineProperty(el,'value',{
+    configurable:true,
+    get(){ return proto.get.call(el); },
+    set(v){ proto.set.call(el,v); ed.innerHTML=v||''; }
+  });
+  el.parentNode.insertBefore(wrap, el);
+  wrap.appendChild(tb); wrap.appendChild(ed); wrap.appendChild(el);
+}
+function richifyAll(){
+  const ids=['mf-t2-text','mf-spb-text','mf-spb2-text','mf-hsv-transcript','sf-task','sf-example'];
+  for(let i=1;i<=5;i++) ids.push('mf-text-'+i);
+  'abcdefghijkl'.split('').forEach(l=>ids.push('mf-ad-'+l));
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) makeRich(el); });
+}
+
 function updateModulTypeUI() {
   const modKey = document.getElementById('mf-module').value;
   const type = MODUL_TYPES[modKey]?.structure || 'lsv-t1';
@@ -1004,6 +1063,7 @@ function updateModulTypeUI() {
   if (type==='spb-t1') initSPBT1Fields();
   if (type==='spb-t2') initSPBT2Fields();
   if (type==='hsv')    initHsvFields(modKey);
+  richifyAll();
 }
 
 const _expField = (id) => `<div class="form-field"><label style="color:var(--accent);">💡 Açıklama (sonuçta gösterilir)</label><textarea id="${id}" style="min-height:50px;" placeholder="Doğru cevabın neden doğru olduğunu açıkla..."></textarea></div>`;
@@ -1418,6 +1478,7 @@ function saveSchreiben(d) {
 }
 
 function openSchreibenForm(editId) {
+  richifyAll();
   document.getElementById('sch-form-title').textContent = editId ? 'Soruyu Düzenle' : 'Yeni Yazma Sorusu';
   document.getElementById('sf-edit-id').value = editId || '';
   if (editId) {

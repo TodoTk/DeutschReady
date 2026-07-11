@@ -12,7 +12,14 @@
       "Bash(python3 _i18n_apply.py)",
       "Bash(python3 _i18n_apply2.py)",
       "Bash(python3)",
-      "Bash(grep -n \"Seviyen: \\\\${u.level}\\\\|Ücretsiz hesabınla yalnızca\" dashboard.html)"
+      "Bash(grep -n \"Seviyen: \\\\${u.level}\\\\|Ücretsiz hesabınla yalnızca\" dashboard.html)",
+      "Bash(curl -s https://ezabrktojywcfpasaelx.supabase.co/rest/v1/module_sets?select=module_key,set_num,updated_at -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -s https://ezabrktojywcfpasaelx.supabase.co/rest/v1/schreiben_questions?select=id,set_no,type -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(cd ~/Desktop/5)",
+      "Bash(echo \"== module_sets \\(key/set\\) ==\")",
+      "Bash(curl -s 'https://ezabrktojywcfpasaelx.supabase.co/rest/v1/module_sets?select=module_key,set_num,updated_at&order=module_key' -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(echo)",
+      "Bash(echo \"== schreiben ==\")"
     ]
   }
 }
