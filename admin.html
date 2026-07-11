@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PrufReady – Admin Paneli</title>
 <link rel="icon" type="image/png" href="logo.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Dancing+Script:wght@600&family=Playfair+Display:wght@700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;
@@ -84,6 +86,7 @@ input,select,textarea{font-family:inherit;}
 .rte-toolbar{display:flex;gap:.2rem;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;padding:.3rem;}
 .rte-toolbar button{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:5px;min-width:30px;height:28px;font-size:.8rem;cursor:pointer;padding:0 .45rem;line-height:1;}
 .rte-toolbar button:hover{border-color:var(--accent);color:var(--accent);}
+.rte-toolbar .rte-font{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:5px;height:28px;font-size:.78rem;cursor:pointer;padding:0 .3rem;max-width:130px;}
 .rte-editor{background:var(--surface2);border:1px solid var(--border);border-radius:0 0 8px 8px;padding:.6rem .85rem;color:var(--text);font-size:.88rem;min-height:80px;outline:none;line-height:1.7;overflow-wrap:anywhere;}
 .rte-editor:focus{border-color:var(--accent);}
 .rte-editor h3{font-size:1.15rem;margin:.3rem 0;color:var(--text);}
@@ -1020,6 +1023,14 @@ function makeRich(el){
     <button type="button" data-size="3" title="Normal">A</button>
     <button type="button" data-size="1" title="Küçük yazı">a-</button>
     <button type="button" data-cmd="insertUnorderedList" title="Liste">•</button>
+    <select class="rte-font" title="Yazı tipi">
+      <option value="">Yazı tipi…</option>
+      <option value="Times New Roman, serif" style="font-family:'Times New Roman',serif;">Times New Roman</option>
+      <option value="'Comic Neue', 'Comic Sans MS', cursive" style="font-family:'Comic Neue','Comic Sans MS',cursive;">Comic</option>
+      <option value="'Playfair Display', serif" style="font-family:'Playfair Display',serif;">Gazete Başlık</option>
+      <option value="'UnifrakturMaguntia', serif" style="font-family:'UnifrakturMaguntia',serif;">Fraktur (𝔊𝔬𝔱𝔦𝔨)</option>
+      <option value="'Dancing Script', cursive" style="font-family:'Dancing Script',cursive;">El Yazısı</option>
+    </select>
     <button type="button" data-cmd="removeFormat" title="Biçimi temizle">✕</button>`;
   const ed=document.createElement('div'); ed.className='rte-editor';
   ed.contentEditable='true'; ed.setAttribute('data-ph', ph); ed.innerHTML=el.value||'';
@@ -1032,6 +1043,21 @@ function makeRich(el){
       el.value=ed.innerHTML;
     });
   });
+  const fontSel=tb.querySelector('.rte-font');
+  if(fontSel){
+    let savedRange=null;
+    ed.addEventListener('mouseup',()=>{ const s=window.getSelection(); if(s.rangeCount) savedRange=s.getRangeAt(0).cloneRange(); });
+    ed.addEventListener('keyup',()=>{ const s=window.getSelection(); if(s.rangeCount) savedRange=s.getRangeAt(0).cloneRange(); });
+    fontSel.addEventListener('change',()=>{
+      const val=fontSel.value; if(!val){ return; }
+      ed.focus();
+      if(savedRange){ const s=window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+      document.execCommand('styleWithCSS',false,true);
+      document.execCommand('fontName',false,val);
+      document.execCommand('styleWithCSS',false,false);
+      el.value=ed.innerHTML; fontSel.selectedIndex=0;
+    });
+  }
   ed.addEventListener('input',()=>{ el.value=ed.innerHTML; });
   // programatik .value degisimini editore yansit (duzenleme modu icin)
   const proto=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
