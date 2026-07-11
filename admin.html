@@ -267,8 +267,8 @@ input,select,textarea{font-family:inherit;}
           </select>
         </div>
         <div class="form-field">
-          <label>Set Numarası (1-15)</label>
-          <input type="number" id="mf-set" min="1" max="15" value="3" placeholder="3"/>
+          <label>Set Numarası</label>
+          <input type="number" id="mf-set" min="1" value="3" placeholder="3"/>
         </div>
       </div>
 
@@ -377,8 +377,8 @@ input,select,textarea{font-family:inherit;}
           </select>
         </div>
         <div class="form-field">
-          <label>Set Numarası (1-15)</label>
-          <input type="number" id="sf-set" min="1" max="15" placeholder="3"/>
+          <label>Set Numarası</label>
+          <input type="number" id="sf-set" min="1" placeholder="3"/>
         </div>
       </div>
       <div class="form-field">
@@ -1159,7 +1159,7 @@ async function saveModulSet() {
   const moduleKey = document.getElementById('mf-module').value;
   const setNum    = parseInt(document.getElementById('mf-set').value);
   const structure = MODUL_TYPES[moduleKey]?.structure;
-  if (!setNum || setNum < 1 || setNum > 15) { showNotif('Hata','Set numarası 1-15 arası olmalı.',true); return; }
+  if (!setNum || setNum < 1) { showNotif('Hata','Geçerli bir set numarası girin (1 veya üstü).',true); return; }
 
   let content = {};
   if (structure === 'lsv-t1') {
@@ -1450,7 +1450,7 @@ async function saveSchreibenQ() {
     id       : editId || 'sch_' + Date.now(),
     type     : document.getElementById('sf-type').value,
     level    : document.getElementById('sf-level').value,
-    setNo    : (!isNaN(setNoRaw) && setNoRaw >= 1 && setNoRaw <= 15) ? setNoRaw : null,
+    setNo    : (!isNaN(setNoRaw) && setNoRaw >= 1) ? setNoRaw : null,
     task     : task,
     points   : document.getElementById('sf-points').value.split('\n').map(s=>s.trim()).filter(Boolean),
     example  : document.getElementById('sf-example').value.trim(),
