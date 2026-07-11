@@ -106,7 +106,7 @@ const TRPREFIX = [
   ["arkadaş daha → 1 yeni soru seti", {en:"more friends → 1 new question set", de:"weitere Freunde → 1 neuer Fragensatz"}],
 ];
 
-let CUR_LANG = localStorage.getItem('prufready_lang') || 'tr';
+let CUR_LANG = localStorage.getItem('prufready_lang') || 'de';
 
 function _walkText(node, cb) {
   if (node.nodeType === 3) { cb(node); return; }

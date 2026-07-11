@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>PrufReady – telc & DTZ Sınav Hazırlığı</title>
 <link rel="icon" type="image/png" href="logo.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   :root {
     --bg: #0f1117;
@@ -19,7 +22,8 @@
     --radius: 12px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; line-height: 1.6; }
+  h1, h2, h3, .section-title, .hero h1, .nav-logo { font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif; }
   a { color: inherit; text-decoration: none; }
 
   /* NAV */
@@ -42,8 +46,8 @@
   /* HERO */
   .hero { text-align: center; padding: 3rem 2rem 1rem; max-width: 860px; margin: 0 auto; }
   .hero-badge { display: inline-block; background: rgba(79,142,247,.15); border: 1px solid rgba(79,142,247,.3); color: var(--accent); border-radius: 20px; padding: .3rem .9rem; font-size: .8rem; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: .04em; }
-  .hero h1 { font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 900; line-height: 1.15; margin-bottom: 1rem; }
-  .hero h1 span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero h1 { font-size: clamp(1.9rem, 4.2vw, 3rem); font-weight: 800; line-height: 1.22; letter-spacing: -0.01em; margin-bottom: 1.1rem; }
+  .hero h1 span { display:inline-block; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top:.2rem; }
   .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 2rem; }
   .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
   .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; padding: .8rem 1.8rem; border-radius: 10px; font-weight: 700; font-size: 1rem; transition: opacity .2s; }
@@ -686,7 +690,7 @@
 
   // Sayfa açılışında kayıtlı dili uygula
   (function initLang(){
-    const saved = localStorage.getItem('prufready_lang') || 'tr';
+    const saved = localStorage.getItem('prufready_lang') || 'de';
     setLang(saved);
   })();
 
