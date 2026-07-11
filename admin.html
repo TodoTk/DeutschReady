@@ -407,10 +407,6 @@ input,select,textarea{font-family:inherit;}
         <label>Örnek Yanıt (opsiyonel — çalışma modunda gösterilir)</label>
         <textarea id="sf-example" style="min-height:100px;" placeholder="Liebe Maria, vielen Dank für deine Einladung..."></textarea>
       </div>
-      <div class="form-field">
-        <label>Değerlendirme Kriterleri (opsiyonel)</label>
-        <textarea id="sf-criteria" placeholder="Anrede (1P), Inhalt (4P), Ausdruck (2P)..."></textarea>
-      </div>
       <input type="hidden" id="sf-edit-id"/>
       <div class="form-actions">
         <button class="btn-primary" onclick="saveSchreibenQ()">💾 Kaydet</button>
@@ -1518,10 +1514,9 @@ function openSchreibenForm(editId) {
       document.getElementById('sf-task').value     = q.task||'';
       document.getElementById('sf-points').value   = (q.points||[]).join('\n');
       document.getElementById('sf-example').value  = q.example||'';
-      document.getElementById('sf-criteria').value = q.criteria||'';
     }
   } else {
-    ['sf-task','sf-points','sf-example','sf-criteria'].forEach(id=>document.getElementById(id).value='');
+    ['sf-task','sf-points','sf-example'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('sf-set').value = '';
   }
   document.getElementById('sch-form').classList.add('open');
@@ -1543,7 +1538,6 @@ async function saveSchreibenQ() {
     task     : task,
     points   : document.getElementById('sf-points').value.split('\n').map(s=>s.trim()).filter(Boolean),
     example  : document.getElementById('sf-example').value.trim(),
-    criteria : document.getElementById('sf-criteria').value.trim(),
   };
   if (editId) {
     const idx = list.findIndex(x=>x.id===editId);

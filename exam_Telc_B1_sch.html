@@ -36,7 +36,6 @@
   .btn-ghost{border:1px solid var(--border);color:var(--muted);padding:.7rem 1.2rem;border-radius:9px;font-weight:600;font-size:.9rem;background:none;cursor:pointer;}
   .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
   .example-box{background:var(--surface2);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:1rem 1.1rem;font-size:.88rem;line-height:1.75;color:var(--text);display:none;white-space:pre-wrap;}
-  .criteria-box{background:var(--surface2);border-radius:8px;padding:.8rem 1rem;font-size:.8rem;color:var(--muted);display:none;}
   .mode-banner{padding:.45rem 2rem;font-size:.78rem;text-align:center;font-weight:700;}
   .mode-study{background:rgba(34,197,94,.1);color:var(--green);border-bottom:1px solid rgba(34,197,94,.2);}
   .mode-exam{background:rgba(79,142,247,.08);color:var(--accent);border-bottom:1px solid rgba(79,142,247,.2);}
@@ -140,9 +139,6 @@ function renderQ(q) {
         <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Musterlösung anzeigen</button>
         <div class="example-box" id="example-box">${personalize(q.example)}</div>
        </div>` : '';
-  const criteriaHTML = q.criteria && showHelpers
-    ? `<div class="criteria-box" id="criteria-box">${q.criteria}</div>` : '';
-
   // Standart yönergeli maddeler bloğu (4 madde + üst/alt sabit ibareler)
   const pointsBlock = pointsHTML ? `
     <div style="background:var(--surface2);border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.2rem;">
@@ -156,7 +152,6 @@ function renderQ(q) {
       <div class="tag">${q.type==='brief'?'Brief':q.type==='email'?'E-Mail':'Notiz'} · ${q.level}${q.setNo?` · Set ${q.setNo}`:''}</div>
       <div class="task-text">${personalize(q.task)}</div>
       ${pointsBlock}
-      ${criteriaHTML}
     </div>
     <div class="card">
       <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;">Schreiben Sie hier Ihre Antwort:</div>
@@ -164,7 +159,6 @@ function renderQ(q) {
       <div class="word-count" id="wc">0 Wörter</div>
       <div class="btn-row">
         <button class="btn-evaluate" onclick="evaluateAnswer()">🤖 Auswerten</button>
-        ${showHelpers ? `<button class="btn-primary" onclick="showCriteria()">📋 Bewertungskriterien</button>` : ''}
         <button class="btn-ghost" onclick="clearAnswer()">Löschen</button>
       </div>
       <div class="ai-eval-box" id="ai-eval-box"></div>
@@ -201,10 +195,6 @@ function toggleExample() {
   const show = box.style.display==='block';
   box.style.display = show ? 'none' : 'block';
   btn.textContent = show ? '💡 Musterlösung anzeigen' : '💡 Musterlösung ausblenden';
-}
-function showCriteria() {
-  const box = document.getElementById('criteria-box');
-  if (box) box.style.display = box.style.display==='block'?'none':'block';
 }
 
 (function init(){
