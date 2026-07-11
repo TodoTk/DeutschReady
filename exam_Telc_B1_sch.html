@@ -106,7 +106,10 @@ async function loadPoolAsync() {
 
 let currentQ = null;
 let poolCache = [];
-const isStudy = getMode() === 'study';
+// Tam deneme sınavında (mode=full) örnek yanıt/kriter gösterilmez.
+// Tek başına (modül/partial) çözümde gösterilir.
+const isFullExam = getMode() === 'full';
+const showHelpers = !isFullExam;
 
 async function loadRandom() {
   if (!poolCache.length) poolCache = await loadPoolAsync();
@@ -132,12 +135,12 @@ const SCH_OUTRO  = 'Überlegen Sie sich vor dem Schreiben eine passende Reihenfo
 
 function renderQ(q) {
   const pointsHTML = (q.points||[]).map(p=>`<li>${personalize(p)}</li>`).join('');
-  const exampleHTML = q.example && isStudy
+  const exampleHTML = q.example && showHelpers
     ? `<div style="margin-top:1rem;">
         <button class="btn-ghost" onclick="toggleExample()" id="ex-btn" style="font-size:.8rem;padding:.4rem .9rem;">💡 Musterlösung anzeigen</button>
         <div class="example-box" id="example-box">${personalize(q.example)}</div>
        </div>` : '';
-  const criteriaHTML = q.criteria && isStudy
+  const criteriaHTML = q.criteria && showHelpers
     ? `<div class="criteria-box" id="criteria-box">${q.criteria}</div>` : '';
 
   // Standart yönergeli maddeler bloğu (4 madde + üst/alt sabit ibareler)
@@ -161,7 +164,7 @@ function renderQ(q) {
       <div class="word-count" id="wc">0 Wörter</div>
       <div class="btn-row">
         <button class="btn-evaluate" onclick="evaluateAnswer()">🤖 Auswerten</button>
-        ${isStudy ? `<button class="btn-primary" onclick="showCriteria()">📋 Bewertungskriterien</button>` : ''}
+        ${showHelpers ? `<button class="btn-primary" onclick="showCriteria()">📋 Bewertungskriterien</button>` : ''}
         <button class="btn-ghost" onclick="clearAnswer()">Löschen</button>
       </div>
       <div class="ai-eval-box" id="ai-eval-box"></div>
