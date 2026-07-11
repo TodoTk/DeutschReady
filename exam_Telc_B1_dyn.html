@@ -165,7 +165,7 @@
 
 <header>
   <img src="logo.png" alt="PrufReady" style="height:60px;display:block;"/>
-  <a href="dashboard.html" class="back-link">← Profile Dön</a>
+  <a href="dashboard.html" class="back-link" id="hdr-back">← Profile Dön</a>
 </header>
 
 <div id="mode-banner" class="mode-banner" style="display:none;"></div>
@@ -174,7 +174,7 @@
   <div style="font-size:2.5rem;margin-bottom:.8rem;">⚠️</div>
   <div id="gate-title" style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;"></div>
   <div id="gate-text" style="font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;"></div>
-  <a href="dashboard.html" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;">Profile Dön</a>
+  <a href="dashboard.html" id="gate-back" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;">Profile Dön</a>
 </div>
 
 <div id="exam-wrap" style="display:none;">
@@ -200,13 +200,13 @@
   </div>
 
   <div class="submit-wrap" id="submit-wrap" style="display:none;">
-    <button class="submit-btn" onclick="submitExam()">Bitir ve İncele →</button>
+    <button class="submit-btn" id="submit-btn" onclick="submitExam()">Bitir ve İncele →</button>
   </div>
 
   <div id="page-end-cta" style="display:none;text-align:center;margin:2rem 0;">
     <div class="cta-row">
-      <a href="dashboard.html" class="cta-btn">Profile Dön</a>
-      <button class="cta-ghost" onclick="location.reload()">Tekrar Çöz</button>
+      <a href="dashboard.html" class="cta-btn" id="cta-back">Profile Dön</a>
+      <button class="cta-ghost" id="cta-retry" onclick="location.reload()">Tekrar Çöz</button>
     </div>
   </div>
 </div>
@@ -215,6 +215,32 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-client.js"></script>
 <script>
+/* ── Dil (i18n) ── */
+const CUR_LANG = localStorage.getItem('prufready_lang') || 'de';
+const L = (de,en,tr) => CUR_LANG==='en' ? en : CUR_LANG==='tr' ? tr : de;
+const TX = {
+  back        : ()=>L('← Zum Profil','← Back to Profile','← Profile Dön'),
+  backPlain   : ()=>L('Zum Profil','Back to Profile','Profile Dön'),
+  submit      : ()=>L('Beenden & auswerten →','Finish & review →','Bitir ve İncele →'),
+  retry       : ()=>L('Erneut versuchen','Try again','Tekrar Çöz'),
+  fragen      : ()=>L('Fragen','Questions','Sorular'),
+  chooseHead  : ()=>L('— Überschrift wählen —','— Choose heading —','— Başlık seç —'),
+  chooseAd    : ()=>L('— Anzeige —','— Ad —','— İlan —'),
+  instrT1     : (a,b)=>L(`Ordnen Sie jedem Text (${a}–${b}) die passende Überschrift zu. Fünf Überschriften bleiben übrig.`,`Match each text (${a}–${b}) with the correct heading. Five headings are not used.`,`Her metne (${a}–${b}) uygun başlığı seçin. Beş başlık kullanılmaz.`),
+  instrT2     : ()=>L('Lesen Sie den Text und wählen Sie für jede Aufgabe die richtige Lösung (a, b oder c).','Read the text and choose the correct answer (a, b or c) for each task.','Metni okuyun ve her soru için doğru cevabı (a, b veya c) seçin.'),
+  instrT3     : (a,b)=>L(`Ordnen Sie jeder Situation (${a}–${b}) die passende Anzeige zu. Gibt es keine passende Anzeige, wählen Sie X.`,`Match each situation (${a}–${b}) with the right ad. If there is no suitable ad, choose X.`,`Her duruma (${a}–${b}) uygun ilanı seçin. Uygun ilan yoksa X seçin.`),
+};
+
+// Statik arayüz metinlerini dile göre ayarla
+(function(){
+  const set=(id,txt)=>{ const el=document.getElementById(id); if(el) el.textContent=txt; };
+  set('hdr-back', TX.back());
+  set('gate-back', TX.backPlain());
+  set('submit-btn', TX.submit());
+  set('cta-back', TX.backPlain());
+  set('cta-retry', TX.retry());
+})();
+
 const params    = new URLSearchParams(location.search);
 const MODULE    = params.get('module') || '';   // B1_LSV | B1_SPB | B1_LSV_T1 | ...
 const SET_NUM   = parseInt(params.get('set'))||1;
@@ -285,7 +311,7 @@ function renderLSVT1(content, startQ) {
         <div class="match-text-split">${t.text}</div>
         <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <select class="match-sel-split" id="${id}" onchange="markAnswered('${id}')">
-            <option value="">— Başlık seç —</option>${headOpts}
+            <option value="">${TX.chooseHead()}</option>${headOpts}
           </select>
           <div class="fb" id="${id}-fb"></div>
         </div>
@@ -302,9 +328,9 @@ function renderLSVT1(content, startQ) {
 
   return `<div style="margin-bottom:1.2rem;">
     <div style="margin-bottom:.8rem;">
-      <div class="section-tag">Leseverstehen · Teil 1 · Sorular ${startQ}–${startQ+texts.length-1}</div>
+      <div class="section-tag">Leseverstehen · Teil 1 · ${TX.fragen()} ${startQ}–${startQ+texts.length-1}</div>
       <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 1</h2>
-      <p class="instr" style="margin-bottom:0;">Her metne (${startQ}–${startQ+texts.length-1}) uygun başlığı seçin. Beş başlık kullanılmaz.</p>
+      <p class="instr" style="margin-bottom:0;">${TX.instrT1(startQ,startQ+texts.length-1)}</p>
     </div>
     <div class="split-layout">
       <div class="split-questions">${questionRows}</div>
@@ -339,9 +365,9 @@ function renderLSVT2(content, startQ) {
   // SAĞ: Uzun metin (sticky)
   return `<div style="margin-bottom:1.2rem;">
     <div style="margin-bottom:.8rem;">
-      <div class="section-tag">Leseverstehen · Teil 2 · Sorular ${startQ}–${startQ+questions.length-1}</div>
+      <div class="section-tag">Leseverstehen · Teil 2 · ${TX.fragen()} ${startQ}–${startQ+questions.length-1}</div>
       <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 2</h2>
-      <p class="instr" style="margin-bottom:0;">Metni okuyun ve her soru için doğru cevabı (a, b veya c) seçin.</p>
+      <p class="instr" style="margin-bottom:0;">${TX.instrT2()}</p>
     </div>
     <div class="split-layout">
       <div class="split-questions">${questionRows}</div>
@@ -371,7 +397,7 @@ function renderLSVT3(content, startQ) {
         <div class="match-text-split">${s.text}</div>
         <div style="margin-top:.5rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
           <select class="match-sel-split" id="${id}" onchange="markAnswered('${id}')">
-            <option value="">— İlan —</option>${adOpts}<option value="x">X – Keine</option>
+            <option value="">${TX.chooseAd()}</option>${adOpts}<option value="x">X – Keine</option>
           </select>
           <div class="fb" id="${id}-fb"></div>
         </div>
@@ -388,9 +414,9 @@ function renderLSVT3(content, startQ) {
 
   return `<div style="margin-bottom:1.2rem;">
     <div style="margin-bottom:.8rem;">
-      <div class="section-tag">Leseverstehen · Teil 3 · Sorular ${startQ}–${startQ+situations.length-1}</div>
+      <div class="section-tag">Leseverstehen · Teil 3 · ${TX.fragen()} ${startQ}–${startQ+situations.length-1}</div>
       <h2 style="margin-bottom:.2rem;">Leseverstehen – Teil 3</h2>
-      <p class="instr" style="margin-bottom:0;">Her duruma (${startQ}–${startQ+situations.length-1}) uygun ilanı seçin. Bir ilan birden fazla kullanılabilir. Uygun ilan yoksa X seçin.</p>
+      <p class="instr" style="margin-bottom:0;">${TX.instrT3(startQ,startQ+situations.length-1)}</p>
     </div>
     <div class="split-layout">
       <div class="split-questions">${questionRows}</div>
@@ -416,7 +442,7 @@ function renderSPBT1(content, startQ) {
       `<select class="gap-sel" id="${id}" onchange="markAnswered('${id}')"><option value="">…</option>${opts}</select>`);
   });
   return `<div class="section-card">
-    <div class="section-tag">Sprachbausteine · Teil 1 · Sorular ${startQ}–${startQ+gaps.length-1}</div>
+    <div class="section-tag">Sprachbausteine · Teil 1 · ${TX.fragen()} ${startQ}–${startQ+gaps.length-1}</div>
     <h2>Sprachbausteine – Teil 1</h2>
     <p class="instr">Wählen Sie für jede Lücke (${startQ}–${startQ+gaps.length-1}) das richtige Wort.</p>
     <div class="spb-text">${html}</div>
@@ -448,7 +474,7 @@ function renderSPBT2(content, startQ) {
   </div>`;
 
   return `<div class="section-card">
-    <div class="section-tag">Sprachbausteine · Teil 2 · Sorular ${startQ}–${startQ+n-1}</div>
+    <div class="section-tag">Sprachbausteine · Teil 2 · ${TX.fragen()} ${startQ}–${startQ+n-1}</div>
     <h2>Sprachbausteine – Teil 2</h2>
     <p class="instr">Lesen Sie den Text und wählen Sie für jede Lücke (${startQ}–${startQ+n-1}) das passende Wort aus der Wortbank.</p>
     ${bank}
@@ -485,7 +511,7 @@ function renderHSV(content, startQ, teilNo) {
   }).join('');
 
   return `<div class="section-card">
-    <div class="section-tag">Hörverstehen · Teil ${teilNo} · Sorular ${startQ}–${startQ+questions.length-1}</div>
+    <div class="section-tag">Hörverstehen · Teil ${teilNo} · ${TX.fragen()} ${startQ}–${startQ+questions.length-1}</div>
     <h2>Hörverstehen – Teil ${teilNo}</h2>
     <p class="instr">Hören Sie den Text und entscheiden Sie: Richtig oder Falsch?</p>
     ${audioHTML}
@@ -689,7 +715,7 @@ function submitExam() {
   const moduleLabel = MODULE==='B1_LSV'?'Leseverstehen':MODULE==='B1_SPB'?'Sprachbausteine':MODULE==='B1_HSV'?'Hörverstehen':MODULE.replace('B1_','').replace('_',' ');
   document.getElementById('exam-badge').textContent = `${moduleLabel} · Set ${SET_NUM}`;
   document.getElementById('exam-title').textContent = moduleLabel;
-  document.getElementById('exam-sub').textContent   = `Set ${SET_NUM} · ${isStudy?'Çalışma':'Sınav'} Modu`;
+  document.getElementById('exam-sub').textContent   = '';
 
   // Render
   let html = '';

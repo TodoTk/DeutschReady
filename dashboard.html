@@ -271,6 +271,8 @@ button{cursor:pointer;font-family:inherit;}
 <script src="i18n-dom.js"></script>
 <script>
 /* ── DATA ── */
+// Tarih yereli: seçili dile göre (de/en/tr)
+function DATELOC(){ const l=localStorage.getItem('prufready_lang')||'de'; return l==='en'?'en-GB':l==='tr'?'tr-TR':'de-DE'; }
 // Demo hesaplar kaldırıldı — tüm hesaplar Supabase üzerinden yönetilir
 const USERS = {};
 
@@ -616,7 +618,7 @@ function studentDash(u) {
       const pts  = examSectionPts(h);
       const col  = CHART_COLORS[examIdx % CHART_COLORS.length];
       const dd   = new Date(h.date);
-      const dlbl = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+      const dlbl = dd.toLocaleDateString(DATELOC(),{day:'numeric',month:'short'});
 
       const coords = pts.map((pt, si) => {
         const x = PL + si * xStep;
@@ -640,7 +642,7 @@ function studentDash(u) {
     // Lejant
     const legend = hist.map((h, i) => {
       const dd  = new Date(h.date);
-      const dlbl= dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+      const dlbl= dd.toLocaleDateString(DATELOC(),{day:'numeric',month:'short'});
       const col = CHART_COLORS[i % CHART_COLORS.length];
       return `<div style="display:flex;align-items:center;gap:.3rem;font-size:.68rem;color:var(--muted);">
         <div style="width:14px;height:3px;background:${col};border-radius:2px;flex-shrink:0;"></div>${dlbl}</div>`;
@@ -685,8 +687,8 @@ function studentDash(u) {
     function rowHTML(h) {
       const origIdx  = findOrigIdx(lvl, h);  // ham history'deki gerçek index
       const dd       = new Date(h.date);
-      const ds       = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
-      const ts       = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+      const ds       = dd.toLocaleDateString(DATELOC(),{day:'numeric',month:'short'});
+      const ts       = dd.toLocaleTimeString(DATELOC(),{hour:'2-digit',minute:'2-digit'});
       const totalPts = parseFloat(SECTION_DEF.reduce((sum,sd)=>sum+(h.sections[sd.key]||0)*sd.ptPer,0).toFixed(1));
       const pct      = Math.round(totalPts / maxPts * 100);
       const col      = pct >= 60 ? 'var(--green)' : 'var(--yellow)';
@@ -1332,16 +1334,21 @@ function showExamDetail(lvl, histIdx){
   if (!s || !s.history || !s.history[histIdx]) return;
   const h = s.history[histIdx];
 
+  const _lang = (typeof CUR_LANG!=='undefined' ? CUR_LANG : (localStorage.getItem('prufready_lang')||'de'));
+  const _loc  = _lang==='en' ? 'en-GB' : _lang==='tr' ? 'tr-TR' : 'de-DE';
+  const _w = (de,en,tr)=> _lang==='en'?en : _lang==='tr'?tr : de;
+  const _correct = _w('richtig','correct','doğru');
+  const _q       = _w('Fragen','questions','soru');
   const dd = new Date(h.date);
-  const dateStr = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
-  const timeStr = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  const dateStr = dd.toLocaleDateString(_loc,{day:'numeric',month:'long',year:'numeric'});
+  const timeStr = dd.toLocaleTimeString(_loc,{hour:'2-digit',minute:'2-digit'});
 
   // Puan hesapla
   const SDEFS = [
-    { key:'s1', label:'Leseverstehen T1', maxQ:5,  ptPer:5,   desc:'5 soru × 5 pt' },
-    { key:'s2', label:'Leseverstehen T2', maxQ:5,  ptPer:5,   desc:'5 soru × 5 pt' },
-    { key:'s3', label:'Leseverstehen T3', maxQ:10, ptPer:2.5, desc:'10 soru × 2.5 pt' },
-    { key:'s4', label:'Sprachbausteine',  maxQ:20, ptPer:1.5, desc:'20 soru × 1.5 pt' },
+    { key:'s1', label:'Leseverstehen T1', maxQ:5,  ptPer:5,   desc:`5 ${_q} × 5 pt` },
+    { key:'s2', label:'Leseverstehen T2', maxQ:5,  ptPer:5,   desc:`5 ${_q} × 5 pt` },
+    { key:'s3', label:'Leseverstehen T3', maxQ:10, ptPer:2.5, desc:`10 ${_q} × 2.5 pt` },
+    { key:'s4', label:'Sprachbausteine',  maxQ:20, ptPer:1.5, desc:`20 ${_q} × 1.5 pt` },
   ];
   const MAX_TOTAL = SDEFS.reduce((s,d)=>s+d.maxQ*d.ptPer, 0); // 105
 
@@ -1357,7 +1364,7 @@ function showExamDetail(lvl, histIdx){
       <div style="margin-bottom:.7rem;">
         <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.25rem;">
           <span style="font-weight:700;">${sd.label}</span>
-          <span style="color:${barCol};font-weight:700;">${pts} / ${maxPts} pt <span style="color:var(--muted);font-weight:400;">(${correct}/${sd.maxQ} doğru · ${sd.desc})</span></span>
+          <span style="color:${barCol};font-weight:700;">${pts} / ${maxPts} pt <span style="color:var(--muted);font-weight:400;">(${correct}/${sd.maxQ} ${_correct} · ${sd.desc})</span></span>
         </div>
         <div style="background:var(--border);border-radius:4px;height:7px;overflow:hidden;">
           <div style="width:${pct}%;height:100%;background:${barCol};border-radius:4px;transition:width .5s;"></div>
@@ -1389,7 +1396,7 @@ function showExamDetail(lvl, histIdx){
           <div style="font-size:1.3rem;font-weight:900;color:${passed?'var(--green)':'#fbbf24'};">%${totalPct}</div>
         </div>
         <div style="padding:.5rem .9rem;background:var(--surface2);border-radius:8px;font-size:.74rem;color:var(--muted);display:flex;align-items:center;">
-          ${passed ? '✅ Geçer not' : '❌ '+(MAX_TOTAL*0.6 - totalPts).toFixed(1)+' pt eksik'}
+          ${passed ? '✅ '+_w('Bestanden','Passed','Geçer not') : '❌ '+(MAX_TOTAL*0.6 - totalPts).toFixed(1)+' pt '+_w('fehlen','missing','eksik')}
         </div>
       </div>
       <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.7rem;padding-top:.7rem;border-top:1px solid var(--border);">Bölüm Bazlı Sonuçlar</div>
@@ -1417,8 +1424,8 @@ function showAllExams(lvl){
 
   const rows = hist.map((h) => {
     const dd      = new Date(h.date);
-    const ds      = dd.toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:'numeric'});
-    const ts      = dd.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+    const ds      = dd.toLocaleDateString(DATELOC(),{day:'numeric',month:'short',year:'numeric'});
+    const ts      = dd.toLocaleTimeString(DATELOC(),{hour:'2-digit',minute:'2-digit'});
     const pts     = h.sections ? parseFloat(SDEFS.reduce((sum,sd)=>sum+(h.sections[sd.key]||0)*sd.ptPer,0).toFixed(1)) : 0;
     const pct     = Math.round(pts/MAX_TOTAL*100);
     const col     = pct>=60?'var(--green)':'var(--yellow)';
