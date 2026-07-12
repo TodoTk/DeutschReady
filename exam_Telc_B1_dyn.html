@@ -492,7 +492,8 @@ function renderSPBT2(content, startQ) {
 const HSV_LEVEL = (MODULE.split('_')[0] || 'B1').toLowerCase();   // 'b1' | 'a1'
 const _sk = (sfx) => `std_${HSV_LEVEL}_${sfx}`;                    // ör: std_b1_t1_intro
 const STD_AUD = {
-  t1_intro:_sk('t1_intro'), t2_intro:_sk('t2_intro'), t2_wdh:_sk('t2_wdh'),
+  t1_intro:_sk('t1_intro'), t1_start:_sk('t1_start'), t1_q:(i)=>_sk('t1_q'+i),
+  t2_intro:_sk('t2_intro'), t2_wdh:_sk('t2_wdh'),
   t3_intro:_sk('t3_intro'), t3_trans:_sk('t3_trans'), t3_q:(i)=>_sk('t3_q'+i)
 };
 // Full modeltest mi? (mode=full → Teil'ler otomatik ilerler, durdurma yok)
@@ -507,7 +508,13 @@ function buildHSVSeq(content, teilNo){
   const W=(s)=>seq.push({wait:s});
   if(teilNo===1){
     A(STD_AUD.t1_intro,'Einführung'); W(30);
-    A(content.audioKey,'Hörtext – Teil 1'); W(30);
+    A(STD_AUD.t1_start,'Jetzt beginnt der Hörtext.'); W(3);
+    A(content.interviewKey,'Interview'); W(3);
+    (content.questions||[]).forEach((q,idx)=>{
+      const i=idx+1;
+      A(STD_AUD.t1_q(i),'Aufgabe '+i); W(3);
+      A(q.audioKey,'Hörtext '+i); W(10);
+    });
   } else if(teilNo===2){
     A(STD_AUD.t2_intro,'Einführung'); W(60);
     A(content.audioKey,'Hörtext – Teil 2'); W(30);
@@ -527,53 +534,83 @@ function buildHSVSeq(content, teilNo){
 }
 
 const HSV_SEQ = {};
+
+/* ── FULL modeltest: sıralı otomatik motor (durdurma/seek yok) ── */
 const HSV_STATE = {};
 function startHSV(teil){
   const seq=HSV_SEQ[teil]; if(!seq||!seq.length) return;
   const btn=document.getElementById('hsv-start-'+teil);
-  const stopBtn=document.getElementById('hsv-stop-'+teil);
   const audio=document.getElementById('hsvpl-'+teil);
   const status=document.getElementById('hsv-status-'+teil);
   if(btn) btn.style.display='none';
-  if(stopBtn && !HSV_FULL) stopBtn.style.display='inline-block';
-  const st = HSV_STATE[teil] = { audio, timer:null, stopped:false, i:0 };
+  const st = HSV_STATE[teil] = { audio, timer:null, i:0 };
   function step(){
-    if(st.stopped) return;
     if(st.i>=seq.length){
       if(status) status.textContent='✅ Hörverstehen beendet.';
-      if(stopBtn) stopBtn.style.display='none';
-      // Full modeltest: sonraki Teil otomatik başlar
       if(HSV_FULL){ const idx=HSV_TEILS.indexOf(teil); const next=HSV_TEILS[idx+1]; if(next!=null) startHSV(next); }
       return;
     }
     const s=seq[st.i++];
     if(s.audio){
       if(status) status.textContent='🔊 '+(s.label||'Wiedergabe…');
-      audio.src=s.audio;
-      audio.onended=step;
+      audio.src=s.audio; audio.onended=step;
       audio.play().catch(()=>{ st.timer=setTimeout(step,500); });
     } else {
       let left=s.wait;
-      if(status) status.textContent='⏸ Pause – '+left+' s';
-      st.timer=setInterval(()=>{
-        if(st.stopped){ clearInterval(st.timer); return; }
-        left--;
-        if(left<=0){ clearInterval(st.timer); step(); }
-        else if(status) status.textContent='⏸ Pause – '+left+' s';
-      },1000);
+      if(status) status.textContent='⏳ '+left+' s';
+      st.timer=setInterval(()=>{ left--; if(left<=0){clearInterval(st.timer); step();} else if(status) status.textContent='⏳ '+left+' s'; },1000);
     }
   }
   step();
 }
-// Sadece partial modda kullanılır (full modeltest'te stop butonu yok)
-function stopHSV(teil){
-  const st=HSV_STATE[teil]; if(!st) return;
-  st.stopped=true;
-  if(st.timer){ clearInterval(st.timer); clearTimeout(st.timer); }
-  if(st.audio){ try{ st.audio.pause(); }catch(e){} }
-  const status=document.getElementById('hsv-status-'+teil); if(status) status.textContent='⏹ Gestoppt.';
-  const btn=document.getElementById('hsv-start-'+teil); if(btn){ btn.style.display='inline-block'; btn.textContent='▶ Neu starten'; }
-  const stopBtn=document.getElementById('hsv-stop-'+teil); if(stopBtn) stopBtn.style.display='none';
+
+/* ── PARTIAL: tüm segmentleri tek sese birleştir → native bar (seek/duraklat/devam) ── */
+function encodeWAV(buffer){
+  const numCh=buffer.numberOfChannels, len=buffer.length, sr=buffer.sampleRate;
+  const blockAlign=numCh*2, dataLen=len*blockAlign;
+  const ab=new ArrayBuffer(44+dataLen), view=new DataView(ab);
+  const ws=(o,s)=>{ for(let i=0;i<s.length;i++) view.setUint8(o+i,s.charCodeAt(i)); };
+  ws(0,'RIFF'); view.setUint32(4,36+dataLen,true); ws(8,'WAVE'); ws(12,'fmt ');
+  view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,numCh,true);
+  view.setUint32(24,sr,true); view.setUint32(28,sr*blockAlign,true); view.setUint16(32,blockAlign,true); view.setUint16(34,16,true);
+  ws(36,'data'); view.setUint32(40,dataLen,true);
+  let off=44; const chans=[]; for(let c=0;c<numCh;c++) chans.push(buffer.getChannelData(c));
+  for(let i=0;i<len;i++){ for(let c=0;c<numCh;c++){ let v=Math.max(-1,Math.min(1,chans[c][i])); view.setInt16(off, v<0?v*0x8000:v*0x7FFF, true); off+=2; } }
+  return new Blob([view],{type:'audio/wav'});
+}
+async function buildConcatBlob(seq){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const tmp=new AC();
+  const items=[]; let total=0;
+  for(const s of seq){
+    if(s.audio){ const r=await fetch(s.audio); const a=await r.arrayBuffer(); const b=await tmp.decodeAudioData(a); items.push({buf:b}); total+=b.duration; }
+    else { const w=Math.min(2, s.wait); items.push({sil:w}); total+=w; }   // partial'da beklemeler kısaltılır (öğrenci kendi duraklatır)
+  }
+  if(tmp.close) tmp.close();
+  const sr=44100;
+  const off=new OfflineAudioContext(1, Math.max(1,Math.ceil(total*sr)), sr);
+  let t=0;
+  items.forEach(it=>{ if(it.sil){ t+=it.sil; } else { const src=off.createBufferSource(); src.buffer=it.buf; src.connect(off.destination); src.start(t); t+=it.buf.duration; } });
+  const rendered=await off.startRendering();
+  return encodeWAV(rendered);
+}
+async function prepareHSVBar(teil){
+  const btn=document.getElementById('hsv-load-'+teil);
+  const status=document.getElementById('hsv-status-'+teil);
+  const audio=document.getElementById('hsvpl-'+teil);
+  if(btn){ btn.disabled=true; btn.textContent='⏳ wird geladen…'; }
+  try{
+    const blob=await buildConcatBlob(HSV_SEQ[teil]);
+    audio.src=URL.createObjectURL(blob);
+    audio.style.display='block';
+    if(btn) btn.style.display='none';
+    if(status) status.textContent='';
+    audio.play().catch(()=>{});
+  }catch(e){
+    console.error('HSV bar hazırlanamadı:', e);
+    if(status) status.textContent='⚠ Audio konnte nicht geladen werden.';
+    if(btn){ btn.disabled=false; btn.textContent='🎧 Hören laden'; }
+  }
 }
 
 function renderHSV(content, startQ, teilNo) {
@@ -582,28 +619,30 @@ function renderHSV(content, startQ, teilNo) {
   const isFirst = HSV_TEILS.length === 0;
   HSV_TEILS.push(teilNo);
   const hasAudio = HSV_SEQ[teilNo].some(s=>s.audio);
-  // Full modeltest: sadece ilk Teil'de başlat butonu (diğerleri otomatik gelir), stop yok
-  // Partial: her Teil'de başlat + stop butonu
-  const startBtnHTML = (!HSV_FULL || isFirst)
-    ? `<button id="hsv-start-${teilNo}" onclick="startHSV(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">▶ Hören starten</button>`
-    : '';
-  const stopBtnHTML = !HSV_FULL
-    ? `<button id="hsv-stop-${teilNo}" onclick="stopHSV(${teilNo})" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:.5rem 1.1rem;border-radius:9px;font-weight:600;font-size:.84rem;cursor:pointer;">⏹ Stopp</button>`
-    : '';
-  const noteHTML = HSV_FULL
-    ? 'Der Hörtext läuft automatisch mit Pausen. Nach jedem Teil geht es automatisch weiter.'
-    : 'Der Hörtext läuft automatisch mit Pausen. Du kannst ihn stoppen und neu starten.';
+
+  let controlsHTML;
+  if (HSV_FULL) {
+    // Full modeltest: otomatik motor; sadece ilk Teil'de başlat, durdurma/seek yok
+    const startBtn = isFirst
+      ? `<button id="hsv-start-${teilNo}" onclick="startHSV(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">▶ Hören starten</button>`
+      : '';
+    controlsHTML = `<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span class="audio-label">🎧 Teil ${teilNo}</span>${startBtn}
+        <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);">⚠ Automatischer Ablauf. Nach jedem Teil geht es automatisch weiter.</div>
+      <audio id="hsvpl-${teilNo}" style="display:none;"></audio>`;
+  } else {
+    // Partial (çalışma): birleşik ses + sürüklenebilir bar (seek / duraklat / devam)
+    controlsHTML = `<div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span class="audio-label">🎧 Teil ${teilNo}</span>
+        <button id="hsv-load-${teilNo}" onclick="prepareHSVBar(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">🎧 Hören laden</button>
+        <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
+      </div>
+      <audio id="hsvpl-${teilNo}" controls controlsList="nodownload" style="display:none;width:100%;"></audio>`;
+  }
   const audioHTML = hasAudio
-    ? `<div class="audio-block" style="flex-direction:column;align-items:stretch;gap:.7rem;">
-        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-          <span class="audio-label">🎧 Teil ${teilNo}</span>
-          ${startBtnHTML}
-          ${stopBtnHTML}
-          <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
-        </div>
-        <div style="font-size:.72rem;color:var(--muted);">⚠ ${noteHTML}</div>
-        <audio id="hsvpl-${teilNo}" style="display:none;"></audio>
-      </div>`
+    ? `<div class="audio-block" style="flex-direction:column;align-items:stretch;gap:.7rem;">${controlsHTML}</div>`
     : '<div style="color:var(--yellow);font-size:.8rem;margin-bottom:.8rem;">⚠ Ses dosyası yok</div>';
 
   const rows = (questions||[]).map((q,i)=>{
