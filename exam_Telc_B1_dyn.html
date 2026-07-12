@@ -488,11 +488,78 @@ function renderSPBT2(content, startQ) {
 /* ─────────────────────────────────────────────────
    RENDER: HSV — audio + Richtig/Falsch sorular
 ──────────────────────────────────────────────────*/
+// ── Standart Hören ses anahtarları (tüm setlerde ortak) ──
+const STD_AUD = {
+  t1_intro:'std_t1_intro', t2_intro:'std_t2_intro', t2_wdh:'std_t2_wdh',
+  t3_intro:'std_t3_intro', t3_trans:'std_t3_trans', t3_q:(i)=>'std_t3_q'+i
+};
+function _audUrl(key){ return (key && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(key) : null; }
+
+// Bir Teil için çalma listesi (sıralı sesler + bekleme süreleri) üretir
+function buildHSVSeq(content, teilNo){
+  const seq=[];
+  const A=(key,label)=>{ const u=_audUrl(key); if(u) seq.push({audio:u,label}); };
+  const W=(s)=>seq.push({wait:s});
+  if(teilNo===1){
+    A(STD_AUD.t1_intro,'Einführung'); W(30);
+    A(content.audioKey,'Hörtext – Teil 1'); W(30);
+  } else if(teilNo===2){
+    A(STD_AUD.t2_intro,'Einführung'); W(60);
+    A(content.audioKey,'Hörtext – Teil 2'); W(30);
+    A(STD_AUD.t2_wdh,'Sie hören den Text jetzt noch einmal.');
+    A(content.audioKey,'Hörtext – Teil 2 (Wiederholung)'); W(30);
+  } else {
+    A(STD_AUD.t3_intro,'Einführung'); W(30);
+    (content.questions||[]).forEach((q,idx)=>{
+      const i=idx+1;
+      A(STD_AUD.t3_q(i),'Aufgabe '+i);
+      A(q.audioKey,'Hörtext '+i);
+      A(STD_AUD.t3_trans,'Sie hören den Text noch einmal.');
+      A(q.audioKey,'Hörtext '+i+' (Wiederholung)');
+    });
+  }
+  return seq;
+}
+
+const HSV_SEQ = {};
+function startHSV(teil){
+  const seq=HSV_SEQ[teil]; if(!seq||!seq.length) return;
+  const btn=document.getElementById('hsv-start-'+teil);
+  const audio=document.getElementById('hsvpl-'+teil);
+  const status=document.getElementById('hsv-status-'+teil);
+  if(btn) btn.style.display='none';
+  let i=0;
+  function step(){
+    if(i>=seq.length){ if(status) status.textContent='✅ Hörverstehen beendet.'; return; }
+    const s=seq[i++];
+    if(s.audio){
+      if(status) status.textContent='🔊 '+(s.label||'Wiedergabe…');
+      audio.src=s.audio;
+      audio.onended=step;
+      audio.play().catch(()=>{ setTimeout(step,500); });
+    } else {
+      let left=s.wait;
+      if(status) status.textContent='⏸ Pause – '+left+' s';
+      const t=setInterval(()=>{ left--; if(left<=0){clearInterval(t); step();} else if(status) status.textContent='⏸ Pause – '+left+' s'; },1000);
+    }
+  }
+  step();
+}
+
 function renderHSV(content, startQ, teilNo) {
-  const {audioKey, questions} = content;
-  const audioUrl = (audioKey && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(audioKey) : null;
-  const audioHTML = audioUrl
-    ? `<div class="audio-block"><span class="audio-label">🎧 Teil ${teilNo}</span><audio controls controlsList="nodownload" src="${audioUrl}"></audio></div>`
+  const {questions} = content;
+  HSV_SEQ[teilNo] = buildHSVSeq(content, teilNo);
+  const hasAudio = HSV_SEQ[teilNo].some(s=>s.audio);
+  const audioHTML = hasAudio
+    ? `<div class="audio-block" style="flex-direction:column;align-items:stretch;gap:.7rem;">
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <span class="audio-label">🎧 Teil ${teilNo}</span>
+          <button id="hsv-start-${teilNo}" onclick="startHSV(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">▶ Hören starten</button>
+          <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);">⚠ Der Hörtext läuft automatisch mit Pausen. Er kann nur einmal abgespielt werden.</div>
+        <audio id="hsvpl-${teilNo}" style="display:none;"></audio>
+      </div>`
     : '<div style="color:var(--yellow);font-size:.8rem;margin-bottom:.8rem;">⚠ Ses dosyası yok</div>';
 
   const rows = (questions||[]).map((q,i)=>{

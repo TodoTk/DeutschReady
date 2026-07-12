@@ -334,8 +334,8 @@ input,select,textarea{font-family:inherit;}
 
       <!-- HSV T1/T2/T3: audio + transkript + Richtig/Falsch sorular -->
       <div id="mf-hsv" style="display:none;">
-        <div class="form-field">
-          <label>Ses Dosyası (MP3)</label>
+        <div class="form-field" id="hsv-single-audio">
+          <label>İçerik Ses Dosyası (MP3)</label>
           <div class="drop-zone" id="hsv-drop" onclick="document.getElementById('hsv-audio-input').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleHsvDrop(event)">
             <p>🎵 MP3 dosyasını sürükle veya <strong>tıklayarak seç</strong></p>
           </div>
@@ -344,6 +344,7 @@ input,select,textarea{font-family:inherit;}
             <div style="font-size:.76rem;color:var(--green);margin-bottom:.3rem;" id="hsv-audio-name"></div>
             <audio controls id="hsv-audio-player" style="width:100%;height:36px;"></audio>
           </div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.4rem;">ℹ️ Sadece içeriği yükle. Giriş/geçiş/tekrar anonsları ve beklemeler sınavda otomatik eklenir. Aynı ses gerektiğinde 2 kez çalınır.</div>
         </div>
         <div class="form-field">
           <label>Transkript (dinleme metni — opsiyonel, arşiv için)</label>
@@ -447,6 +448,12 @@ input,select,textarea{font-family:inherit;}
         <p style="font-size:.8rem;color:var(--muted);margin-bottom:.7rem;">Tüm Hörverstehen sorularını ve ses dosyalarını sıfırla.</p>
         <button class="btn-danger btn-sm" onclick="confirmNuke()">🗑 Tüm Hörverstehen Verilerini Sil</button>
       </div>
+    </div>
+
+    <div class="stat-card" style="text-align:left;padding:1.2rem;margin-top:1rem;">
+      <div style="font-weight:700;margin-bottom:.3rem;">🎧 Standart Hören Sesleri (bir kez yüklenir, tüm setlerde kullanılır)</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.9rem;">Giriş anonsları, geçişler ve "tekrar dinleyeceksiniz" konuşmaları. Bunlar set-özel değil — bir defa yüklersin, her deneme/modülde otomatik çalar.</p>
+      <div id="std-audio-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.8rem;"></div>
     </div>
   </div>
 
@@ -594,6 +601,7 @@ async function switchTab(name) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   if (name==='stats')     loadStats();
+  if (name==='settings')  renderStdAudioGrid();
   if (name==='hoer')      { initSectionSel(); await refreshHsvFromCloud(); }
   if (name==='modul')     { initModulSel(); await refreshModulListFromCloud(); }
   if (name==='schreiben') await refreshSchreibenFromCloud();
@@ -1194,19 +1202,34 @@ function initSPBT2Fields() {
 
 // ── HSV: audio + transkript + Richtig/Falsch sorular ──
 let pendingHsvBuffer = null, pendingHsvName = null, existingHsvAudioKey = null;
+let pendingHsvQ = {}, existingHsvQKey = {};   // T3: soru-başına ses (index 1..5)
 function initHsvFields(modKey) {
   const meta = MODUL_TYPES[modKey];
   const count = meta?.count || 5;
   const start = meta?.start || 41;
+  const isT3 = modKey === 'B1_HSV_T3';
   pendingHsvBuffer = null; pendingHsvName = null; existingHsvAudioKey = null;
+  pendingHsvQ = {}; existingHsvQKey = {};
   document.getElementById('mf-hsv-transcript').value = '';
   document.getElementById('hsv-audio-preview').style.display = 'none';
+  // Tek içerik-ses alanı sadece T1/T2'de; T3'te her sorunun kendi sesi var
+  document.getElementById('hsv-single-audio').style.display = isT3 ? 'none' : 'block';
   document.getElementById('mf-hsv-qlabel').textContent = `${count} Soru (${start}–${start+count-1}) · Richtig / Falsch`;
   const qc = document.getElementById('mf-hsv-questions');
   qc.innerHTML = Array.from({length:count},(_,i)=>{
     const qNum = start + i;
+    const audioField = isT3 ? `
+      <div class="form-field">
+        <label>🎧 Soru ${qNum} İçerik Sesi (MP3)</label>
+        <input type="file" accept="audio/*" onchange="handleHsvQFile(event, ${i+1})"/>
+        <div id="hsv-q${i+1}-preview" style="display:none;margin-top:.4rem;">
+          <div style="font-size:.72rem;color:var(--green);" id="hsv-q${i+1}-name"></div>
+          <audio controls id="hsv-q${i+1}-player" style="width:100%;height:32px;"></audio>
+        </div>
+      </div>` : '';
     return `<div style="background:var(--surface2);border-radius:8px;padding:.8rem;margin-bottom:.5rem;">
       <div style="font-size:.74rem;font-weight:700;color:var(--accent);margin-bottom:.4rem;">Soru ${qNum}</div>
+      ${audioField}
       <div class="form-field"><textarea id="mf-hsv-q${i+1}" style="min-height:55px;" placeholder="Aussage (ifade)..."></textarea></div>
       <div class="form-field"><label>Doğru Cevap</label>
         <select id="mf-hsv-q${i+1}-ans"><option value="R">Richtig</option><option value="F">Falsch</option></select>
@@ -1214,6 +1237,19 @@ function initHsvFields(modKey) {
       ${_expField('mf-exp-hsv-'+(i+1))}
     </div>`;
   }).join('');
+}
+function handleHsvQFile(e, idx){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    pendingHsvQ[idx]=ev.target.result;
+    const url=URL.createObjectURL(new Blob([ev.target.result],{type:'audio/mpeg'}));
+    const nm=document.getElementById('hsv-q'+idx+'-name'), pl=document.getElementById('hsv-q'+idx+'-player'), pv=document.getElementById('hsv-q'+idx+'-preview');
+    if(nm) nm.textContent='🎵 '+f.name;
+    if(pl) pl.src=url;
+    if(pv) pv.style.display='block';
+  };
+  r.readAsArrayBuffer(f);
 }
 function handleHsvFile(e){ const f=e.target.files[0]; if(f) processHsvFile(f); }
 function handleHsvDrop(e){ e.preventDefault(); document.getElementById('hsv-drop').classList.remove('drag'); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('audio/')) processHsvFile(f); }
@@ -1302,24 +1338,42 @@ async function saveModulSet() {
   } else if (structure === 'hsv') {
     const meta = MODUL_TYPES[moduleKey];
     const count = meta?.count || 5;
+    const isT3 = moduleKey === 'B1_HSV_T3';
     const transcript = document.getElementById('mf-hsv-transcript')?.value.trim()||'';
     const questions = [];
     for (let i=1; i<=count; i++) {
       const a = document.getElementById(`mf-hsv-q${i}`)?.value.trim()||'';
-      questions.push({ aussage: a, answer: document.getElementById(`mf-hsv-q${i}-ans`)?.value||'R', exp: document.getElementById(`mf-exp-hsv-${i}`)?.value.trim()||'' });
+      const q = { aussage: a, answer: document.getElementById(`mf-hsv-q${i}-ans`)?.value||'R', exp: document.getElementById(`mf-exp-hsv-${i}`)?.value.trim()||'' };
+      if (isT3) {
+        // Soru-başına içerik sesi
+        let qKey = existingHsvQKey[i] || null;
+        if (pendingHsvQ[i]) {
+          qKey = 'hsv_' + moduleKey + '_set' + setNum + '_q' + i;
+          if (USE_SUPABASE) {
+            try { await sbUploadAudio(qKey, pendingHsvQ[i]); }
+            catch(e){ showNotif('Uyarı',`Soru ${i} sesi yüklenemedi: `+e.message, true); }
+          }
+        }
+        q.audioKey = qKey;
+      }
+      questions.push(q);
     }
     if (!questions.some(q=>q.aussage)) { showNotif('Hata','En az 1 soru gerekli.',true); return; }
 
-    // Ses dosyası: yeni yüklendiyse Storage'a, yoksa mevcut key korunur
-    let audioKey = existingHsvAudioKey;
-    if (pendingHsvBuffer) {
-      audioKey = 'hsv_' + moduleKey + '_set' + setNum;
-      if (USE_SUPABASE) {
-        try { await sbUploadAudio(audioKey, pendingHsvBuffer); }
-        catch(e){ showNotif('Uyarı','Ses yüklenemedi: '+e.message, true); }
+    if (isT3) {
+      content = { transcript, questions };
+    } else {
+      // T1/T2: tek içerik sesi
+      let audioKey = existingHsvAudioKey;
+      if (pendingHsvBuffer) {
+        audioKey = 'hsv_' + moduleKey + '_set' + setNum;
+        if (USE_SUPABASE) {
+          try { await sbUploadAudio(audioKey, pendingHsvBuffer); }
+          catch(e){ showNotif('Uyarı','Ses yüklenemedi: '+e.message, true); }
+        }
       }
+      content = { audioKey: audioKey||null, transcript, questions };
     }
-    content = { audioKey: audioKey||null, transcript, questions };
   }
 
   const sets = loadModulSets();
@@ -1439,9 +1493,10 @@ function editModulSet(key, n) {
         const e=document.getElementById(`mf-exp-spb2-${i+1}`); if(e) e.value=g.exp||'';
       });
     } else if (structure === 'hsv') {
+      const isT3 = key === 'B1_HSV_T3';
       existingHsvAudioKey = c.audioKey || null;
       if (c.transcript) document.getElementById('mf-hsv-transcript').value = c.transcript;
-      if (c.audioKey && USE_SUPABASE) {
+      if (!isT3 && c.audioKey && USE_SUPABASE) {
         document.getElementById('hsv-audio-name').textContent = '🎵 Mevcut ses';
         document.getElementById('hsv-audio-player').src = sbGetAudioUrl(c.audioKey);
         document.getElementById('hsv-audio-preview').style.display = 'block';
@@ -1452,6 +1507,15 @@ function editModulSet(key, n) {
         if(elQ) elQ.value = q.aussage||'';
         if(elA) elA.value = q.answer||'R';
         const e=document.getElementById(`mf-exp-hsv-${i+1}`); if(e) e.value=q.exp||'';
+        if (isT3) {
+          existingHsvQKey[i+1] = q.audioKey || null;
+          if (q.audioKey && USE_SUPABASE) {
+            const nm=document.getElementById('hsv-q'+(i+1)+'-name'), pl=document.getElementById('hsv-q'+(i+1)+'-player'), pv=document.getElementById('hsv-q'+(i+1)+'-preview');
+            if(nm) nm.textContent='🎵 Mevcut ses';
+            if(pl) pl.src=sbGetAudioUrl(q.audioKey);
+            if(pv) pv.style.display='block';
+          }
+        }
       });
     }
     document.getElementById('modul-form-title').textContent = `Set ${n} Düzenle`;
@@ -1649,6 +1713,52 @@ async function confirmNuke() {
   await clearAllAudio();
   renderQuestionList();
   showNotif('Silindi','Tüm Hörverstehen verisi temizlendi.');
+}
+
+/* ── STANDART HÖREN SESLERİ ── */
+const STD_AUDIO_LIST = [
+  {key:'std_t1_intro', label:'Teil 1 – Giriş anonsu'},
+  {key:'std_t2_intro', label:'Teil 2 – Giriş anonsu'},
+  {key:'std_t2_wdh',   label:'Teil 2 – "Şimdi tekrar dinleyeceksiniz" geçişi'},
+  {key:'std_t3_intro', label:'Teil 3 – Giriş anonsu'},
+  {key:'std_t3_q1',    label:'Teil 3 – Soru 1 başlangıç anonsu'},
+  {key:'std_t3_q2',    label:'Teil 3 – Soru 2 başlangıç anonsu'},
+  {key:'std_t3_q3',    label:'Teil 3 – Soru 3 başlangıç anonsu'},
+  {key:'std_t3_q4',    label:'Teil 3 – Soru 4 başlangıç anonsu'},
+  {key:'std_t3_q5',    label:'Teil 3 – Soru 5 başlangıç anonsu'},
+  {key:'std_t3_trans', label:'Teil 3 – Tekrar geçiş anonsu (her soruda çalar)'},
+];
+async function renderStdAudioGrid() {
+  const grid = document.getElementById('std-audio-grid'); if (!grid) return;
+  let existing = new Set();
+  if (USE_SUPABASE) {
+    try { const { data } = await sb.storage.from('audio').list('', { limit:1000 }); (data||[]).forEach(f=>existing.add(f.name)); } catch(e){}
+  }
+  grid.innerHTML = STD_AUDIO_LIST.map(a => {
+    const has = existing.has(a.key + '.mp3');
+    const url = has ? sbGetAudioUrl(a.key) : '';
+    return `<div style="background:var(--surface2);border-radius:8px;padding:.7rem;">
+      <div style="font-size:.76rem;font-weight:700;margin-bottom:.4rem;">${a.label}</div>
+      <input type="file" accept="audio/*" onchange="handleStdAudio(event,'${a.key}')" style="font-size:.75rem;width:100%;"/>
+      <audio controls src="${url}" id="std-pl-${a.key}" style="width:100%;height:30px;margin-top:.4rem;${has?'':'display:none;'}"></audio>
+      <div id="std-st-${a.key}" style="font-size:.7rem;color:${has?'var(--green)':'var(--muted)'};margin-top:.3rem;">${has?'✓ Yüklü':'— henüz yok'}</div>
+    </div>`;
+  }).join('');
+}
+async function handleStdAudio(e, key) {
+  const f = e.target.files[0]; if (!f) return;
+  const st = document.getElementById('std-st-'+key); if (st) st.textContent = '⏳ Yükleniyor…';
+  const r = new FileReader();
+  r.onload = async ev => {
+    try {
+      if (USE_SUPABASE) await sbUploadAudio(key, ev.target.result);
+      const pl = document.getElementById('std-pl-'+key);
+      if (pl) { pl.src = URL.createObjectURL(new Blob([ev.target.result],{type:'audio/mpeg'})); pl.style.display='block'; }
+      if (st) { st.textContent='✓ Yüklendi'; st.style.color='var(--green)'; }
+      showNotif('Kaydedildi ✓','Standart ses yüklendi.');
+    } catch(err) { if (st) st.textContent='⚠ Hata'; showNotif('Hata','Yüklenemedi: '+err.message, true); }
+  };
+  r.readAsArrayBuffer(f);
 }
 
 /* ─────────────────────────────────────────────

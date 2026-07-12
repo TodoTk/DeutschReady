@@ -32,7 +32,8 @@
       "Bash(perl -0pi -e \"s/toLocaleDateString\\\\\\('tr-TR'/toLocaleDateString\\(DATELOC\\(\\)/g; s/toLocaleTimeString\\\\\\('tr-TR'/toLocaleTimeString\\(DATELOC\\(\\)/g\" dashboard.html)",
       "Bash(curl -s 'https://ezabrktojywcfpasaelx.supabase.co/rest/v1/profiles?select=*&limit=2' -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
       "Bash(python3 -m json.tool)",
-      "Bash(perl -0pi -e 's/q\\\\.example && isStudy/q.example \\\\&\\\\& showHelpers/; s/q\\\\.criteria && isStudy/q.criteria \\\\&\\\\& showHelpers/; s/\\\\$\\\\{isStudy \\\\? `<button class=\"btn-primary\" onclick=\"showCriteria\\\\\\(\\\\\\)\">/\\\\$\\\\{showHelpers ? `<button class=\"btn-primary\" onclick=\"showCriteria\\(\\)\">/' exam_Telc_B1_sch.html)"
+      "Bash(perl -0pi -e 's/q\\\\.example && isStudy/q.example \\\\&\\\\& showHelpers/; s/q\\\\.criteria && isStudy/q.criteria \\\\&\\\\& showHelpers/; s/\\\\$\\\\{isStudy \\\\? `<button class=\"btn-primary\" onclick=\"showCriteria\\\\\\(\\\\\\)\">/\\\\$\\\\{showHelpers ? `<button class=\"btn-primary\" onclick=\"showCriteria\\(\\)\">/' exam_Telc_B1_sch.html)",
+      "Bash(node -e \"const fs=require\\('fs'\\);const h=fs.readFileSync\\('admin.html','utf8'\\);const m=h.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/g\\);console.log\\('script bloklari:',m.length\\)\")"
     ]
   }
 }
