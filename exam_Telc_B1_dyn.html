@@ -488,11 +488,16 @@ function renderSPBT2(content, startQ) {
 /* ─────────────────────────────────────────────────
    RENDER: HSV — audio + Richtig/Falsch sorular
 ──────────────────────────────────────────────────*/
-// ── Standart Hören ses anahtarları (tüm setlerde ortak) ──
+// ── Standart Hören ses anahtarları (seviyeye göre: b1 / a1) ──
+const HSV_LEVEL = (MODULE.split('_')[0] || 'B1').toLowerCase();   // 'b1' | 'a1'
+const _sk = (sfx) => `std_${HSV_LEVEL}_${sfx}`;                    // ör: std_b1_t1_intro
 const STD_AUD = {
-  t1_intro:'std_t1_intro', t2_intro:'std_t2_intro', t2_wdh:'std_t2_wdh',
-  t3_intro:'std_t3_intro', t3_trans:'std_t3_trans', t3_q:(i)=>'std_t3_q'+i
+  t1_intro:_sk('t1_intro'), t2_intro:_sk('t2_intro'), t2_wdh:_sk('t2_wdh'),
+  t3_intro:_sk('t3_intro'), t3_trans:_sk('t3_trans'), t3_q:(i)=>_sk('t3_q'+i)
 };
+// Full modeltest mi? (mode=full → Teil'ler otomatik ilerler, durdurma yok)
+const HSV_FULL = (typeof MODE!=='undefined' && MODE==='full');
+const HSV_TEILS = [];   // render sırasına göre Teil listesi (otomatik geçiş için)
 function _audUrl(key){ return (key && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(key) : null; }
 
 // Bir Teil için çalma listesi (sıralı sesler + bekleme süreleri) üretir
@@ -522,42 +527,81 @@ function buildHSVSeq(content, teilNo){
 }
 
 const HSV_SEQ = {};
+const HSV_STATE = {};
 function startHSV(teil){
   const seq=HSV_SEQ[teil]; if(!seq||!seq.length) return;
   const btn=document.getElementById('hsv-start-'+teil);
+  const stopBtn=document.getElementById('hsv-stop-'+teil);
   const audio=document.getElementById('hsvpl-'+teil);
   const status=document.getElementById('hsv-status-'+teil);
   if(btn) btn.style.display='none';
-  let i=0;
+  if(stopBtn && !HSV_FULL) stopBtn.style.display='inline-block';
+  const st = HSV_STATE[teil] = { audio, timer:null, stopped:false, i:0 };
   function step(){
-    if(i>=seq.length){ if(status) status.textContent='✅ Hörverstehen beendet.'; return; }
-    const s=seq[i++];
+    if(st.stopped) return;
+    if(st.i>=seq.length){
+      if(status) status.textContent='✅ Hörverstehen beendet.';
+      if(stopBtn) stopBtn.style.display='none';
+      // Full modeltest: sonraki Teil otomatik başlar
+      if(HSV_FULL){ const idx=HSV_TEILS.indexOf(teil); const next=HSV_TEILS[idx+1]; if(next!=null) startHSV(next); }
+      return;
+    }
+    const s=seq[st.i++];
     if(s.audio){
       if(status) status.textContent='🔊 '+(s.label||'Wiedergabe…');
       audio.src=s.audio;
       audio.onended=step;
-      audio.play().catch(()=>{ setTimeout(step,500); });
+      audio.play().catch(()=>{ st.timer=setTimeout(step,500); });
     } else {
       let left=s.wait;
       if(status) status.textContent='⏸ Pause – '+left+' s';
-      const t=setInterval(()=>{ left--; if(left<=0){clearInterval(t); step();} else if(status) status.textContent='⏸ Pause – '+left+' s'; },1000);
+      st.timer=setInterval(()=>{
+        if(st.stopped){ clearInterval(st.timer); return; }
+        left--;
+        if(left<=0){ clearInterval(st.timer); step(); }
+        else if(status) status.textContent='⏸ Pause – '+left+' s';
+      },1000);
     }
   }
   step();
+}
+// Sadece partial modda kullanılır (full modeltest'te stop butonu yok)
+function stopHSV(teil){
+  const st=HSV_STATE[teil]; if(!st) return;
+  st.stopped=true;
+  if(st.timer){ clearInterval(st.timer); clearTimeout(st.timer); }
+  if(st.audio){ try{ st.audio.pause(); }catch(e){} }
+  const status=document.getElementById('hsv-status-'+teil); if(status) status.textContent='⏹ Gestoppt.';
+  const btn=document.getElementById('hsv-start-'+teil); if(btn){ btn.style.display='inline-block'; btn.textContent='▶ Neu starten'; }
+  const stopBtn=document.getElementById('hsv-stop-'+teil); if(stopBtn) stopBtn.style.display='none';
 }
 
 function renderHSV(content, startQ, teilNo) {
   const {questions} = content;
   HSV_SEQ[teilNo] = buildHSVSeq(content, teilNo);
+  const isFirst = HSV_TEILS.length === 0;
+  HSV_TEILS.push(teilNo);
   const hasAudio = HSV_SEQ[teilNo].some(s=>s.audio);
+  // Full modeltest: sadece ilk Teil'de başlat butonu (diğerleri otomatik gelir), stop yok
+  // Partial: her Teil'de başlat + stop butonu
+  const startBtnHTML = (!HSV_FULL || isFirst)
+    ? `<button id="hsv-start-${teilNo}" onclick="startHSV(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">▶ Hören starten</button>`
+    : '';
+  const stopBtnHTML = !HSV_FULL
+    ? `<button id="hsv-stop-${teilNo}" onclick="stopHSV(${teilNo})" style="display:none;background:none;border:1px solid var(--border);color:var(--muted);padding:.5rem 1.1rem;border-radius:9px;font-weight:600;font-size:.84rem;cursor:pointer;">⏹ Stopp</button>`
+    : '';
+  const noteHTML = HSV_FULL
+    ? 'Der Hörtext läuft automatisch mit Pausen. Nach jedem Teil geht es automatisch weiter.'
+    : 'Der Hörtext läuft automatisch mit Pausen. Du kannst ihn stoppen und neu starten.';
   const audioHTML = hasAudio
     ? `<div class="audio-block" style="flex-direction:column;align-items:stretch;gap:.7rem;">
         <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
           <span class="audio-label">🎧 Teil ${teilNo}</span>
-          <button id="hsv-start-${teilNo}" onclick="startHSV(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">▶ Hören starten</button>
+          ${startBtnHTML}
+          ${stopBtnHTML}
           <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
         </div>
-        <div style="font-size:.72rem;color:var(--muted);">⚠ Der Hörtext läuft automatisch mit Pausen. Er kann nur einmal abgespielt werden.</div>
+        <div style="font-size:.72rem;color:var(--muted);">⚠ ${noteHTML}</div>
         <audio id="hsvpl-${teilNo}" style="display:none;"></audio>
       </div>`
     : '<div style="color:var(--yellow);font-size:.8rem;margin-bottom:.8rem;">⚠ Ses dosyası yok</div>';

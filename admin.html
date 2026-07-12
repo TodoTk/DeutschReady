@@ -452,7 +452,11 @@ input,select,textarea{font-family:inherit;}
 
     <div class="stat-card" style="text-align:left;padding:1.2rem;margin-top:1rem;">
       <div style="font-weight:700;margin-bottom:.3rem;">🎧 Standart Hören Sesleri (bir kez yüklenir, tüm setlerde kullanılır)</div>
-      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.9rem;">Giriş anonsları, geçişler ve "tekrar dinleyeceksiniz" konuşmaları. Bunlar set-özel değil — bir defa yüklersin, her deneme/modülde otomatik çalar.</p>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:.7rem;">Giriş anonsları, geçişler ve "tekrar dinleyeceksiniz" konuşmaları. Set-özel değil — bir defa yüklersin, o seviyenin her deneme/modülünde otomatik çalar. <strong>Her seviye (B1/A1) için ayrı seslerdir.</strong></p>
+      <div style="display:flex;gap:.4rem;margin-bottom:.9rem;" id="std-level-toggle">
+        <button class="btn-ghost btn-sm" data-lvl="b1" onclick="setStdAudioLevel('b1')">B1</button>
+        <button class="btn-ghost btn-sm" data-lvl="a1" onclick="setStdAudioLevel('a1')">A1</button>
+      </div>
       <div id="std-audio-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.8rem;"></div>
     </div>
   </div>
@@ -1715,33 +1719,44 @@ async function confirmNuke() {
   showNotif('Silindi','Tüm Hörverstehen verisi temizlendi.');
 }
 
-/* ── STANDART HÖREN SESLERİ ── */
-const STD_AUDIO_LIST = [
-  {key:'std_t1_intro', label:'Teil 1 – Giriş anonsu'},
-  {key:'std_t2_intro', label:'Teil 2 – Giriş anonsu'},
-  {key:'std_t2_wdh',   label:'Teil 2 – "Şimdi tekrar dinleyeceksiniz" geçişi'},
-  {key:'std_t3_intro', label:'Teil 3 – Giriş anonsu'},
-  {key:'std_t3_q1',    label:'Teil 3 – Soru 1 başlangıç anonsu'},
-  {key:'std_t3_q2',    label:'Teil 3 – Soru 2 başlangıç anonsu'},
-  {key:'std_t3_q3',    label:'Teil 3 – Soru 3 başlangıç anonsu'},
-  {key:'std_t3_q4',    label:'Teil 3 – Soru 4 başlangıç anonsu'},
-  {key:'std_t3_q5',    label:'Teil 3 – Soru 5 başlangıç anonsu'},
-  {key:'std_t3_trans', label:'Teil 3 – Tekrar geçiş anonsu (her soruda çalar)'},
+/* ── STANDART HÖREN SESLERİ (seviye kategorili: b1 / a1) ── */
+const STD_AUDIO_BASE = [
+  {sfx:'t1_intro', label:'Teil 1 – Giriş anonsu'},
+  {sfx:'t2_intro', label:'Teil 2 – Giriş anonsu'},
+  {sfx:'t2_wdh',   label:'Teil 2 – "Şimdi tekrar dinleyeceksiniz" geçişi'},
+  {sfx:'t3_intro', label:'Teil 3 – Giriş anonsu'},
+  {sfx:'t3_q1',    label:'Teil 3 – Soru 1 başlangıç anonsu'},
+  {sfx:'t3_q2',    label:'Teil 3 – Soru 2 başlangıç anonsu'},
+  {sfx:'t3_q3',    label:'Teil 3 – Soru 3 başlangıç anonsu'},
+  {sfx:'t3_q4',    label:'Teil 3 – Soru 4 başlangıç anonsu'},
+  {sfx:'t3_q5',    label:'Teil 3 – Soru 5 başlangıç anonsu'},
+  {sfx:'t3_trans', label:'Teil 3 – Tekrar geçiş anonsu (her soruda çalar)'},
 ];
+let stdAudioLevel = 'b1';
+function _stdKey(sfx){ return 'std_' + stdAudioLevel + '_' + sfx; }
+function setStdAudioLevel(lvl){ stdAudioLevel = lvl; renderStdAudioGrid(); }
 async function renderStdAudioGrid() {
   const grid = document.getElementById('std-audio-grid'); if (!grid) return;
+  // Seviye butonlarının aktif durumu
+  document.querySelectorAll('#std-level-toggle button').forEach(b=>{
+    const on = b.dataset.lvl===stdAudioLevel;
+    b.style.background = on ? 'var(--accent)' : '';
+    b.style.color = on ? '#fff' : '';
+    b.style.borderColor = on ? 'var(--accent)' : '';
+  });
   let existing = new Set();
   if (USE_SUPABASE) {
     try { const { data } = await sb.storage.from('audio').list('', { limit:1000 }); (data||[]).forEach(f=>existing.add(f.name)); } catch(e){}
   }
-  grid.innerHTML = STD_AUDIO_LIST.map(a => {
-    const has = existing.has(a.key + '.mp3');
-    const url = has ? sbGetAudioUrl(a.key) : '';
+  grid.innerHTML = STD_AUDIO_BASE.map(a => {
+    const key = _stdKey(a.sfx);
+    const has = existing.has(key + '.mp3');
+    const url = has ? sbGetAudioUrl(key) : '';
     return `<div style="background:var(--surface2);border-radius:8px;padding:.7rem;">
       <div style="font-size:.76rem;font-weight:700;margin-bottom:.4rem;">${a.label}</div>
-      <input type="file" accept="audio/*" onchange="handleStdAudio(event,'${a.key}')" style="font-size:.75rem;width:100%;"/>
-      <audio controls src="${url}" id="std-pl-${a.key}" style="width:100%;height:30px;margin-top:.4rem;${has?'':'display:none;'}"></audio>
-      <div id="std-st-${a.key}" style="font-size:.7rem;color:${has?'var(--green)':'var(--muted)'};margin-top:.3rem;">${has?'✓ Yüklü':'— henüz yok'}</div>
+      <input type="file" accept="audio/*" onchange="handleStdAudio(event,'${key}')" style="font-size:.75rem;width:100%;"/>
+      <audio controls src="${url}" id="std-pl-${key}" style="width:100%;height:30px;margin-top:.4rem;${has?'':'display:none;'}"></audio>
+      <div id="std-st-${key}" style="font-size:.7rem;color:${has?'var(--green)':'var(--muted)'};margin-top:.3rem;">${has?'✓ Yüklü':'— henüz yok'}</div>
     </div>`;
   }).join('');
 }
