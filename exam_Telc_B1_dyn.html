@@ -581,12 +581,22 @@ function encodeWAV(buffer){
 async function buildConcatBlob(seq){
   const AC=window.AudioContext||window.webkitAudioContext;
   const tmp=new AC();
-  const items=[]; let total=0;
+  const items=[]; let total=0, okCount=0;
   for(const s of seq){
-    if(s.audio){ const r=await fetch(s.audio); const a=await r.arrayBuffer(); const b=await tmp.decodeAudioData(a); items.push({buf:b}); total+=b.duration; }
-    else { const w=Math.min(2, s.wait); items.push({sil:w}); total+=w; }   // partial'da beklemeler kısaltılır (öğrenci kendi duraklatır)
+    if(s.audio){
+      try{
+        const r=await fetch(s.audio);
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const a=await r.arrayBuffer();
+        const b=await tmp.decodeAudioData(a);
+        items.push({buf:b}); total+=b.duration; okCount++;
+      }catch(err){ console.warn('HSV segment atlandı:', s.audio, err && err.message); }
+    } else {
+      const w=Math.min(2, s.wait); items.push({sil:w}); total+=w;   // partial'da beklemeler kısaltılır
+    }
   }
-  if(tmp.close) tmp.close();
+  if(tmp.close){ try{ tmp.close(); }catch(e){} }
+  if(okCount===0) throw new Error('no-audio');
   const sr=44100;
   const off=new OfflineAudioContext(1, Math.max(1,Math.ceil(total*sr)), sr);
   let t=0;
@@ -599,17 +609,19 @@ async function prepareHSVBar(teil){
   const status=document.getElementById('hsv-status-'+teil);
   const audio=document.getElementById('hsvpl-'+teil);
   if(btn){ btn.disabled=true; btn.textContent='⏳ wird geladen…'; }
+  if(status) status.textContent='';
   try{
     const blob=await buildConcatBlob(HSV_SEQ[teil]);
     audio.src=URL.createObjectURL(blob);
     audio.style.display='block';
     if(btn) btn.style.display='none';
-    if(status) status.textContent='';
-    audio.play().catch(()=>{});
+    audio.play().catch(()=>{ if(status) status.textContent='▶ Zum Abspielen auf Play tippen.'; });
   }catch(e){
     console.error('HSV bar hazırlanamadı:', e);
-    if(status) status.textContent='⚠ Audio konnte nicht geladen werden.';
-    if(btn){ btn.disabled=false; btn.textContent='🎧 Hören laden'; }
+    if(btn){ btn.disabled=false; btn.textContent='🎧 Hören laden'; btn.style.display='inline-block'; }
+    if(status) status.textContent = (e && e.message==='no-audio')
+      ? '⚠ Für diesen Teil wurden noch keine Audios hochgeladen.'
+      : '⚠ Audio konnte nicht geladen werden (Netzwerk/CORS).';
   }
 }
 
@@ -639,7 +651,7 @@ function renderHSV(content, startQ, teilNo) {
         <button id="hsv-load-${teilNo}" onclick="prepareHSVBar(${teilNo})" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;">🎧 Hören laden</button>
         <span id="hsv-status-${teilNo}" style="font-size:.82rem;color:var(--muted);"></span>
       </div>
-      <audio id="hsvpl-${teilNo}" controls controlsList="nodownload" style="display:none;width:100%;"></audio>`;
+      <audio id="hsvpl-${teilNo}" controls controlsList="nodownload" style="display:none;width:100%;height:44px;flex:0 0 auto;"></audio>`;
   }
   const audioHTML = hasAudio
     ? `<div class="audio-block" style="flex-direction:column;align-items:stretch;gap:.7rem;">${controlsHTML}</div>`

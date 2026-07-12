@@ -33,7 +33,10 @@
       "Bash(curl -s 'https://ezabrktojywcfpasaelx.supabase.co/rest/v1/profiles?select=*&limit=2' -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
       "Bash(python3 -m json.tool)",
       "Bash(perl -0pi -e 's/q\\\\.example && isStudy/q.example \\\\&\\\\& showHelpers/; s/q\\\\.criteria && isStudy/q.criteria \\\\&\\\\& showHelpers/; s/\\\\$\\\\{isStudy \\\\? `<button class=\"btn-primary\" onclick=\"showCriteria\\\\\\(\\\\\\)\">/\\\\$\\\\{showHelpers ? `<button class=\"btn-primary\" onclick=\"showCriteria\\(\\)\">/' exam_Telc_B1_sch.html)",
-      "Bash(node -e \"const fs=require\\('fs'\\);const h=fs.readFileSync\\('admin.html','utf8'\\);const m=h.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/g\\);console.log\\('script bloklari:',m.length\\)\")"
+      "Bash(node -e \"const fs=require\\('fs'\\);const h=fs.readFileSync\\('admin.html','utf8'\\);const m=h.match\\(/<script>\\([\\\\s\\\\S]*?\\)<\\\\/script>/g\\);console.log\\('script bloklari:',m.length\\)\")",
+      "Bash(curl -s -I \"https://ezabrktojywcfpasaelx.supabase.co/storage/v1/object/public/audio/std_b1_t2_intro.mp3\" -H \"Origin: https://prufready.netlify.app\")",
+      "Bash(curl -s -X POST https://ezabrktojywcfpasaelx.supabase.co/storage/v1/object/list/audio -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{\"prefix\":\"\",\"limit\":100}')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\([x['name'] for x in d]\\)\")"
     ]
   }
 }
