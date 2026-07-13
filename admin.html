@@ -89,6 +89,8 @@ input,select,textarea{font-family:inherit;}
 .rte-toolbar .rte-font{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:5px;height:28px;font-size:.78rem;cursor:pointer;padding:0 .3rem;max-width:130px;}
 .rte-editor{background:var(--surface2);border:1px solid var(--border);border-radius:0 0 8px 8px;padding:.6rem .85rem;color:var(--text);font-size:.88rem;min-height:80px;outline:none;line-height:1.7;overflow-wrap:anywhere;}
 .rte-editor:focus{border-color:var(--accent);}
+/* Yapıştırılan içerik koyu renk taşısa bile okunur kalsın */
+.rte-editor, .rte-editor *{color:var(--text) !important;background-color:transparent !important;}
 .rte-editor h3{font-size:1.15rem;margin:.3rem 0;color:var(--text);}
 .rte-editor:empty:before{content:attr(data-ph);color:var(--muted);}
 .form-actions{display:flex;gap:.6rem;margin-top:.5rem;}
@@ -1068,6 +1070,27 @@ function makeRich(el){
       el.value=ed.innerHTML; fontSel.selectedIndex=0;
     });
   }
+  // Yapıştırma: gelen HTML'den renk/arka plan stillerini temizle (koyu tema uyumu)
+  ed.addEventListener('paste', (ev)=>{
+    ev.preventDefault();
+    const html = (ev.clipboardData||window.clipboardData).getData('text/html');
+    const text = (ev.clipboardData||window.clipboardData).getData('text/plain');
+    let clean;
+    if (html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      tmp.querySelectorAll('*').forEach(n=>{
+        n.style && (n.style.color='', n.style.backgroundColor='', n.style.background='');
+        n.removeAttribute('color'); n.removeAttribute('bgcolor');
+        if (n.getAttribute && n.getAttribute('style')==='') n.removeAttribute('style');
+      });
+      clean = tmp.innerHTML;
+    } else {
+      clean = (text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+    }
+    document.execCommand('insertHTML', false, clean);
+    el.value=ed.innerHTML;
+  });
   ed.addEventListener('input',()=>{ el.value=ed.innerHTML; });
   // programatik .value degisimini editore yansit (duzenleme modu icin)
   const proto=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
