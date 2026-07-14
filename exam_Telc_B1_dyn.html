@@ -591,7 +591,7 @@ async function buildConcatBlob(seq){
         items.push({buf:b}); total+=b.duration; okCount++;
       }catch(err){ console.warn('HSV segment atlandı:', s.audio, err && err.message); }
     } else {
-      const w=Math.min(2, s.wait); items.push({sil:w}); total+=w;   // partial'da beklemeler kısaltılır
+      const w=s.wait; items.push({sil:w}); total+=w;   // gerçek bekleme süreleri (Excel'deki gibi)
     }
   }
   if(tmp.close){ try{ tmp.close(); }catch(e){} }
