@@ -783,7 +783,7 @@ function submitExam() {
         if(q.answer==='R'){ R.classList.add('correct'); if(sel==='F') F.classList.add('wrong'); }
         else { F.classList.add('correct'); if(sel==='R') R.classList.add('wrong'); }
         analysis.push({qn, ok, yourAns: sel==='R'?'Richtig':sel==='F'?'Falsch':'—',
-          correctText: q.answer==='R'?'Richtig':'Falsch', exp:q.exp||''});
+          correctText: q.answer==='R'?'Richtig':'Falsch', exp:q.exp||'', isHsv:true});
       });
     }
     // Bölüm bazlı skor
@@ -806,7 +806,7 @@ function submitExam() {
     const head = a.ok
       ? `<div style="color:var(--green);font-weight:700;font-size:.9rem;">✓ Frage ${a.qn}</div>`
       : `<div style="color:var(--red);font-weight:700;font-size:.9rem;">✗ Frage ${a.qn} — Deine Antwort: ${a.yourAns}</div>`;
-    const line = `<div style="font-size:.85rem;color:var(--muted);margin-top:.25rem;line-height:1.55;">Richtig ist ${a.correctText}${a.exp?' — '+a.exp:''}</div>`;
+    const line = `<div style="font-size:.85rem;color:var(--muted);margin-top:.25rem;line-height:1.55;">${a.isHsv?'Lösung':'Richtig ist'} ${a.isHsv?': ':''}${a.correctText}${a.exp?' — '+a.exp:''}</div>`;
     return `<div style="padding:.7rem 0;border-bottom:1px dashed var(--border);">${head}${line}</div>`;
   }).join('');
   document.getElementById('analysis-box').innerHTML =
