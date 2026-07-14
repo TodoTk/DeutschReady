@@ -876,7 +876,9 @@ function submitExam() {
   }
 
   // Başlık
-  const moduleLabel = MODULE==='B1_LSV'?'Leseverstehen':MODULE==='B1_SPB'?'Sprachbausteine':MODULE==='B1_HSV'?'Hörverstehen':MODULE.replace('B1_','').replace('_',' ');
+  const _base = MODULE.includes('LSV')?'Leseverstehen':MODULE.includes('SPB')?'Sprachbausteine':MODULE.includes('HSV')?'Hörverstehen':MODULE.replace('B1_','').replace('_',' ');
+  const _tm = MODULE.match(/_T(\d)/);
+  const moduleLabel = _tm ? `${_base} Teil ${_tm[1]}` : _base;
   document.getElementById('exam-badge').textContent = `${moduleLabel} · Set ${SET_NUM}`;
   document.getElementById('exam-title').textContent = moduleLabel;
   document.getElementById('exam-sub').textContent   = '';
