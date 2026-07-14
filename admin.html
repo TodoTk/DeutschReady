@@ -1757,22 +1757,26 @@ async function confirmNuke() {
 
 /* ── STANDART HÖREN SESLERİ (seviye kategorili: b1 / a1) ── */
 const STD_AUDIO_BASE = [
-  {sfx:'t1_intro', label:'Teil 1 – Giriş anonsu'},
-  {sfx:'t1_start', label:'Teil 1 – "Şimdi dinlemeye başlıyorsunuz" bilgilendirmesi'},
-  {sfx:'t1_q1',    label:'Teil 1 – Soru 1 anonsu'},
-  {sfx:'t1_q2',    label:'Teil 1 – Soru 2 anonsu'},
-  {sfx:'t1_q3',    label:'Teil 1 – Soru 3 anonsu'},
-  {sfx:'t1_q4',    label:'Teil 1 – Soru 4 anonsu'},
-  {sfx:'t1_q5',    label:'Teil 1 – Soru 5 anonsu'},
-  {sfx:'t2_intro', label:'Teil 2 – Giriş anonsu'},
-  {sfx:'t2_wdh',   label:'Teil 2 – "Şimdi tekrar dinleyeceksiniz" geçişi'},
-  {sfx:'t3_intro', label:'Teil 3 – Giriş anonsu'},
-  {sfx:'t3_q1',    label:'Teil 3 – Soru 1 anonsu'},
-  {sfx:'t3_q2',    label:'Teil 3 – Soru 2 anonsu'},
-  {sfx:'t3_q3',    label:'Teil 3 – Soru 3 anonsu'},
-  {sfx:'t3_q4',    label:'Teil 3 – Soru 4 anonsu'},
-  {sfx:'t3_q5',    label:'Teil 3 – Soru 5 anonsu'},
-  {sfx:'t3_trans', label:'Teil 3 – Tekrar geçiş anonsu (her soruda çalar)'},
+  // Teil 1
+  {sfx:'t1_1_1', label:'Teil 1 · Giriş anonsu (Kod 1.1)'},
+  {sfx:'t1_1_2', label:'Teil 1 · "Hören Sie nun die Interviews" (Kod 1.2)'},
+  {sfx:'t1_41',  label:'Teil 1 · "nummer einundvierzig" – 41 (Kod 1.51)'},
+  {sfx:'t1_42',  label:'Teil 1 · 42 (Kod 1.52)'},
+  {sfx:'t1_43',  label:'Teil 1 · 43 (Kod 1.53)'},
+  {sfx:'t1_44',  label:'Teil 1 · 44 (Kod 1.54)'},
+  {sfx:'t1_45',  label:'Teil 1 · 45 (Kod 1.55)'},
+  // Teil 2
+  {sfx:'t2_1',   label:'Teil 2 · Giriş anonsu (Kod 2.1)'},
+  {sfx:'t2_2',   label:'Teil 2 · "Hören Sie jetzt das Gespräch" (Kod 2.2)'},
+  {sfx:'t2_3',   label:'Teil 2 · "noch einmal" tekrar (Kod 2.3)'},
+  // Teil 3
+  {sfx:'t3_1',   label:'Teil 3 · Giriş anonsu (Kod 3.1)'},
+  {sfx:'t3_2',   label:'Teil 3 · "Hören Sie jetzt den Text" (Kod 3.2)'},
+  {sfx:'t3_3',   label:'Teil 3 · "noch einmal" tekrar (Kod 3.3)'},
+  {sfx:'t3_57',  label:'Teil 3 · "Aufgabe 57" oku (Kod 3.4)'},
+  {sfx:'t3_58',  label:'Teil 3 · "Aufgabe 58" oku (Kod 3.5)'},
+  {sfx:'t3_59',  label:'Teil 3 · "Aufgabe 59" oku (Kod 3.6)'},
+  {sfx:'t3_60',  label:'Teil 3 · "Aufgabe 60" oku (Kod 3.7)'},
 ];
 let stdAudioLevel = 'b1';
 function _stdKey(sfx){ return 'std_' + stdAudioLevel + '_' + sfx; }

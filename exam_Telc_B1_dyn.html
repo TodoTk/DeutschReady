@@ -491,43 +491,42 @@ function renderSPBT2(content, startQ) {
 // ── Standart Hören ses anahtarları (seviyeye göre: b1 / a1) ──
 const HSV_LEVEL = (MODULE.split('_')[0] || 'B1').toLowerCase();   // 'b1' | 'a1'
 const _sk = (sfx) => `std_${HSV_LEVEL}_${sfx}`;                    // ör: std_b1_t1_intro
-const STD_AUD = {
-  t1_intro:_sk('t1_intro'), t1_start:_sk('t1_start'), t1_q:(i)=>_sk('t1_q'+i),
-  t2_intro:_sk('t2_intro'), t2_wdh:_sk('t2_wdh'),
-  t3_intro:_sk('t3_intro'), t3_trans:_sk('t3_trans'), t3_q:(i)=>_sk('t3_q'+i)
-};
 // Full modeltest mi? (mode=full → Teil'ler otomatik ilerler, durdurma yok)
 const HSV_FULL = (typeof MODE!=='undefined' && MODE==='full');
 const HSV_TEILS = [];   // render sırasına göre Teil listesi (otomatik geçiş için)
 function _audUrl(key){ return (key && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(key) : null; }
 
-// Bir Teil için çalma listesi (sıralı sesler + bekleme süreleri) üretir
+// Bir Teil için çalma listesi — horen.xlsx kodlamasına birebir uygun.
+// A() = standart/kodlu ya da set-özel ses; W() = o kayıttan sonra beklenecek saniye.
 function buildHSVSeq(content, teilNo){
   const seq=[];
   const A=(key,label)=>{ const u=_audUrl(key); if(u) seq.push({audio:u,label}); };
   const W=(s)=>seq.push({wait:s});
   if(teilNo===1){
-    A(STD_AUD.t1_intro,'Einführung'); W(30);
-    A(STD_AUD.t1_start,'Jetzt beginnt der Hörtext.'); W(3);
-    A(content.interviewKey,'Interview'); W(3);
+    A(_sk('t1_1_1'),'Einführung'); W(30);                      // 1.1
+    A(_sk('t1_1_2'),'Hören Sie nun die Interviews.'); W(5);    // 1.2
+    A(content.interviewKey,'Interview'); W(5);                 // (manuel) Interview Giriş
+    const qWait=[10,10,10,10,15];                              // Soru 51..55 sonrası bekleme
     (content.questions||[]).forEach((q,idx)=>{
-      const i=idx+1;
-      A(STD_AUD.t1_q(i),'Aufgabe '+i); W(3);
-      A(q.audioKey,'Hörtext '+i); W(10);
+      const num=41+idx;                                        // 41..45
+      A(_sk('t1_'+num),'Nummer '+num); W(5);                   // 1.51..1.55
+      A(q.audioKey,'Hörtext '+(idx+1)); W(qWait[idx]!=null?qWait[idx]:10);
     });
   } else if(teilNo===2){
-    A(STD_AUD.t2_intro,'Einführung'); W(60);
-    A(content.audioKey,'Hörtext – Teil 2'); W(30);
-    A(STD_AUD.t2_wdh,'Sie hören den Text jetzt noch einmal.');
-    A(content.audioKey,'Hörtext – Teil 2 (Wiederholung)'); W(30);
+    A(_sk('t2_1'),'Einführung'); W(60);                        // 2.1
+    A(_sk('t2_2'),'Hören Sie jetzt das Gespräch.'); W(5);      // 2.2
+    A(content.audioKey,'Gespräch'); W(5);                      // (manuel) içerik
+    A(_sk('t2_3'),'Noch einmal.'); W(5);                       // 2.3
+    A(content.audioKey,'Gespräch (Wiederholung)'); W(10);      // içerik tekrar
   } else {
-    A(STD_AUD.t3_intro,'Einführung'); W(30);
+    A(_sk('t3_1'),'Einführung'); W(5);                         // 3.1
     (content.questions||[]).forEach((q,idx)=>{
-      const i=idx+1;
-      A(STD_AUD.t3_q(i),'Aufgabe '+i);
-      A(q.audioKey,'Hörtext '+i);
-      A(STD_AUD.t3_trans,'Sie hören den Text noch einmal.');
-      A(q.audioKey,'Hörtext '+i+' (Wiederholung)');
+      const num=56+idx;                                        // 56..60
+      if(idx>0){ A(_sk('t3_'+num),'Aufgabe '+num); W(5); }     // 3.4..3.7 (56 için yok — giriş kapsıyor)
+      A(_sk('t3_2'),'Hören Sie jetzt den Text.'); W(5);        // 3.2
+      A(q.audioKey,'Hörtext '+(idx+1)); W(5);                  // (manuel) içerik
+      A(_sk('t3_3'),'Noch einmal.'); W(5);                     // 3.3
+      A(q.audioKey,'Hörtext '+(idx+1)+' (Wiederholung)'); W(5);// içerik tekrar
     });
   }
   return seq;
