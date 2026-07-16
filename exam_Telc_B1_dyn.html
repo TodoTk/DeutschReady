@@ -674,10 +674,15 @@ function renderHSV(content, startQ, teilNo) {
     </div>`;
   }).join('');
 
+  const hsvInstr = {
+    1: 'Sie hören nun fünf kurze Texte. Dazu sollen Sie fünf Aufgaben lösen. Sie hören diese Texte nur einmal. Entscheiden Sie beim Hören, ob die Aussagen 41–45 richtig oder falsch sind. Markieren Sie Ihre Lösungen auf dem Antwortbogen bei den Aufgaben 41–45. Lesen Sie jetzt die Aufgaben 41–45. Sie haben dazu 30 Sekunden Zeit.',
+    2: 'Sie hören nun ein Gespräch. Dazu sollen Sie zehn Aufgaben lösen. Sie hören das Gespräch zweimal. Entscheiden Sie beim Hören, ob die Aussagen 46–55 richtig oder falsch sind. Markieren Sie Ihre Lösungen auf dem Antwortbogen bei den Aufgaben 46–55. Lesen Sie jetzt die Aufgaben 46–55. Sie haben dazu eine Minute Zeit.',
+    3: 'Sie hören nun fünf kurze Texte. Dazu sollen Sie fünf Aufgaben lösen. Sie hören jeden Text zweimal. Entscheiden Sie beim Hören, ob die Aussagen 56–60 richtig oder falsch sind. Markieren Sie Ihre Lösungen für die Aufgaben 56–60 auf dem Antwortbogen.'
+  };
   return `<div class="section-card">
     <div class="section-tag">Hörverstehen · Teil ${teilNo} · ${TX.fragen()} ${startQ}–${startQ+questions.length-1}</div>
     <h2>Hörverstehen – Teil ${teilNo}</h2>
-    <p class="instr">Hören Sie den Text und entscheiden Sie: Richtig oder Falsch?</p>
+    <p class="instr">${hsvInstr[teilNo]||''}</p>
     ${audioHTML}
     <div>${rows}</div>
   </div>`;

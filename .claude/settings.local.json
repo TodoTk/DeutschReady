@@ -37,7 +37,8 @@
       "Bash(curl -s -I \"https://ezabrktojywcfpasaelx.supabase.co/storage/v1/object/public/audio/std_b1_t2_intro.mp3\" -H \"Origin: https://prufready.netlify.app\")",
       "Bash(curl -s -X POST https://ezabrktojywcfpasaelx.supabase.co/storage/v1/object/list/audio -H 'apikey: __TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__' -H 'Content-Type: application/json' -d '{\"prefix\":\"\",\"limit\":100}')",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\([x['name'] for x in d]\\)\")",
-      "Bash(grep -n \"correctText\\\\|Deine Antwort\\\\|analysis-box\\\\|a.exp\\\\|Frage \\\\${\" exam_Telc_B1_dyn.html)"
+      "Bash(grep -n \"correctText\\\\|Deine Antwort\\\\|analysis-box\\\\|a.exp\\\\|Frage \\\\${\" exam_Telc_B1_dyn.html)",
+      "WebFetch(domain:deutsch-pruefung.de)"
     ]
   }
 }
