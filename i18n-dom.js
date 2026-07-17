@@ -70,6 +70,8 @@ const TRMAP = {
   "🔒 Ücretsiz hesap → 2 set hediye · Her davet → +1 set · Premium → tümü açık": {en:"🔒 Free account → 2 sets free · Each invite → +1 set · Premium → all unlocked", de:"🔒 Kostenloses Konto → 2 Sätze geschenkt · Jede Einladung → +1 Satz · Premium → alle offen"},
   // ── Ayarlar modalı ──
   "Hesap bilgilerini buradan yönet.": {en:"Manage your account details here.", de:"Verwalte hier deine Kontodaten."},
+  "Üyelik": {en:"Membership", de:"Mitgliedschaft"},
+  "Üyeliğini değiştirmek için premium gerekir": {en:"Premium required to change your membership", de:"Premium erforderlich, um die Mitgliedschaft zu ändern"},
   "👤 Hesap": {en:"👤 Account", de:"👤 Konto"},
   "✉️ E-posta": {en:"✉️ Email", de:"✉️ E-Mail"},
   "🔒 Şifre": {en:"🔒 Password", de:"🔒 Passwort"},

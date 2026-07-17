@@ -222,10 +222,10 @@ button{cursor:pointer;font-family:inherit;}
     <!-- HESAP -->
     <div class="set-panel" id="set-account">
       <div class="set-field"><label>Ad Soyad</label><input type="text" id="set-name"/></div>
-      <div class="set-field"><label>Seviye</label>
+      <div class="set-field"><label>Üyelik</label>
         <div style="display:flex;gap:.5rem;">
           <input type="text" id="set-level" disabled style="flex:1;opacity:.6;"/>
-          <span style="font-size:.72rem;color:var(--muted);align-self:center;">Seviye değişimi için tam üyelik gerekir</span>
+          <span style="font-size:.72rem;color:var(--muted);align-self:center;">Üyeliğini değiştirmek için premium gerekir</span>
         </div>
       </div>
       <button class="set-save" onclick="saveAccount()">Kaydet</button>
@@ -1489,7 +1489,7 @@ function openSettings() {
   if (!loggedUser) return;
   // Alanları doldur
   document.getElementById('set-name').value      = loggedUser.name || '';
-  document.getElementById('set-level').value     = loggedUser.level || '';
+  document.getElementById('set-level').value     = ({BOTH:'A1 + B1', A1:'A1', B1:'B1'})[loggedUser.level] || loggedUser.level || '';
   document.getElementById('set-cur-email').value = loggedUser.email || '';
   document.getElementById('set-new-email').value = '';
   document.getElementById('set-cur-pw').value    = '';
