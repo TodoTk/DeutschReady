@@ -821,7 +821,8 @@ function submitExam() {
   document.getElementById('submit-wrap').style.display='none';
   document.getElementById('results').style.display='block';
   document.getElementById('page-end-cta').style.display='block';
-  window.scrollTo({top:0,behavior:'smooth'});
+  // Sonuç kartına kaydır (kullanıcı direkt skoru + analizi görsün)
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ─────────────────────────────────────────────────
