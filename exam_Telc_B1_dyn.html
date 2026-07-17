@@ -158,6 +158,23 @@
     .wrap{padding:1.2rem;}
     .section-card{padding:1.2rem;}
   }
+  /* ── Mock Prüfung (Modeltest) ── */
+  .mock-timerbar{position:sticky;top:0;z-index:50;background:rgba(15,17,23,.97);border-bottom:1px solid var(--border);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1.2rem;flex-wrap:wrap;}
+  .mock-blockname{font-weight:800;font-size:.95rem;color:var(--text);}
+  .mock-blockname span{color:var(--muted);font-weight:600;font-size:.8rem;}
+  .mock-clock{font-variant-numeric:tabular-nums;font-weight:900;font-size:1.25rem;color:var(--accent);letter-spacing:.02em;}
+  .mock-clock.warn{color:#fbbf24;}
+  .mock-clock.danger{color:var(--red);animation:mockpulse 1s infinite;}
+  @keyframes mockpulse{50%{opacity:.5;}}
+  .mock-next{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.5rem 1.2rem;border-radius:9px;font-weight:700;font-size:.85rem;cursor:pointer;}
+  .mock-intro{max-width:640px;margin:2rem auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;}
+  .mock-intro h2{font-size:1.4rem;font-weight:900;margin-bottom:.4rem;}
+  .mock-intro .blockrow{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem;}
+  .mock-intro .blockrow b{color:var(--accent);}
+  .mock-start{width:100%;margin-top:1.4rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;padding:.9rem;border-radius:11px;font-weight:800;font-size:1rem;cursor:pointer;}
+  .mock-block{display:none;}
+  .mock-block.active{display:block;}
+  .mock-answerbox{width:100%;min-height:320px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;color:var(--text);font-size:.95rem;font-family:inherit;line-height:1.7;outline:none;resize:vertical;}
 </style>
 </head>
 <body>
@@ -174,6 +191,26 @@
   <div id="gate-title" style="font-size:1.1rem;font-weight:800;margin-bottom:.5rem;"></div>
   <div id="gate-text" style="font-size:.88rem;color:var(--muted);margin-bottom:1.5rem;"></div>
   <a href="dashboard.html" id="gate-back" style="display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:.8rem 1.8rem;border-radius:10px;font-weight:700;">Profile Dön</a>
+</div>
+
+<!-- Mock Prüfung zamanlayıcı çubuğu (yalnızca modeltest'te) -->
+<div id="mock-timerbar" class="mock-timerbar" style="display:none;">
+  <div class="mock-blockname"><span id="mock-block-idx"></span> <span id="mock-block-title"></span></div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="mock-clock" id="mock-clock">--:--</div>
+    <button class="mock-next" id="mock-next-btn" onclick="mockAdvance(true)">Nächster Teil →</button>
+  </div>
+</div>
+
+<!-- Mock intro ekranı -->
+<div id="mock-intro" class="mock-intro" style="display:none;">
+  <div class="badge" id="mock-intro-badge"></div>
+  <h2>telc Deutsch B1 – Modeltest</h2>
+  <p style="color:var(--muted);font-size:.9rem;margin:.5rem 0 1.2rem;">Vollständige Prüfung unter echten Bedingungen. Jeder Prüfungsteil hat ein eigenes Zeitlimit. Nach Ablauf der Zeit geht es automatisch weiter – zurück geht es nicht.</p>
+  <div class="blockrow"><span>📖 Leseverstehen + Sprachbausteine</span><b>90 Min.</b></div>
+  <div class="blockrow"><span>🎧 Hörverstehen</span><b>ca. 30 Min.</b></div>
+  <div class="blockrow"><span>✍️ Schreiben</span><b>30 Min.</b></div>
+  <button class="mock-start" onclick="mockStart()">▶ Prüfung starten</button>
 </div>
 
 <div id="exam-wrap" style="display:none;">
@@ -490,8 +527,8 @@ function renderSPBT2(content, startQ) {
 // ── Standart Hören ses anahtarları (seviyeye göre: b1 / a1) ──
 const HSV_LEVEL = (MODULE.split('_')[0] || 'B1').toLowerCase();   // 'b1' | 'a1'
 const _sk = (sfx) => `std_${HSV_LEVEL}_${sfx}`;                    // ör: std_b1_t1_intro
-// Full modeltest mi? (mode=full → Teil'ler otomatik ilerler, durdurma yok)
-const HSV_FULL = (typeof MODE!=='undefined' && MODE==='full');
+// Full modeltest mi? (mode=full veya B1_MOCK → Teil'ler otomatik ilerler, durdurma/seek yok)
+const HSV_FULL = (typeof MODE!=='undefined' && MODE==='full') || MODULE==='B1_MOCK';
 const HSV_TEILS = [];   // render sırasına göre Teil listesi (otomatik geçiş için)
 function _audUrl(key){ return (key && typeof sbGetAudioUrl==='function') ? sbGetAudioUrl(key) : null; }
 
@@ -825,6 +862,126 @@ function submitExam() {
 }
 
 /* ─────────────────────────────────────────────────
+   MOCK PRÜFUNG (Modeltest) — bloklu, zamanlı
+──────────────────────────────────────────────────*/
+const MOCK = {
+  blocks: [
+    { title:'Leseverstehen & Sprachbausteine', min:90, parts:[
+      {key:'B1_LSV_T1',type:'lsv-t1'},{key:'B1_LSV_T2',type:'lsv-t2'},{key:'B1_LSV_T3',type:'lsv-t3'},
+      {key:'B1_SPB_T1',type:'spb-t1'},{key:'B1_SPB_T2',type:'spb-t2'} ] },
+    { title:'Hörverstehen', min:30, parts:[
+      {key:'B1_HSV_T1',type:'hsv',teil:1},{key:'B1_HSV_T2',type:'hsv',teil:2},{key:'B1_HSV_T3',type:'hsv',teil:3} ] },
+    { title:'Schreiben', min:30, parts:[ {type:'schreiben'} ] },
+  ],
+  cur:-1, timer:null, secLeft:0, schreibenQ:null,
+};
+
+async function runMock(all){
+  const need=['B1_LSV_T1','B1_LSV_T2','B1_LSV_T3','B1_SPB_T1','B1_SPB_T2','B1_HSV_T1','B1_HSV_T2','B1_HSV_T3'];
+  for(const k of need){
+    if(!all[k]?.[SET_NUM]?.hasContent){
+      document.getElementById('gate-title').textContent='Modeltest nicht verfügbar';
+      document.getElementById('gate-text').textContent=`${k} – Set ${SET_NUM} fehlt. Bitte alle Teile im Admin eintragen.`;
+      document.getElementById('gate-wrap').style.display='block'; return;
+    }
+  }
+  MOCK.schreibenQ = await loadSchreibenForSet();
+  MOCK.blocks.forEach(b=> b.parts.forEach(p=>{ if(p.key) p.content = all[p.key][SET_NUM].content; }));
+  document.getElementById('mock-intro-badge').textContent = `Modeltest · Set ${SET_NUM}`;
+  document.getElementById('mock-intro').style.display='block';
+}
+
+async function loadSchreibenForSet(){
+  try{
+    let pool=[];
+    if(typeof sbLoadSchreiben==='function'){ const rows=await sbLoadSchreiben(); pool=rows.map(r=>({task:r.task,points:r.points||[],setNo:r.set_no})); }
+    const m=pool.filter(q=>String(q.setNo)===String(SET_NUM));
+    return m[0]||pool[0]||null;
+  }catch(e){ return null; }
+}
+function getSessionName(){ try{ return (JSON.parse(localStorage.getItem('examready_session_v1')||'{}').name)||''; }catch(e){ return ''; } }
+
+function mockStart(){
+  document.getElementById('mock-intro').style.display='none';
+  document.getElementById('exam-wrap').style.display='block';
+  document.getElementById('submit-wrap').style.display='none';
+  document.getElementById('mock-timerbar').style.display='flex';
+  document.getElementById('exam-badge').textContent = `telc B1 Modeltest · Set ${SET_NUM}`;
+  document.getElementById('exam-title').textContent = 'Modeltest';
+  document.getElementById('exam-sub').textContent = '';
+
+  let html='';
+  MOCK.blocks.forEach((b,bi)=>{
+    let inner='';
+    b.parts.forEach(p=>{
+      if(p.type==='schreiben'){ inner+=renderMockSchreiben(); return; }
+      p.startQ = NUM[p.key].start;
+      renderedParts.push(p);
+      if(p.type==='lsv-t1') inner+=renderLSVT1(p.content,p.startQ);
+      else if(p.type==='lsv-t2') inner+=renderLSVT2(p.content,p.startQ);
+      else if(p.type==='lsv-t3') inner+=renderLSVT3(p.content,p.startQ);
+      else if(p.type==='spb-t1') inner+=renderSPBT1(p.content,p.startQ);
+      else if(p.type==='spb-t2') inner+=renderSPBT2(p.content,p.startQ);
+      else if(p.type==='hsv') inner+=renderHSV(p.content,p.startQ,p.teil);
+    });
+    html += `<div class="mock-block" id="mock-block-${bi}">${inner}</div>`;
+  });
+  document.getElementById('question-area').innerHTML=html;
+  updateProg();
+  MOCK.cur=-1;
+  mockAdvance(false);
+}
+
+function renderMockSchreiben(){
+  const q=MOCK.schreibenQ; const name=getSessionName();
+  const pers=(t)=>(t||'').replace(/\[\s*(user\s*name|username|name|vorname|isim|ad soyad|ad)\s*\]/gi, name||'…');
+  const task=q?pers(q.task):'Keine Schreibaufgabe für dieses Set hinterlegt.';
+  const pts=q&&q.points&&q.points.length?`<ul style="margin:.6rem 0 0 1.1rem;font-size:.9rem;color:var(--muted);">${q.points.map(p=>`<li>${pers(p)}</li>`).join('')}</ul>`:'';
+  return `<div class="section-card">
+    <div class="section-tag">Schreiben</div>
+    <h2>Schreiben</h2>
+    <p class="instr">Antworten Sie auf die E-Mail. Schreiben Sie etwas zu allen vier Punkten.</p>
+    <div style="background:var(--surface2);border-radius:8px;padding:1rem;margin-bottom:1rem;white-space:pre-wrap;line-height:1.7;">${task}${pts}</div>
+    <textarea class="mock-answerbox" id="mock-schreiben-answer" placeholder="Hier schreiben Sie Ihren Text..."></textarea>
+  </div>`;
+}
+
+function mockAdvance(manual){
+  if(manual && MOCK.cur>=0){ if(!confirm('Zum nächsten Prüfungsteil? Zurück geht es nicht.')) return; }
+  if(MOCK.cur>=0){ mockLockBlock(MOCK.cur); const pe=document.getElementById('mock-block-'+MOCK.cur); if(pe) pe.classList.remove('active'); }
+  clearInterval(MOCK.timer);
+  MOCK.cur++;
+  if(MOCK.cur>=MOCK.blocks.length){ finishMock(); return; }
+  const b=MOCK.blocks[MOCK.cur];
+  document.getElementById('mock-block-'+MOCK.cur).classList.add('active');
+  document.getElementById('mock-block-idx').textContent=`Teil ${MOCK.cur+1}/${MOCK.blocks.length} ·`;
+  document.getElementById('mock-block-title').textContent=b.title;
+  document.getElementById('mock-next-btn').textContent=(MOCK.cur===MOCK.blocks.length-1)?'Prüfung beenden →':'Nächster Teil →';
+  window.scrollTo({top:0,behavior:'smooth'});
+  startMockTimer(b.min*60);
+}
+function mockLockBlock(bi){ const el=document.getElementById('mock-block-'+bi); if(el) el.querySelectorAll('select,button,textarea,input').forEach(x=>x.disabled=true); }
+function startMockTimer(sec){
+  MOCK.secLeft=sec; const clock=document.getElementById('mock-clock');
+  const upd=()=>{ const m=Math.floor(MOCK.secLeft/60),s=MOCK.secLeft%60; clock.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s; clock.className='mock-clock'+(MOCK.secLeft<=60?' danger':MOCK.secLeft<=300?' warn':''); };
+  upd();
+  MOCK.timer=setInterval(()=>{ MOCK.secLeft--; if(MOCK.secLeft<=0){ clearInterval(MOCK.timer); upd(); mockAdvance(false); return;} upd(); },1000);
+}
+function finishMock(){
+  clearInterval(MOCK.timer);
+  document.getElementById('mock-timerbar').style.display='none';
+  const schEl=document.getElementById('mock-schreiben-answer');
+  window._mockSchreibenText = schEl?schEl.value.trim():'';
+  MOCK.blocks.forEach((b,bi)=>{ const el=document.getElementById('mock-block-'+bi); if(el) el.classList.add('active'); });
+  submitExam();
+  const box=document.getElementById('analysis-box');
+  if(box){
+    const txt=(window._mockSchreibenText||'—').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+    box.insertAdjacentHTML('beforeend', `<div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);"><h3 style="font-size:1rem;font-weight:800;margin-bottom:.5rem;">✍️ Schreiben (wird separat bewertet)</h3><div style="background:var(--surface2);border-radius:8px;padding:1rem;white-space:pre-wrap;font-size:.9rem;line-height:1.7;color:var(--text);">${txt}</div></div>`);
+  }
+}
+
+/* ─────────────────────────────────────────────────
    INIT
 ──────────────────────────────────────────────────*/
 (async function init(){
@@ -832,6 +989,9 @@ function submitExam() {
   // const banner=document.getElementById('mode-banner');
 
   const all = await getAllSetsAsync();
+
+  // Full Modeltest (Mock Prüfung)
+  if (MODULE === 'B1_MOCK') { await runMock(all); return; }
 
   // Hangi bölümler yüklenecek?
   // B1_LSV → T1+T2+T3 birleşik

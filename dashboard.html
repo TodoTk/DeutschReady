@@ -769,6 +769,8 @@ function studentDash(u) {
   function hasSPBSet(n) { return !!(_adminAll['B1_SPB_T1']?.[n]?.hasContent && _adminAll['B1_SPB_T2']?.[n]?.hasContent); }
   // Hörverstehen set N hazır mı?
   function hasHSVSet(n) { return !!(_adminAll['B1_HSV_T1']?.[n]?.hasContent && _adminAll['B1_HSV_T2']?.[n]?.hasContent && _adminAll['B1_HSV_T3']?.[n]?.hasContent); }
+  // Tam deneme (Modeltest) set N hazır mı? → LSV + SPB + HSV hepsi tam
+  function hasMockSet(n) { return hasLSVSet(n) && hasSPBSet(n) && hasHSVSet(n); }
 
   // Schreiben havuzunda kaç soru var?
   function schreibenCount() {
@@ -839,6 +841,15 @@ function studentDash(u) {
   // Açıklama: sağ tık = çalışma modu
   const modeHint = ``;
 
+  const b1MockBlock = `
+    <div style="background:linear-gradient(135deg,rgba(79,142,247,.10),rgba(124,92,252,.10));border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
+      <div style="font-size:.7rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">🎓 Deneme Sınavları · telc B1 Modeltest</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        ${modRow('Tam Deneme', 'B1_MOCK', [], {checker: hasMockSet})}
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:.5rem;">Gerçek sınav koşulları: 90 dk (Lesen+Sprachbausteine) · 30 dk Hören · 30 dk Schreiben — geri sayımlı.</div>
+    </div>`;
+
   const b1ModulesBlock = `
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem .9rem;">
       <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">📝 Modül Alıştırmaları (B1)</div>
@@ -862,10 +873,10 @@ function studentDash(u) {
     </div>`;
 
   const examLinksHTML = isBoth
-    ? `${a1ModulesBlock}${b1ModulesBlock}`
+    ? `${b1MockBlock}${a1ModulesBlock}${b1ModulesBlock}`
     : u.level === 'A1'
       ? `${a1ModulesBlock}`
-      : `${b1ModulesBlock}`;
+      : `${b1MockBlock}${b1ModulesBlock}`;
 
   // Grafikleri DOM'a eklendikten sonra render et
   setTimeout(()=>{
